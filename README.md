@@ -13,13 +13,13 @@ Mezr is a lightweight stand-alone JavaScript library for measuring dimensions an
 
 * [.width()](#width)
 * [.height()](#height)
-* [.winWidth()](#winWidth)
-* [.winHeight()](#winHeight)
-* [.docWidth()](#docWidth)
-* [.docHeight()](#docHeight)
+* [.winWidth()](#winwidth)
+* [.winHeight()](#winheight)
+* [.docWidth()](#docwidth)
+* [.docHeight()](#docheight)
 * [.offset()](#offset)
 * [.position()](#position)
-* [.offsetParent()](#offsetParent)
+* [.offsetParent()](#offsetparent)
 * [.place()](#place)
 
 ###.width()
