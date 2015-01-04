@@ -22,6 +22,8 @@ Mezr is a lightweight stand-alone JavaScript library for measuring dimensions an
 * [.offsetParent()](#offsetparent)
 * [.place()](#place)
 
+---
+
 ###.width()
 
 Returns the width of an element in pixels (with scrollbar width always included). Accepts also the window object (for getting the viewport width) and the document object (for getting the width of the whole document) in place of element. By default viewport scrollbar width is excluded from window/document width, but setting the includeViewportScrollbar flag to true will return window/document width with the viewport scrollbar.
@@ -35,6 +37,8 @@ Returns the width of an element in pixels (with scrollbar width always included)
 * **includeViewportScrollbar** *boolean*
 
 **Returns** *number*
+
+---
 
 ###.height()
 
@@ -50,6 +54,8 @@ Returns the height of an element in pixels (with scrollbar height always include
 
 **Returns** *number*
 
+---
+
 ###.winWidth()
 
 Shorthand function for getting the width of the viewport, optionally with the viewport scrollbar size included.
@@ -59,6 +65,8 @@ Shorthand function for getting the width of the viewport, optionally with the vi
 * **includeScrollbar** *boolean*
 
 **Returns** *number*
+
+---
 
 ###.winHeight()
 
@@ -70,6 +78,8 @@ Shorthand function for getting the height of the viewport, optionally with the v
 
 **Returns** *number*
 
+---
+
 ###.docWidth()
 
 Shorthand function for getting the width of the document, optionally with the viewport scrollbar size included.
@@ -80,6 +90,8 @@ Shorthand function for getting the width of the document, optionally with the vi
 
 **Returns** *number*
 
+---
+
 ###.docHeight()
 
 Shorthand function for getting the height of the document, optionally with the viewport scrollbar size included.
@@ -89,6 +101,8 @@ Shorthand function for getting the height of the document, optionally with the v
 * **includeScrollbar** *boolean*
 
 **Returns** *number*
+
+---
 
 ###.offset()
 
@@ -102,6 +116,8 @@ Returns the element's left and top offset which in this case means the element's
 
 **Returns** *object*
 
+---
+
 ###.position()
 
 Returns the element's left and top position which in this case means the element's vertical and horizontal distance from it's offsetParent element.
@@ -114,6 +130,8 @@ Returns the element's left and top position which in this case means the element
 
 **Returns** *object*
 
+---
+
 ###.offsetParent()
 
 Returns provided element's true offset parent. Accepts window and document objects also. Document is the ground zero offset marker so it does not have an offset parent, ergo it returns null. Window's offset parent is the document.
@@ -123,6 +141,8 @@ Returns provided element's true offset parent. Accepts window and document objec
 * **el** *element / window / document*
 
 **Returns** *element / null*
+
+---
 
 ###.place()
 
@@ -134,6 +154,8 @@ Get position (left and top props) of an element when positioned relative to anot
 * **options** *object*
 
 **Returns** *object*
+
+---
 
 ##License
 
