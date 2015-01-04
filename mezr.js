@@ -1,7 +1,7 @@
 /*!
  * mezr.js v0.1.0-beta
  * A lightweight JavaScript library for measuring the position, dimensions and offsets of DOM elements.
- * http://github.com/niklasramo/mezr.js
+ * https://github.com/niklasramo/mezr
  * Copyright (c) 2015 Niklas Rämö
  * Released under the MIT license
  */
