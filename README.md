@@ -18,8 +18,6 @@ Mezr is a lightweight stand-alone JavaScript library for measuring dimensions an
 * [.offsetParent()](#offsetparent)
 * [.place()](#place)
 
-&nbsp;
-
 ###`.width()`
 
 Returns the width of an element in pixels. Accepts also the window object (for getting the viewport width) and the document object (for getting the width of the whole document) in place of element.
