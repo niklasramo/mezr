@@ -13,104 +13,140 @@ Mezr is a lightweight stand-alone JavaScript library for measuring dimensions an
 
 * [.width()](#width)
 * [.height()](#height)
-* [.winWidth()](#winwidth)
-* [.winHeight()](#winheight)
-* [.docWidth()](#docwidth)
-* [.docHeight()](#docheight)
 * [.offset()](#offset)
 * [.position()](#position)
 * [.offsetParent()](#offsetparent)
 * [.place()](#place)
 
-###.width()
+---
 
-Returns the width of an element in pixels (with scrollbar width always included). Accepts also the window object (for getting the viewport width) and the document object (for getting the width of the whole document) in place of element. By default viewport scrollbar width is excluded from window/document width, but setting the includeViewportScrollbar flag to true will return window/document width with the viewport scrollbar.
+###`.width()`
 
-```javascript
-// Format
-mezr.width( el [, includePadding ] [, includeBorder ] [, includeMargin ] [, includeViewportScrollbar] )
-```
+Returns the width of an element in pixels. Accepts also the window object (for getting the viewport width) and the document object (for getting the width of the whole document) in place of element.
 
-###.height()
+**Syntax**
 
-Returns the height of an element in pixels (with scrollbar height always included). Accepts also the window object (for getting the viewport height) and the document object (for getting the height of the whole document) in place of element. By default viewport scrollbar height is excluded from window/document height, but setting the includeViewportScrollbar flag to true will return window/document height with the viewport scrollbar.
+`mezr.width( el [, includeScrollbar] [, includePadding ] [, includeBorder ] [, includeMargin ] )`
 
-```javascript
-// Format
-mezr.height( el [, includePadding ] [, includeBorder ] [, includeMargin ] [, includeViewportScrollbar] )
-```
+**Parameters**
 
-###.winWidth()
+* **`el`** - *element / window / document*
+  * Accepts any DOM element, the document object or the window object.
+* **`[includeScrollbar]`** - *boolean*
+  * When set to true the element's vertical scrollbar width will be added to the return value (if visible). Root element is handled as an element that can not posess a scrollbar. The outermost scrollbar (viewport's scrollbar) is considered as a part of the window and the document.
+* **`[includePadding]`** - *boolean*
+  * When set to true the element's left and right padding will be added to the return value.
+* **`[includeBorder]`** - *boolean*
+  * When set to true the element's left and right border width will be added to the return value.
+* **`[includeMargin]`** - *boolean*
+  * When set to true the element's left and right margin will be added to the return value. Negative margin will be substracted from the return value.
 
-Shorthand function for getting the width of the viewport, optionally with the viewport scrollbar size included.
+**Returns** &raquo; *number*
 
-```javascript
-// Format
-mezr.winWidth( [ includeScrollbar ] )
-```
+---
 
-###.winHeight()
+###`.height()`
 
-Shorthand function for getting the height of the viewport, optionally with the viewport scrollbar size included.
+Returns the height of an element in pixels. Accepts also the window object (for getting the viewport height) and the document object (for getting the height of the whole document) in place of element.
 
-```javascript
-// Format
-mezr.winHeight( [ includeScrollbar ] )
-```
+**Syntax**
 
-###.docWidth()
+`mezr.height( el [, includeScrollbar] [, includePadding ] [, includeBorder ] [, includeMargin ] )`
 
-Shorthand function for getting the width of the document, optionally with the viewport scrollbar size included.
+**Parameters**
 
-```javascript
-// Format
-mezr.docWidth( [ includeScrollbar ] )
-```
+* **`el`** - *element / window / document*
+  * Accepts any DOM element, the document object or the window object.
+* **`[includeScrollbar]`** - *boolean*
+  * When set to true the element's horizontal scrollbar height will be added to the return value (if visible). Root element is handled as an element that can not posess a scrollbar. The outermost scrollbar (viewport's scrollbar) is considered as a part of the window and the document.
+* **`[includePadding]`** - *boolean*
+  * When set to true the element's top and bottom padding will be added to the return value.
+* **`[includeBorder]`** - *boolean*
+  * When set to true the element's top and bottom border width will be added to the return value.
+* **`[includeMargin]`** - *boolean*
+  * When set to true the element's top and bottom margin will be added to the return value. Negative margin will be substracted from the return value.
 
-###.docHeight()
+**Returns** &raquo; *number*
 
-Shorthand function for getting the height of the document, optionally with the viewport scrollbar size included.
+---
 
-```javascript
-// Format
-mezr.docHeight( [ includeScrollbar ] )
-```
+###`.offset()`
 
-###.offset()
+Returns the element's left and top offset which in this case means the element's vertical and horizontal distance from the northwest corner of the document.
 
-Returns the element's offset which in this case means the element's distance from the northwest corner of the document.
+**Syntax**
 
-```javascript
-// Format
-mezr.offset( el [, includePadding ] [, includeBorder ] )
-```
+`mezr.offset( el [, includePadding ] [, includeBorder ] )`
 
-###.position()
+* **`el`** - *element / window / document*
+  * Accepts any DOM element, the document object or the window object.
+* **`[includePadding]`** - *boolean*
+* **`[includeBorder]`** - *boolean*
 
-Returns the element's position which in this case means the element's distance from it's offsetParent element.
+**Returns** &raquo; *object*
 
-```javascript
-// Format
-mezr.position( el [, includeParentPadding ] [, includeParentBorder ] )
-```
+The returned object contains `left` and `top` properties that represent the left and top offset of the provided element in pixels.
 
-###.offsetParent()
+---
+
+###`.position()`
+
+Returns the element's left and top position which in this case means the element's vertical and horizontal distance from it's offsetParent element.
+
+**Syntax**
+
+`mezr.position( el [, includeParentPadding ] [, includeParentBorder ] )`
+
+* **`el`** - *element / window / document*
+  * Accepts any DOM element, the document object or the window object.
+* **`[includeParentPadding]`** - *boolean*
+* **`[includeParentBorder]`** - *boolean*
+
+**Returns** &raquo; *object*
+
+The returned object contains `left` and `top` properties that represent the left and top position of the provided element in pixels.
+
+---
+
+###`.offsetParent()`
 
 Returns provided element's true offset parent. Accepts window and document objects also. Document is the ground zero offset marker so it does not have an offset parent, ergo it returns null. Window's offset parent is the document.
 
-```javascript
-// Format
-mezr.offsetParent( el )
-```
+**Syntax**
 
-###.place()
+`mezr.offsetParent( el )`
+
+**Parameters**
+
+* **`el`** - *element / window / document*
+  * Accepts any DOM element, the document object or the window object.
+
+**Returns** &raquo; *element / null*
+
+The return value is null if document is provided as the element.
+
+---
+
+###`.place()`
 
 Get position (left and top props) of an element when positioned relative to another element.
 
-```javascript
-// Format
-mezr.place( el [, options ] )
-```
+**Syntax**
+
+`mezr.place( el [, options ] )`
+
+**Parameters**
+
+* **`el`** - *element*
+  * Accepts any DOM element.
+* **`[options]`** - *object*
+  * TODO: Documentation.
+
+**Returns** &raquo; *object*
+
+The returned object contains `left` and `top` properties that represent the left and top position of the provided element in pixels.
+
+---
 
 ##License
 

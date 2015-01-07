@@ -1,5 +1,5 @@
 /*!
- * mezr.js v0.1.0-beta
+ * mezr.js v0.2.0 - 2015/01/07
  * A lightweight JavaScript library for measuring the position, dimensions and offsets of DOM elements.
  * https://github.com/niklasramo/mezr
  * Copyright (c) 2015 Niklas Rämö
@@ -22,10 +22,6 @@
   win[lib] = {
     width: getWidth,
     height: getHeight,
-    winWidth: getWinWidth,
-    winHeight: getWinHeight,
-    docWidth: getDocWidth,
-    docHeight: getDocHeight,
     offset: getOffset,
     position: getPosition,
     offsetParent: getOffsetParent,
@@ -38,7 +34,7 @@
    *
    * @private
    * @param {object} obj
-   * @param {string} compareType 
+   * @param {string} compareType
    * @returns {string|boolean} Returns boolean if type is defined.
    */
   function typeOf(obj, compareType) {
@@ -187,23 +183,24 @@
   }
 
   /**
-   * Returns the height or width of an element in pixels (with scrollbar size always included).
-   * The function also accepts the window object (for obtaining the viewport dimensions) and
-   * the document object (for obtaining the dimensions of the whole document) in place of element.
-   * In those special cases the viewport scrollbar size is omitted by default from the return value
-   * since more often than not one will want to know the viewport/document dimensions without the
-   * viewport scrollbar.
+   * Returns the height or width of an element in pixels. The function also accepts the window object
+   * (for obtaining the viewport dimensions) and the document object (for obtaining the dimensions of
+   * the HTML document) in place of element. Root element is handled as an element that can not posess
+   * a scrollbar so the includeScrollbar flag will do nothing for root element. However, in the case of
+   * document and window includeScrollbar flag will add the size of viewport scrollbar to the
+   * dimensions.
+   * 
    *
    * @private
    * @param {string} dimension - Accepts "width" or "height".
    * @param {element} el - Accepts any DOM element, the document object and the window object.
+   * @param {boolean} [includeScrollbar]
    * @param {boolean} [includePadding]
    * @param {boolean} [includeBorder]
    * @param {boolean} [includeMargin]
-   * @param {boolean} [includeViewportScrollbar]
    * @returns {number}
    */
-  function getDimension(dimension, el, includePadding, includeBorder, includeMargin, includeViewportScrollbar) {
+  function getDimension(dimension, el, includeScrollbar, includePadding, includeBorder, includeMargin) {
 
     var
     ret,
@@ -218,12 +215,12 @@
 
     if (el.self === win.self) {
 
-      ret = includeViewportScrollbar ? win[innerDimension] : root[clientDimension];
+      ret = includeScrollbar ? win[innerDimension] : root[clientDimension];
 
     }
     else if (el === doc) {
 
-      if (includeViewportScrollbar) {
+      if (includeScrollbar) {
         sbSize = win[innerDimension] - root[clientDimension];
         ret = math.max(root[scrollDimension] + sbSize, doc.body[scrollDimension] + sbSize, win[innerDimension]);
       } else {
@@ -236,6 +233,10 @@
       ret = el.getBoundingClientRect()[dimension];
       edgeA = isHeight ? 'top' : 'left';
       edgeB = isHeight ? 'bottom' : 'right';
+
+      if (!includeScrollbar && el !== root) {
+        ret -= math.round(ret) - el[clientDimension];
+      }
 
       if (!includePadding) {
         ret -= toFloat(getStyle(el, 'padding-' + edgeA));
@@ -259,106 +260,42 @@
   }
 
   /**
-   * Returns the width of an element in pixels (with scrollbar width always included).
-   * Accepts also the window object (for getting the viewport width) and the document object
-   * (for getting the width of the whole document) in place of element. By default viewport
-   * scrollbar width is excluded from window/document width, but setting the includeViewportScrollbar
-   * flag to true will return window/document width with the viewport scrollbar.
+   * Returns the width of an element in pixels. Accepts also the window object (for getting the 
+   * viewport width) and the document object (for getting the width of the whole document) in place 
+   * of element.
    *
    * @public
    * @alias mezr.width
    * @param {element} el - Accepts any DOM element, the document object and the window object.
+   * @param {boolean} [includeScrollbar]
    * @param {boolean} [includePadding]
    * @param {boolean} [includeBorder]
    * @param {boolean} [includeMargin]
-   * @param {boolean} [includeViewportScrollbar]
    * @returns {number}
    */
-  function getWidth(el, includePadding, includeBorder, includeMargin, includeViewportScrollbar) {
+  function getWidth(el, includeScrollbar, includePadding, includeBorder, includeMargin) {
 
-    return getDimension('width', el, includePadding, includeBorder, includeMargin, includeViewportScrollbar);
+    return getDimension('width', el, includeScrollbar, includePadding, includeBorder, includeMargin);
 
   }
 
   /**
-   * Returns the width of an element in pixels (with scrollbar width always included).
-   * Accepts also the window object (for getting the viewport width) and the document object
-   * (for getting the width of the whole document) in place of element. By default viewport
-   * scrollbar width is excluded from window/document width, but setting the includeViewportScrollbar
-   * flag to true will return window/document width with the viewport scrollbar.
+   * Returns the height of an element in pixels. Accepts also the window object (for getting the 
+   * viewport height) and the document object (for getting the height of the whole document) in place 
+   * of element.
    *
    * @public
    * @alias mezr.height
    * @param {element} el - Accepts any DOM element, the document object and the window object.
+   * @param {boolean} [includeScrollbar]
    * @param {boolean} [includePadding]
    * @param {boolean} [includeBorder]
    * @param {boolean} [includeMargin]
-   * @param {boolean} [includeViewportScrollbar]
    * @returns {number}
    */
-  function getHeight(el, includePadding, includeBorder, includeMargin, includeViewportScrollbar) {
+  function getHeight(el, includeScrollbar, includePadding, includeBorder, includeMargin) {
 
-    return getDimension('height', el, includePadding, includeBorder, includeMargin, includeViewportScrollbar);
-
-  }
-
-  /**
-   * Shorthand function for getting the width of the viewport,
-   * optionally with the viewport scrollbar size included.
-   *
-   * @public
-   * @alias mezr.winWidth
-   * @param {boolean} [includeScrollbar]
-   * @returns {number}
-   */
-  function getWinWidth(includeScrollbar) {
-
-    return getDimension('width', win, 0, 0, 0, includeScrollbar);
-
-  }
-
-  /**
-   * Shorthand function for getting the height of the viewport,
-   * optionally with the viewport scrollbar size included.
-   *
-   * @public
-   * @alias mezr.winHeight
-   * @param {boolean} [includeScrollbar]
-   * @returns {number}
-   */
-  function getWinHeight(includeScrollbar) {
-
-    return getDimension('height', win, 0, 0, 0, includeScrollbar);
-
-  }
-
-  /**
-   * Shorthand function for getting the width of the document,
-   * optionally with the viewport scrollbar size included.
-   *
-   * @public
-   * @alias mezr.docWidth
-   * @param {boolean} [includeScrollbar]
-   * @returns {number}
-   */
-  function getDocWidth(includeScrollbar) {
-
-    return getDimension('width', doc, 0, 0, 0, includeScrollbar);
-
-  }
-
-  /**
-   * Shorthand function for getting the height of the document,
-   * optionally with the viewport scrollbar size included.
-   *
-   * @public
-   * @alias mezr.docHeight
-   * @param {boolean} [includeScrollbar]
-   * @returns {number}
-   */
-  function getDocHeight(includeScrollbar) {
-
-    return getDimension('height', doc, 0, 0, 0, includeScrollbar);
+    return getDimension('height', el, includeScrollbar, includePadding, includeBorder, includeMargin);
 
   }
 
@@ -610,7 +547,9 @@
    */
   getPlace._getElemData = function (el) {
 
-    var ret = el ? {element: el} : null;
+    var 
+    ret = el ? {element: el} : null,
+    includeScrollbar;
 
     if (typeOf(el, 'array')) {
       ret.width = 0;
@@ -620,8 +559,9 @@
       ret.offset.top += el[1];
     }
     else if (el !== null) {
-      ret.width = getWidth(el, 1, 1);
-      ret.height = getHeight(el, 1, 1);
+      includeScrollbar = el.self === win.self || el === doc ? 0 : 1;
+      ret.width = getWidth(el, includeScrollbar, 1, 1);
+      ret.height = getHeight(el, includeScrollbar, 1, 1);
       ret.offset = getOffset(el);
     }
 

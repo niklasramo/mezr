@@ -6,6 +6,7 @@ $(function () {
   var
   wrapper = document.getElementById('test-wrapper'),
   element = document.getElementById('test-element'),
+  elementInner = document.getElementById('test-element-inner'),
   target = document.getElementById('test-target'),
   container = document.getElementById('test-container');
 
@@ -100,6 +101,7 @@ $(function () {
 
     wrapper.removeAttribute('style');
     element.removeAttribute('style');
+    elementInner.removeAttribute('style');
     target.removeAttribute('style');
     container.removeAttribute('style');
     window.scrollTo(0, 0);
@@ -108,7 +110,66 @@ $(function () {
 
   QUnit.module('width/height');
 
-  QUnit.test('element - inner', function (assert) {
+  QUnit.test('element - without scrollbar', function (assert) {
+
+    assert.expect(5);
+
+    var
+    result = {},
+    expected = {};
+
+    element.style.position = 'relative';
+    element.style.overflow = 'scroll';
+
+    elementInner.style.position = 'absolute';
+    elementInner.style.left = '0px';
+    elementInner.style.right = '0px';
+    elementInner.style.top = '0px';
+    elementInner.style.bottom = '0px';
+
+    element.style.width = '100px';
+    element.style.height = '100px';
+    result.height = mezr.height(element);
+    result.width = mezr.width(element);
+    expected.height = elementInner.getBoundingClientRect().height;
+    expected.width = elementInner.getBoundingClientRect().width;
+    assert.deepEqual(result, expected, 'integer values');
+
+    element.style.width = '100.4px';
+    element.style.height = '100.4px';
+    result.height = mezr.height(element);
+    result.width = mezr.width(element);
+    expected.height = elementInner.getBoundingClientRect().height;
+    expected.width = elementInner.getBoundingClientRect().width;
+    assert.deepEqual(result, expected, 'fractional values');
+
+    element.style.width = '100.5px';
+    element.style.height = '100.5px';
+    result.height = mezr.height(element);
+    result.width = mezr.width(element);
+    expected.height = elementInner.getBoundingClientRect().height;
+    expected.width = elementInner.getBoundingClientRect().width;
+    assert.deepEqual(result, expected, 'fractional values');
+
+    element.style.width = '100.6px';
+    element.style.height = '100.6px';
+    result.height = mezr.height(element);
+    result.width = mezr.width(element);
+    expected.height = elementInner.getBoundingClientRect().height;
+    expected.width = elementInner.getBoundingClientRect().width;
+    assert.deepEqual(result, expected, 'fractional values');
+
+    element.style.width = '73.7%';
+    element.style.height = '73.7%';
+    result.height = mezr.height(element);
+    result.width = mezr.width(element);
+    expected.height = elementInner.getBoundingClientRect().height;
+    expected.width = elementInner.getBoundingClientRect().width;
+    assert.deepEqual(result, expected, 'percentage values');
+
+  });
+
+  QUnit.test('element - with scrollbar', function (assert) {
 
     assert.expect(2);
 
@@ -124,22 +185,22 @@ $(function () {
     element.style.overflow = 'scroll';
 
     element.style.boxSizing = 'content-box';
-    result.height = mezr.height(element);
-    result.width = mezr.width(element);
+    result.height = mezr.height(element, true);
+    result.width = mezr.width(element, true);
     expected.height = 100;
     expected.width = 100;
     assert.deepEqual(result, expected, 'content-box');
 
     element.style.boxSizing = 'border-box';
-    result.height = mezr.height(element);
-    result.width = mezr.width(element);
+    result.height = mezr.height(element, true);
+    result.width = mezr.width(element, true);
     expected.height = 60;
     expected.width = 60;
     assert.deepEqual(result, expected, 'border-box');
 
   });
 
-  QUnit.test('element - with padding', function (assert) {
+  QUnit.test('element - with padding and scrollbar', function (assert) {
 
     assert.expect(2);
 
@@ -155,22 +216,22 @@ $(function () {
     element.style.overflow = 'scroll';
 
     element.style.boxSizing = 'content-box';
-    result.height = mezr.height(element, true);
-    result.width = mezr.width(element, true);
+    result.height = mezr.height(element, true, true);
+    result.width = mezr.width(element, true, true);
     expected.height = 120;
     expected.width = 120;
     assert.deepEqual(result, expected, 'content-box');
 
     element.style.boxSizing = 'border-box';
-    result.height = mezr.height(element, true);
-    result.width = mezr.width(element, true);
+    result.height = mezr.height(element, true, true);
+    result.width = mezr.width(element, true, true);
     expected.height = 80;
     expected.width = 80;
     assert.deepEqual(result, expected, 'border-box');
 
   });
 
-  QUnit.test('element - with border', function (assert) {
+  QUnit.test('element - with border and scrollbar', function (assert) {
 
     assert.expect(2);
 
@@ -186,22 +247,22 @@ $(function () {
     element.style.overflow = 'scroll';
 
     element.style.boxSizing = 'content-box';
-    result.height = mezr.height(element, false, true);
-    result.width = mezr.width(element, false, true);
+    result.height = mezr.height(element, true, false, true);
+    result.width = mezr.width(element, true, false, true);
     expected.height = 120;
     expected.width = 120;
     assert.deepEqual(result, expected, 'content-box');
 
     element.style.boxSizing = 'border-box';
-    result.height = mezr.height(element, false, true);
-    result.width = mezr.width(element, false, true);
+    result.height = mezr.height(element, true, false, true);
+    result.width = mezr.width(element, true, false, true);
     expected.height = 80;
     expected.width = 80;
     assert.deepEqual(result, expected, 'border-box');
 
   });
 
-  QUnit.test('element - with margin', function (assert) {
+  QUnit.test('element - with margin and scrollbar', function (assert) {
 
     assert.expect(2);
 
@@ -217,15 +278,15 @@ $(function () {
     element.style.overflow = 'scroll';
 
     element.style.boxSizing = 'content-box';
-    result.height = mezr.height(element, false, false, true);
-    result.width = mezr.width(element, false, false, true);
+    result.height = mezr.height(element, true, false, false, true);
+    result.width = mezr.width(element, true, false, false, true);
     expected.height = 120;
     expected.width = 120;
     assert.deepEqual(result, expected, 'content-box');
 
     element.style.boxSizing = 'border-box';
-    result.height = mezr.height(element, false, false, true);
-    result.width = mezr.width(element, false, false, true);
+    result.height = mezr.height(element, true, false, false, true);
+    result.width = mezr.width(element, true, false, false, true);
     expected.height = 80;
     expected.width = 80;
     assert.deepEqual(result, expected, 'border-box');
@@ -251,22 +312,22 @@ $(function () {
     element.style.overflow = 'scroll';
 
     element.style.boxSizing = 'content-box';
-    result.height = mezr.height(element, true, true, true);
-    result.width = mezr.width(element, true, true, true);
+    result.height = mezr.height(element, true, true, true, true);
+    result.width = mezr.width(element, true, true, true, true);
     expected.height = 520;
     expected.width = 520;
     assert.deepEqual(result, expected, 'content-box');
 
     element.style.boxSizing = 'border-box';
-    result.height = mezr.height(element, true, true, true);
-    result.width = mezr.width(element, true, true, true);
+    result.height = mezr.height(element, true, true, true, true);
+    result.width = mezr.width(element, true, true, true, true);
     expected.height = 420;
     expected.width = 420;
     assert.deepEqual(result, expected, 'border-box');
 
     element.style.boxSizing = 'border-box';
-    result.height = mezr.height(element);
-    result.width = mezr.width(element);
+    result.height = mezr.height(element, true);
+    result.width = mezr.width(element, true);
     expected.height = 0;
     expected.width = 0;
     assert.deepEqual(result, expected, 'border-box');
@@ -307,8 +368,8 @@ $(function () {
     expected.width = 10000 + window.innerWidth - document.documentElement.clientWidth;
     expected.height = 10000 + window.innerHeight - document.documentElement.clientHeight;
 
-    result.width = mezr.width(document, false, false, false, true);
-    result.height = mezr.height(document, false, false, false, true);
+    result.width = mezr.width(document, true);
+    result.height = mezr.height(document, true);
     assert.deepEqual(result, expected, 'width/height - with viewport scrollbar');
 
     result.width = mezr.docWidth(true);
@@ -351,8 +412,8 @@ $(function () {
     expected.width = window.innerWidth;
     expected.height = window.innerHeight;
 
-    result.width = mezr.width(window, false, false, false, true);
-    result.height = mezr.height(window, false, false, false, true);
+    result.width = mezr.width(window, true);
+    result.height = mezr.height(window, true);
     assert.deepEqual(result, expected, 'width/height - with viewport scrollbar');
 
     result.width = mezr.winWidth(true);
