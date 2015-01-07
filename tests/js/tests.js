@@ -338,7 +338,7 @@ $(function () {
 
   QUnit.test('document', function (assert) {
 
-    assert.expect(4);
+    assert.expect(2);
 
     element.style.position = 'absolute';
     element.style.left = '0px';
@@ -361,10 +361,6 @@ $(function () {
     result.height = mezr.height(document);
     assert.deepEqual(result, expected, 'width/height - without viewport scrollbar');
 
-    result.width = mezr.docWidth();
-    result.height = mezr.docHeight();
-    assert.deepEqual(result, expected, 'docWidth/docHeight - without viewport scrollbar');
-
     expected.width = 10000 + window.innerWidth - document.documentElement.clientWidth;
     expected.height = 10000 + window.innerHeight - document.documentElement.clientHeight;
 
@@ -372,17 +368,13 @@ $(function () {
     result.height = mezr.height(document, true);
     assert.deepEqual(result, expected, 'width/height - with viewport scrollbar');
 
-    result.width = mezr.docWidth(true);
-    result.height = mezr.docHeight(true);
-    assert.deepEqual(result, expected, 'docWidth/docHeight - with viewport scrollbar');
-
   });
 
   QUnit.module('width/height - winWidth/winHeight');
 
   QUnit.test('window', function (assert) {
 
-    assert.expect(4);
+    assert.expect(2);
 
     element.style.position = 'absolute';
     element.style.left = '0px';
@@ -405,20 +397,12 @@ $(function () {
     result.height = mezr.height(window);
     assert.deepEqual(result, expected, 'width/height - without viewport scrollbar');
 
-    result.width = mezr.winWidth();
-    result.height = mezr.winHeight();
-    assert.deepEqual(result, expected, 'winWidth/winHeight - without viewport scrollbar');
-
     expected.width = window.innerWidth;
     expected.height = window.innerHeight;
 
     result.width = mezr.width(window, true);
     result.height = mezr.height(window, true);
     assert.deepEqual(result, expected, 'width/height - with viewport scrollbar');
-
-    result.width = mezr.winWidth(true);
-    result.height = mezr.winHeight(true);
-    assert.deepEqual(result, expected, 'winWidth/winHeight - with viewport scrollbar');
 
   });
 
