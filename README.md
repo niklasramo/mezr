@@ -78,6 +78,8 @@ Returns the element's left and top offset which in this case means the element's
 
 `mezr.offset( el [, includePadding ] [, includeBorder ] )`
 
+**Parameters**
+
 * **`el`** - *element / window / document*
   * Accepts any DOM element, the document object or the window object.
 * **`[includePadding]`** - *boolean*
@@ -96,6 +98,8 @@ Returns the element's left and top position which in this case means the element
 **Syntax**
 
 `mezr.position( el [, includeParentPadding ] [, includeParentBorder ] )`
+
+**Parameters**
 
 * **`el`** - *element / window / document*
   * Accepts any DOM element, the document object or the window object.
