@@ -18,8 +18,6 @@ Mezr is a lightweight stand-alone JavaScript library for measuring dimensions an
 * [.offsetParent()](#offsetparent)
 * [.place()](#place)
 
-&nbsp;
-
 ###`.width()`
 
 Returns the width of an element in pixels. Accepts also the window object (for getting the viewport width) and the document object (for getting the width of the whole document) in place of element.
@@ -76,14 +74,16 @@ Returns the element's left and top offset which in this case means the element's
 
 **Syntax**
 
-`mezr.offset( el [, includePadding ] [, includeBorder ] )`
+`mezr.offset( el [, includeBorder ] [, includePadding ] )`
 
 **Parameters**
 
 * **`el`** - *element / window / document*
   * Accepts any DOM element, the document object or the window object.
-* **`[includePadding]`** - *boolean*
 * **`[includeBorder]`** - *boolean*
+  * When set to true the element's left and top border width will be added to the return value.
+* **`[includePadding]`** - *boolean*
+  * When set to true the element's left and top padding will be added to the return value.
 
 **Returns** &raquo; *object*
 
@@ -93,18 +93,20 @@ The returned object contains `left` and `top` properties that represent the left
 
 ###`.position()`
 
-Returns the element's left and top position which in this case means the element's vertical and horizontal distance from it's offsetParent element.
+Returns the element's left and top position which in this case means the element's vertical and horizontal distance from it's offsetParent element. The function has two handy extra parameters which allow you to affect the point of origin of the position. For example, if the provided element is relative/static positioned and you want to measure it's distance from the element's zero point (when left and top props are set to 0) you need to set the includeParentPadding and includeParentBorder flags to true since offset parent's padding affect the zero point. However, absolute positioned elements completely ignore the offset parent's padding when position is calculated so you probably want to include only the offset parent's border in that case.
 
 **Syntax**
 
-`mezr.position( el [, includeParentPadding ] [, includeParentBorder ] )`
+`mezr.position( el [, includeParentBorder ] [, includeParentPadding ] )`
 
 **Parameters**
 
 * **`el`** - *element / window / document*
   * Accepts any DOM element, the document object or the window object.
-* **`[includeParentPadding]`** - *boolean*
 * **`[includeParentBorder]`** - *boolean*
+  * When set to true the offset parent element's left and top border width will be added to the return value.
+* **`[includeParentPadding]`** - *boolean*
+  * When set to true the offset parent element's left and top padding will be added to the return value.
 
 **Returns** &raquo; *object*
 
