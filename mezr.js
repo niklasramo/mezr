@@ -174,7 +174,7 @@
 
     } else {
 
-      offset = getOffset(getOffsetParent(el) || doc, 0, 1);
+      offset = getOffset(getOffsetParent(el) || doc, 1);
 
     }
 
@@ -306,11 +306,11 @@
    * @public
    * @alias mezr.offset
    * @param {element} el
-   * @param {boolean} [includePadding=false]
    * @param {boolean} [includeBorder=false]
+   * @param {boolean} [includePadding=false]
    * @returns {object} .left .top
    */
-  function getOffset(el, includePadding, includeBorder) {
+  function getOffset(el, includeBorder, includePadding) {
 
     var
     offsetLeft = 0,
@@ -339,20 +339,20 @@
       offsetLeft += gbcr.left + viewportScrollLeft;
       offsetTop += gbcr.top + viewportScrollTop;
 
-      /*
-       * Include padding to the offset.
-       */
-      if (includePadding) {
-        offsetLeft += toFloat(getStyle(el, 'padding-left'));
-        offsetTop += toFloat(getStyle(el, 'padding-top'));
-      }
-
       /**
        * Include border width to the offset.
        */
       if (includeBorder) {
         offsetLeft += toFloat(getStyle(el, 'border-left-width'));
         offsetTop += toFloat(getStyle(el, 'border-top-width'));
+      }
+
+      /*
+       * Include padding to the offset.
+       */
+      if (includePadding) {
+        offsetLeft += toFloat(getStyle(el, 'padding-left'));
+        offsetTop += toFloat(getStyle(el, 'padding-top'));
       }
 
     }
@@ -371,18 +371,18 @@
    * @public
    * @alias mezr.position
    * @param {element} el
-   * @param {boolean} [includeParentPadding=false]
    * @param {boolean} [includeParentBorder=false]
+   * @param {boolean} [includeParentPadding=false]
    * @returns {object} .left .top
    */
-  function getPosition(el, includeParentPadding, includeParentBorder) {
+  function getPosition(el, includeParentBorder, includeParentPadding) {
 
     var
     position = getOffset(el),
     parentOffset;
 
     if (el.self !== win.self && el !== doc && el !== root) {
-      parentOffset = getOffset(getOffsetParent(el) || doc, includeParentPadding, includeParentBorder);
+      parentOffset = getOffset(getOffsetParent(el) || doc, includeParentBorder, includeParentPadding);
       position.left -= parentOffset.left;
       position.top -= parentOffset.top;
     }
