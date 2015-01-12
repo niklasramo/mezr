@@ -9,14 +9,15 @@ Mezr is a lightweight stand-alone JavaScript library for measuring dimensions an
 * Readable and well documented code (JSDoc).
 * Comprehensive unit tests (Qunit).
 
-##API 0.1.0
+##API 0.3.0-alpha
 
 * [.width()](#width)
 * [.height()](#height)
 * [.offset()](#offset)
-* [.position()](#position)
 * [.offsetParent()](#offsetparent)
+* [.distance()](#distance)
 * [.place()](#place)
+* .overlap() (coming up in version 0.4)
 
 ###`.width()`
 
@@ -40,6 +41,8 @@ Returns the width of an element in pixels. Accepts also the window object (for g
   * When set to true the element's left and right margin will be added to the return value. Negative margin will be substracted from the return value.
 
 **Returns** &raquo; *number*
+
+The return value may be fractional when calculating the width of an element. In the case of window and document the value is always an integer.
 
 &nbsp;
 
@@ -66,11 +69,13 @@ Returns the height of an element in pixels. Accepts also the window object (for 
 
 **Returns** &raquo; *number*
 
+The return value may be fractional when calculating the height of an element. In the case of window and document the value is always an integer.
+
 &nbsp;
 
 ###`.offset()`
 
-Returns the element's left and top offset which in this case means the element's vertical and horizontal distance from the northwest corner of the document.
+Returns the element's offset, which in practice means the vertical and horizontal distance between the element's northwest corner and the document's northwest corner. By default the edge of the element's border is considered as the edge of the element, but you can make the function include the element's border width and padding in the return value as well.
 
 **Syntax**
 
@@ -87,36 +92,16 @@ Returns the element's left and top offset which in this case means the element's
 
 **Returns** &raquo; *object*
 
-The returned object contains `left` and `top` properties that represent the left and top offset of the provided element in pixels.
-
-&nbsp;
-
-###`.position()`
-
-Returns the element's left and top position which in this case means the element's vertical and horizontal distance from it's offsetParent element. The function has two handy extra parameters which allow you to affect the point of origin of the position. For example, if the provided element is relative/static positioned and you want to measure it's distance from the element's zero point (when left and top props are set to 0) you need to set the includeParentPadding and includeParentBorder flags to true since offset parent's padding affect the zero point. However, absolute positioned elements completely ignore the offset parent's padding when position is calculated so you probably want to include only the offset parent's border in that case.
-
-**Syntax**
-
-`mezr.position( el [, includeParentBorder ] [, includeParentPadding ] )`
-
-**Parameters**
-
-* **`el`** - *element / window / document*
-  * Accepts any DOM element, the document object or the window object.
-* **`[includeParentBorder]`** - *boolean*
-  * When set to true the offset parent element's left and top border width will be added to the return value.
-* **`[includeParentPadding]`** - *boolean*
-  * When set to true the offset parent element's left and top padding will be added to the return value.
-
-**Returns** &raquo; *object*
-
-The returned object contains `left` and `top` properties that represent the left and top position of the provided element in pixels.
+* **`left`** - *number*
+  * The element's left offset in pixels, value can be fractional.
+* **`top`** - *number*
+  * The element's top offset in pixels, value can be fractional.
 
 &nbsp;
 
 ###`.offsetParent()`
 
-Returns provided element's true offset parent. Accepts window and document objects also. Document is the ground zero offset marker so it does not have an offset parent, ergo it returns null. Window's offset parent is the document.
+Returns the element's offset parent. This function works in the same manner as the native elem.offsetParent method with a few tweaks and logic changes. The function accepts the window object and the document object in addition to DOM elements. Document object is considered as the base offset point against which the element/window offsets are compared to. This in turn means that the document object does not have an offset parent and returns null if provided as the element. Document is also considered as the window's offset parent. Window is considered as the offset parent of all fixed elements. Root and body elements are treated equally with all other DOM elements. For example body's offset parent is the root element if root element is positioned, but if the root element is static the body's offset parent is the document object.
 
 **Syntax**
 
@@ -129,13 +114,39 @@ Returns provided element's true offset parent. Accepts window and document objec
 
 **Returns** &raquo; *element / null*
 
-The return value is null if document is provided as the element.
+The return value is null if document object is provided as the element.
+
+&nbsp;
+
+###`.distance()`
+
+Returns the distance between two offset coordinates. The return object has three properties: left, top and direct. The left and top properties return values that need to be added to the first coordinate in order to arrive at the second coordinate (e.g. coordFrom.left + return.left = coordTo.left). The direct property of the return object indicates the actual distance between the two coordinates. Accepts direct offset as an object or alternatively an array in which case the the offset is retrieved automatically using mezr.offset method with the array's values as the function arguments. This function was originally intended to mimic jQuery's position method, but evolved into a lower level utility function to provide more control.
+
+**Syntax**
+
+`mezr.distance( coordFrom , coordTo )`
+
+**Parameters**
+
+* **`coordFrom`** - *object / array*
+* **`coordTo`** - *object / array*
+
+**Returns** &raquo; *object*
+
+* **`left`** - *number*
+* **`top`** - *number*
+* **`direct`** - *number*
 
 &nbsp;
 
 ###`.place()`
 
-Get position (left and top props) of an element when positioned relative to another element.
+Calculate an element's position (left/top CSS properties) when positioned relative to other elements, window or the document. This method is especially helpful in scenarios where the DOM tree is deeply nested and it's difficult to calculate an element's position using only CSS. The API is heavily inspired by the jQuery UI's position method.
+
+There are a couple of things to note though.
+
+* The target element's margins affect the final position so please consider the margins as an additional offset.
+* When calculating the dimensions of elements (target/of/within) the outer width/height (includes scrollbar, borders and padding) is used. For window and document the scrollbar width/height is always omitted.
 
 **Syntax**
 
@@ -144,13 +155,37 @@ Get position (left and top props) of an element when positioned relative to anot
 **Parameters**
 
 * **`el`** - *element*
-  * Accepts any DOM element.
+  * The target (positioned) element.
 * **`[options]`** - *object*
-  * TODO: Documentation.
+  * A set of options that defines how the target element is positioned against the relative element.
+* **`options.my`** - *string*
+  * Default: *"left top"*
+  * The position of the target element that will be aligned against the relative element's position. The syntax is "horizontal vertical". Accepts "left", "center", "right" for horizontal values and "top", "center", "bottom" for vertical values. Example: "left top" or "center center".
+* **`options.at`** - *string*
+  * Default: *"left top"*
+  * The position of the relative element that will be aligned against the target element's position. The syntax is "horizontal vertical". Accepts "left", "center", "right" for horizontal values and "top", "center", "bottom" for vertical values. Example: "left top" or "center center".
+* **`options.of`** - *element / window / document / array*
+  * Default: *window*
+  * Defines which element the target element is positioned against. Alternatively you can define a point within an element using the following format: [x-coordinate, y-coordinate, element/window/document].
+* **`offsetX`** - *number*
+  * Default: *0*
+  * An optional horizontal offset in pixels.
+* **`offsetY`** - *number*
+  * Default: *0*
+  * An optional vertical offset in pixels.
+* **`within`** - *element / window / document / array*
+  * Default: *null*
+  * Defines an optional container element that is used for collision detection. Alternatively you can define a point within an element using the following format: [x-coordinate, y-coordinate, element/window/document].
+* **`collision`** - *object / null*
+  * Default: *{left: 'push', right: 'push', top: 'push', bottom: 'push'}*
+  * Defines how the collisions are handled per each side when a container element is defined (within option is in use). The option expects an object that has left, right, top and bottom properties set, representing the sides of the target element. Acceptable values for each side are "none", "push" and "forcePush". "none" will ignore containment for the specific side. "push" tries to keep the targeted side of the target element within the container element's boundaries. If the container element is smaller than the target element and you want to make sure that a specific side will always be pushed fully inside the container element's area you can use "forcePush".
 
 **Returns** &raquo; *object*
 
-The returned object contains `left` and `top` properties that represent the left and top position of the provided element in pixels.
+* **`left`** - *number*
+  * The positioned element's left (CSS) property value (can be fractional). 
+* **`top`** - *number*
+  * The positioned element's top (CSS) property value (can be fractional). 
 
 ##License
 

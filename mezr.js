@@ -1,6 +1,5 @@
 /*!
- * mezr.js v0.2.1 - 2015/01/08
- * A lightweight JavaScript library for measuring the position, dimensions and offsets of DOM elements.
+ * mezr.js v0.3.0-alpha+1 - 2015/01/11
  * https://github.com/niklasramo/mezr
  * Copyright (c) 2015 Niklas Rämö
  * Released under the MIT license
@@ -23,18 +22,18 @@
     width: getWidth,
     height: getHeight,
     offset: getOffset,
-    position: getPosition,
     offsetParent: getOffsetParent,
+    distance: getDistance,
     place: getPlace
   };
 
   /**
-   * Check the type of an object. Returns type of any object in lowercase letters.
-   * If comparison type is provided the function will compare the type directly and returns a boolean.
+   * Check the type of an object. Returns type of any object in lowercase letters. If comparison 
+   * type is provided the function will compare the type directly and returns a boolean.
    *
    * @private
    * @param {object} obj
-   * @param {string} compareType
+   * @param {string} [compareType]
    * @returns {string|boolean} Returns boolean if type is defined.
    */
   function typeOf(obj, compareType) {
@@ -151,7 +150,8 @@
     if (position === 'relative') {
 
       /**
-       * @todo: In Chrome having top or bottom values applied to relatively positioned root has no effect whatsoever.
+       * @todo In Chrome having top or bottom values applied to relatively positioned root has no 
+       * effect whatsoever. Remeber to add a test case for this.
        */
 
       offset = getOffset(el);
@@ -183,21 +183,22 @@
   }
 
   /**
-   * Returns the height or width of an element in pixels. The function also accepts the window object
-   * (for obtaining the viewport dimensions) and the document object (for obtaining the dimensions of
-   * the HTML document) in place of element. Root element is handled as an element that can not posess
-   * a scrollbar so the includeScrollbar flag will do nothing for root element. However, in the case of
-   * document and window includeScrollbar flag will add the size of viewport scrollbar to the
-   * dimensions.
+   * Returns the height/width of an element in pixels. The function also accepts the window object
+   * (for obtaining the viewport dimensions) and the document object (for obtaining the dimensions 
+   * of the document) in place of element. Root element is handled as an element that can not 
+   * posess a scrollbar so the includeScrollbar flag will do nothing for root element. However, in 
+   * the case of document and window includeScrollbar flag will add the size of viewport scrollbar
+   * to the dimensions.
    * 
+   * @todo Get document size with fractions.
    *
    * @private
    * @param {string} dimension - Accepts "width" or "height".
    * @param {element} el - Accepts any DOM element, the document object and the window object.
-   * @param {boolean} [includeScrollbar]
-   * @param {boolean} [includePadding]
-   * @param {boolean} [includeBorder]
-   * @param {boolean} [includeMargin]
+   * @param {boolean} [includeScrollbar=false]
+   * @param {boolean} [includePadding=false]
+   * @param {boolean} [includeBorder=false]
+   * @param {boolean} [includeMargin=false]
    * @returns {number}
    */
   function getDimension(dimension, el, includeScrollbar, includePadding, includeBorder, includeMargin) {
@@ -267,10 +268,10 @@
    * @public
    * @alias mezr.width
    * @param {element} el - Accepts any DOM element, the document object and the window object.
-   * @param {boolean} [includeScrollbar]
-   * @param {boolean} [includePadding]
-   * @param {boolean} [includeBorder]
-   * @param {boolean} [includeMargin]
+   * @param {boolean} [includeScrollbar=false]
+   * @param {boolean} [includePadding=false]
+   * @param {boolean} [includeBorder=false]
+   * @param {boolean} [includeMargin=false]
    * @returns {number}
    */
   function getWidth(el, includeScrollbar, includePadding, includeBorder, includeMargin) {
@@ -281,16 +282,16 @@
 
   /**
    * Returns the height of an element in pixels. Accepts also the window object (for getting the 
-   * viewport height) and the document object (for getting the height of the whole document) in place 
-   * of element.
+   * viewport height) and the document object (for getting the height of the whole document) in
+   * place of element.
    *
    * @public
    * @alias mezr.height
    * @param {element} el - Accepts any DOM element, the document object and the window object.
-   * @param {boolean} [includeScrollbar]
-   * @param {boolean} [includePadding]
-   * @param {boolean} [includeBorder]
-   * @param {boolean} [includeMargin]
+   * @param {boolean} [includeScrollbar=false]
+   * @param {boolean} [includePadding=false]
+   * @param {boolean} [includeBorder=false]
+   * @param {boolean} [includeMargin=false]
    * @returns {number}
    */
   function getHeight(el, includeScrollbar, includePadding, includeBorder, includeMargin) {
@@ -300,8 +301,10 @@
   }
 
   /**
-   * Returns the element's offset which in this case means the element's distance from
-   * the northwest corner of the document.
+   * Returns the element's offset, which in practice means the vertical and horizontal distance
+   * between the element's northwest corner and the document's northwest corner. By default the
+   * edge of the element's border is considered as the edge of the element, but you can make the 
+   * function include the element's border width and padding in the return value as well.
    *
    * @public
    * @alias mezr.offset
@@ -365,36 +368,15 @@
   }
 
   /**
-   * Returns the element's position which in this case means the element's
-   * distance from it's offsetParent element.
-   *
-   * @public
-   * @alias mezr.position
-   * @param {element} el
-   * @param {boolean} [includeParentBorder=false]
-   * @param {boolean} [includeParentPadding=false]
-   * @returns {object} .left .top
-   */
-  function getPosition(el, includeParentBorder, includeParentPadding) {
-
-    var
-    position = getOffset(el),
-    parentOffset;
-
-    if (el.self !== win.self && el !== doc && el !== root) {
-      parentOffset = getOffset(getOffsetParent(el) || doc, includeParentBorder, includeParentPadding);
-      position.left -= parentOffset.left;
-      position.top -= parentOffset.top;
-    }
-
-    return position;
-
-  }
-
-  /**
-   * Returns provided element's true offset parent. Accepts window and document objects
-   * also. Document is the ground zero offset marker so it does not have an
-   * offset parent, ergo it returns null. Window's offset parent is the document.
+   * Returns the element's offset parent. This function works in the same manner as the native
+   * elem.offsetParent method with a few tweaks and logic changes. The function accepts the window 
+   * object and the document object in addition to DOM elements. Document object is considered as 
+   * the base offset point against which the element/window offsets are compared to. This in turn
+   * means that the document object does not have an offset parent and returns null if provided as
+   * the element. Document is also considered as the window's offset parent. Window is considered as
+   * the offset parent of all fixed elements. Root and body elements are treated equally with all
+   * other DOM elements. For example body's offset parent is the root element if root element is
+   * positioned, but if the root element is static the body's offset parent is the document object.
    *
    * @public
    * @alias mezr.offsetParent
@@ -405,17 +387,15 @@
 
     var
     body = doc.body,
-    offsetParent = el === doc ? null : el.offsetParent || doc,
-    pos = 'style' in el && getStyle(el, 'position');
+    pos = 'style' in el && getStyle(el, 'position'),
+    offsetParent = el === doc      ? null :
+                   pos === 'fixed' ? win  :
+                   el === body     ? root :
+                   el === root     ? doc  :
+                                     el.offsetParent || doc;
 
-    if (pos === 'fixed') {
-      offsetParent = win;
-    }
-    else if (pos === 'absolute') {
-      offsetParent = el === body ? root : offsetParent || doc;
-      while (offsetParent && 'style' in offsetParent && getStyle(offsetParent, 'position') === 'static') {
-        offsetParent = offsetParent === body ? root : offsetParent.offsetParent || doc;
-      }
+    while (offsetParent && 'style' in offsetParent && getStyle(offsetParent, 'position') === 'static') {
+      offsetParent = offsetParent === body ? root : offsetParent.offsetParent || doc;
     }
 
     return offsetParent;
@@ -423,7 +403,46 @@
   }
 
   /**
-   * Get position (left and top props) of an element when positioned relative to another element.
+   * Returns the distance between two offset coordinates. The return object has three properties:
+   * 'left', 'top' and 'direct'. The 'left' and 'top' properties return values that need to be added
+   * to the first coordinate in order to arrive at the second coordinate (e.g. coordFrom.left + 
+   * return.left = coordTo.left). The 'direct' property of the return object indicates the actual 
+   * distance between the two coordinates. Accepts direct offset as an object or alternatively an 
+   * array in which case the the offset is retrieved automatically using mezr.offset method with the
+   * array's values as the function arguments. This function was originally intended to mimic
+   * jQuery's position method, but evolved into a lower level utility function to provide more
+   * control.
+   * 
+   * @public
+   * @alias mezr.distance
+   * @param {array|object} coordFrom
+   * @param {array|object} coordTo
+   * @returns {object} .left .top .distance
+   */
+  function getDistance(coordFrom, coordTo) {
+
+    var ret = {};
+
+    coordFrom = typeOf(coordFrom) === 'array' ? getOffset.apply(null, coordFrom) : coordFrom;
+    coordTo = typeOf(coordTo) === 'array' ? getOffset.apply(null, coordTo) : coordTo;
+
+    ret.left = coordTo.left - coordFrom.left;
+    ret.top = coordTo.top - coordFrom.top;
+    ret.direct = math.sqrt(math.pow(ret.left, 2) + math.pow(ret.top, 2));
+
+    return ret;
+
+  }
+
+  /**
+   * Calculate an element's position (left/top CSS properties) when positioned relative to other
+   * elements, window or the document. This method is especially helpful in scenarios where the
+   * DOM tree is deeply nested and it's difficult to calculate an element's position using only CSS.
+   * The API is heavily inspired by the jQuery UI's position method. There are a couple of things to
+   * note though. The target element's margins affect the final position so please consider the 
+   * margins as an additional offset. When calculating the dimensions of elements (target/of/within)
+   * the outer width/height (includes scrollbar, borders and padding) is used. For window and 
+   * document the scrollbar width/height is always omitted.
    *
    * @public
    * @alias mezr.place
@@ -507,8 +526,8 @@
       }
 
       /**
-       * Transform my and at positions into an array using the first character of the position's name.
-       * For example, "center top" becomes ["c", "t"].
+       * Transform my and at positions into an array using the first character of the position's
+       * name. For example, "center top" becomes ["c", "t"].
        */
       if (optName === 'my' || optName === 'at') {
         optVal = optVal.split(' ');
@@ -538,8 +557,8 @@
   };
 
   /**
-   * Returns an object containing the provided element's width height and offset.
-   * If element is an array we assume it's a coordinate and treat it a bit differently.
+   * Returns an object containing the provided element's width height and offset. If element is an
+   * array we assume it's a coordinate and treat it a bit differently.
    *
    * @private
    * @param {element} el
@@ -572,7 +591,7 @@
   /**
    * Returns the horizontal or vertical base position of the element.
    *
-   * @param {string} pos The position in the format elementX+targetX (e.g. "lr") or elementY+targetY (e.g. "tb").
+   * @param {string} pos The position in the format elementX + targetX (e.g. "lr") or elementY + targetY (e.g. "tb").
    * @param {number} targetSize Target's width or height in pixels.
    * @param {number} targetOffset Target's left or top offset in pixels.
    * @param {number} elementSize Element's width or height in pixels.
@@ -597,8 +616,8 @@
   };
 
   /**
-   * A helper function for getPlace function that calculates how much element overlaps the container.
-   * Returns an object containing the amount of overlap for each side.
+   * A helper function for getPlace function that calculates how much element overlaps the
+   * container. Returns an object containing the amount of overlap for each side.
    *
    * @private
    * @param {object} position
@@ -622,8 +641,8 @@
   };
 
   /**
-   * Calculates the distance in pixels that the target element needs to be moved in order
-   * to be aligned correctly if the target element overlaps with the container.
+   * Calculates the distance in pixels that the target element needs to be moved in order to be 
+   * aligned correctly if the target element overlaps with the container.
    *
    * @private
    * @param {object} collision
@@ -711,10 +730,10 @@
     offsetX: 0,
     offsetY: 0,
     collision: {
-      left: 'none',
-      right: 'none',
-      top: 'none',
-      bottom: 'none'
+      left: 'push',
+      right: 'push',
+      top: 'push',
+      bottom: 'push'
     }
   };
 
