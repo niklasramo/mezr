@@ -26,7 +26,7 @@ time, mark, audio, video {
 /* Elements
 ==================================================== */
 
-#test-wrapper {
+#test-fixture {
   position: absolute;
   left: 0px;
   top: 0px;
@@ -38,19 +38,11 @@ time, mark, audio, video {
   width: 10px;
   height: 10px;
 }
-#test-target {
+#test-of {
   position: absolute;
   left: 0px;
   top: 0px;
   width: 10px;
   height: 10px;
   margin: 10px 0 0 10px;
-}
-#test-container {
-  position: absolute;
-  left: 0px;
-  top: 0px;
-  width: 4px;
-  height: 4px;
-  margin: 20px 0 0 20px;
 }
