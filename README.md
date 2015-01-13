@@ -1,6 +1,6 @@
 #Mezr
 
-Mezr is a lightweight stand-alone JavaScript library for measuring dimensions and offsets of DOM elements in modern browsers (IE9+). Mezr has a bit more extended variations of jQuery's popular methods such as offset, position, offsetParent, width and height, and a few handy extras too such as place method which mimics jQuery UI's position method.
+Mezr is a lightweight stand-alone JavaScript library for measuring dimensions and offsets of DOM elements in modern browsers (IE9+). Mezr has a bit more extended variations of jQuery's popular methods such as offset, offsetParent, width and height, and a few handy extras too such as place method which mimics jQuery UI's position method.
 
 ##Project goals
 
@@ -18,6 +18,8 @@ Mezr is a lightweight stand-alone JavaScript library for measuring dimensions an
 * [.distance()](#distance)
 * [.place()](#place)
 * .overlap() (coming up in version 0.4)
+
+&nbsp;
 
 ###`.width()`
 
@@ -167,16 +169,16 @@ There are a couple of things to note though.
 * **`options.of`** - *element / window / document / array*
   * Default: *window*
   * Defines which element the target element is positioned against. Alternatively you can define a point within an element using the following format: [x-coordinate, y-coordinate, element/window/document].
-* **`offsetX`** - *number*
+* **`options.offsetX`** - *number*
   * Default: *0*
   * An optional horizontal offset in pixels.
-* **`offsetY`** - *number*
+* **`options.offsetY`** - *number*
   * Default: *0*
   * An optional vertical offset in pixels.
-* **`within`** - *element / window / document / array*
+* **`options.within`** - *element / window / document / array*
   * Default: *null*
   * Defines an optional container element that is used for collision detection. Alternatively you can define a point within an element using the following format: [x-coordinate, y-coordinate, element/window/document].
-* **`collision`** - *object / null*
+* **`options.collision`** - *object / null*
   * Default: *{left: 'push', right: 'push', top: 'push', bottom: 'push'}*
   * Defines how the collisions are handled per each side when a container element is defined (within option is in use). The option expects an object that has left, right, top and bottom properties set, representing the sides of the target element. Acceptable values for each side are "none", "push" and "forcePush". "none" will ignore containment for the specific side. "push" tries to keep the targeted side of the target element within the container element's boundaries. If the container element is smaller than the target element and you want to make sure that a specific side will always be pushed fully inside the container element's area you can use "forcePush".
 
@@ -186,6 +188,8 @@ There are a couple of things to note though.
   * The positioned element's left (CSS) property value (can be fractional). 
 * **`top`** - *number*
   * The positioned element's top (CSS) property value (can be fractional). 
+
+&nbsp;
 
 ##License
 
