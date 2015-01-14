@@ -46,6 +46,46 @@ Returns the width of an element in pixels. Accepts also the window object (for g
 
 The return value may be fractional when calculating the width of an element. In the case of window and document the value is always an integer.
 
+**Examples**
+
+```javascript
+// Document width without viewport scrollbar.
+// jQuery -> $(document).width()
+var docWidth = mezr.width(document);
+
+// Document width with viewport scrollbar.
+// No jQuery alternative.
+var docWidth = mezr.width(document, true);
+
+// Window width without viewport scrollbar.
+// jQuery -> $(window).width()
+var winWidth = mezr.width(window);
+
+// Window width with viewport scrollbar (handy for working with media queries).
+// No jQuery alternative.
+var winWidth = mezr.width(window, true);
+
+// Element width with scrollbar.
+// jQuery -> $('body').width()
+var bodyWidth = mezr.width(document.body, true);
+
+// Element width with scrollbar and padding.
+// jQuery -> $('body').innerWidth()
+var bodyWidth = mezr.width(document.body, true);
+
+// Element width with scrollbar, padding and border.
+// jQuery -> $('body').outerWidth()
+var bodyWidth = mezr.width(document.body, true, true, true);
+
+// Element width with scrollbar, padding, border and margin.
+// jQuery -> $('body').outerWidth(true)
+var bodyWidth = mezr.width(document.body, true, true, true, true);
+
+// Element width without scrollbar.
+// No jQuery alternative.
+var bodyWidth = mezr.width(document.body);
+```
+
 &nbsp;
 
 ###`.height()`
@@ -73,6 +113,10 @@ Returns the height of an element in pixels. Accepts also the window object (for 
 
 The return value may be fractional when calculating the height of an element. In the case of window and document the value is always an integer.
 
+**Examples**
+
+Check the examples for mezr.width(), same stuff applies to mezr.height().
+
 &nbsp;
 
 ###`.offset()`
@@ -99,6 +143,14 @@ Returns the element's offset, which in practice means the vertical and horizonta
 * **`top`** - *number*
   * The element's top offset in pixels, value can be fractional.
 
+**Examples**
+
+```javascript
+// Get element offset.
+var elemOffset = mezr.offset(document.getElementById('someElement'));
+// => {left: ..., top: ...}
+```
+
 &nbsp;
 
 ###`.offsetParent()`
@@ -117,6 +169,14 @@ Returns the element's offset parent. This function works in the same manner as t
 **Returns** &raquo; *element / null*
 
 The return value is null if document object is provided as the element.
+
+**Examples**
+
+```javascript
+// Get fixed element's offset parent.
+var offsetParent = mezr.offsetParent(document.getElementById('fixedElem'));
+// => window
+```
 
 &nbsp;
 
@@ -147,6 +207,30 @@ Returns the vertical, horizontal and direct distance between two offset coordina
 * **`direct`** - *number*
   * Direct distance between the two coordinates in pixels.
   * `Math.sqrt( Math.pow( returnObj.left, 2 ) + Math.pow( returnObj.top, 2 ) )`
+
+**Examples**
+
+```javascript
+// Get distance by typing coordinates manually.
+var dist = mezr.distance({left: 5, top: -5}, {left: -5, top: 5});
+// => {left: -10, top: 10, direct: 14.142135623730951}
+
+// Get distance using Mezr's offset function.
+var dist = mezr.distance([elemFrom], [elemTo]);
+
+// Mimic jQuery's .position() method.
+var elem = document.getElementById('someElem');
+var mezrPos = mezr.distance([mezr.offsetParent(elem), true], [elem]);
+var jqPos = $(elem).position();
+// jqPos.left === mezrPos.left
+// jqPos.top === mezrPos.top
+// However, note that jQuery .position() excludes the element's margins from the 
+// left and top values which may or may not be wanted depending on the situation.
+// Mezr always includes element's margins as part of the offset and you can not 
+// exclude them via an option (at least yet). So, long story short, the mezrPos 
+// values match jqPos values in the above case only if the element does not have 
+// margins set.
+```
 
 &nbsp;
 
