@@ -1,12 +1,12 @@
 #Mezr
 
-Mezr is a lightweight stand-alone JavaScript library for measuring dimensions and offsets of DOM elements in modern browsers (IE9+). Mezr has a bit more extended variations of jQuery's popular methods such as offset, offsetParent, width and height, and a few handy extras too such as place method which mimics jQuery UI's position method.
+Mezr is a lightweight JavaScript utility library for measuring and comparing the dimensions and distances of HTML DOM elements in modern browsers (IE9+). Mezr has a bit more extended variations of jQuery's popular methods such as offset, offsetParent, width and height, and a few handy extras too such as place method which mimics jQuery UI's position method.
 
 ##Project goals
 
 * Lightweight and performant (emphasis on performant).
 * Support all modern browsers (IE9+).
-* Readable and well documented code (JSDoc).
+* Well documented codebase (JSDoc syntax).
 * Comprehensive unit tests (Qunit).
 
 ##API 0.3.0-alpha
