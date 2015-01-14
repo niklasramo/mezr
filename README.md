@@ -122,7 +122,7 @@ The return value is null if document object is provided as the element.
 
 ###`.distance()`
 
-Returns the distance between two offset coordinates. The return object has three properties: left, top and direct. The left and top properties return values that need to be added to the first coordinate in order to arrive at the second coordinate (e.g. coordFrom.left + return.left = coordTo.left). The direct property of the return object indicates the actual distance between the two coordinates. Accepts direct offset as an object or alternatively an array in which case the the offset is retrieved automatically using mezr.offset method with the array's values as the function arguments. This function was originally intended to mimic jQuery's position method, but evolved into a lower level utility function to provide more control.
+Returns the vertical, horizontal and direct distance between two offset coordinates. Accepts direct offset as an object or alternatively an array in which case the the offset is retrieved automatically using mezr.offset method with the array's values as the function arguments. This function was originally intended to mimic jQuery's position method, but evolved into a lower level utility function to provide more control.
 
 **Syntax**
 
@@ -131,13 +131,22 @@ Returns the distance between two offset coordinates. The return object has three
 **Parameters**
 
 * **`coordFrom`** - *object / array*
+  * Object: must have left and top properties with numeric values (e.g. `{left: 10, top: -10}`).
+  * Array: calls mezr.offset() using the array's values as the offset's arguments (e.g `[document.body, true, true]`).
 * **`coordTo`** - *object / array*
+  * Same specs as for coordFrom.  
 
 **Returns** &raquo; *object*
 
 * **`left`** - *number*
+  * Horizontal distance between the two coordinates. Negative number if `coordFrom.left > coordTo.left`, otherwise positive.
+  * `coordTo.left - coordFrom.left`
 * **`top`** - *number*
+  * Vertical distance between the two coordinates. Negative number if `coordFrom.top > coordTo.top`, otherwise positive.
+  * `coordTo.top - coordFrom.top`
 * **`direct`** - *number*
+  * Direct distance between the two coordinates in pixels.
+  * `Math.sqrt( Math.pow( returnObj.left, 2 ) + Math.pow( returnObj.top, 2 ) )`
 
 &nbsp;
 
@@ -147,8 +156,10 @@ Calculate an element's position (left/top CSS properties) when positioned relati
 
 There are a couple of things to note though.
 
-* The target element's margins affect the final position so please consider the margins as an additional offset.
+* The target element's margins will not have any effect on the left/top return values of this function. Please consider the element's margins as an extra offset. This behaviour is by design, not a bug.
 * When calculating the dimensions of elements (target/of/within) the outer width/height (includes scrollbar, borders and padding) is used. For window and document the scrollbar width/height is always omitted.
+
+There's a chance that new options will be introduced in an upcoming version where you can control the behaviour mentioned in the notes above.
 
 **Syntax**
 
