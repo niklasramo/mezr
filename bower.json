@@ -1,0 +1,20 @@
+{
+  "name": "Mezr",
+  "version": "0.3.0-2",
+  "description": "Measure and compare the dimensions and distances of DOM elements.",
+  "keywords": ["width, height, offset, position, dimension, element"],
+  "homepage": "https://github.com/niklasramo/mezr",
+  "license": "MIT",
+  "authors": [{
+    "name": "Niklas Rämö",
+    "email": "inramo@gmail.com"
+  }],
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:niklasramo/mezr.git"
+  },
+  "main": "./mezr.js",
+  "ignore": [
+    "./!(mezr*.js)"
+  ]
+}

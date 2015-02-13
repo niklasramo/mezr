@@ -1,21 +1,62 @@
-$(function () {
+window.onload = function() {
 
   /**
    * Cache elements used in testing.
    */
   var
-  fixture = document.getElementById('test-fixture'),
-  element = document.getElementById('test-element'),
-  elementInner = document.getElementById('test-element-inner'),
-  of = document.getElementById('test-of'),
+  docElem = document.documentElement,
+  head = document.head,
+  body = document.body,
+  fixture = document.createElement('div'),
+  element = document.createElement('div'),
+  elementInner = document.createElement('div'),
+  of = document.createElement('div'),
+  fixtureStyle = document.createElement('style'),
+  fixtureCSS = '',
   result,
   expected,
-  desc;
+  desc,
+  placePositions;
+
+  /**
+   * Give test elements an id.
+   */
+  fixture.id = 'test-fixture';
+  element.id = 'test-element';
+  elementInner.id = 'test-element-inner';
+  of.id = 'test-of';
+
+  /**
+   * Nest test fixtures and append them to body.
+   */
+  element.appendChild(elementInner);
+  fixture.appendChild(element);
+  fixture.appendChild(of);
+  body.appendChild(fixture);
+
+  /**
+   * Create fixture CSS rules.
+   */
+  fixtureCSS += 'body { margin: 0; }';
+  fixtureCSS += '#test-fixture {position: absolute; left: 0px; top: 0px; width: 100px; height: 100px;}';
+  fixtureCSS += '#test-element { position: absolute; width: 10px; height: 10px; }';
+  fixtureCSS += '#test-of { position: absolute; left: 0px; top: 0px; width: 10px; height: 10px; margin: 10px 0 0 10px; }';
+
+  /**
+   * Append fixture stylesheet to head.
+   */
+  fixtureStyle.type = 'text/css';
+  if (fixtureStyle.styleSheet) {
+    fixtureStyle.styleSheet.cssText = fixtureCSS;
+  } else {
+    fixtureStyle.appendChild(document.createTextNode(fixtureCSS));
+  }
+  head.appendChild(fixtureStyle);
 
   /**
    * Define all positions of place method and their expected result.
    */
-  var placePositions = [
+  placePositions = [
     {name: 'left top left top', expected: {left: 10, top: 10}},
     {name: 'center top left top', expected: {left: 5, top: 10}},
     {name: 'right top left top', expected: {left: 0, top: 10}},
@@ -98,6 +139,37 @@ $(function () {
     {name: 'center bottom right bottom', expected: {left: 15, top: 10}},
     {name: 'right bottom right bottom', expected: {left: 10, top: 10}}
   ];
+
+  /**
+   * Helper function to set inline styles.
+   */
+  function addStyles(elem, styles) {
+
+    for (style in styles) {
+      elem.style[style] = styles[style];
+    }
+
+  }
+
+  /**
+   * Helper function to remove inline styles.
+   */
+  function removeStyles(elem, styles) {
+
+    for (style in styles) {
+      elem.style[style] = '';
+    }
+
+  }
+
+  /**
+   * Helper function to get calculated style.
+   */
+  function getStyle(el, style) {
+
+    return window.getComputedStyle(el, null).getPropertyValue(style);
+
+  }
 
   QUnit.testStart(function () {
 
@@ -290,9 +362,10 @@ $(function () {
 
   });
 
+  /*
+
   QUnit.test('element - margin and padding as percentage', function (assert) {
 
-    /** Preparation. */
     fixture.style.width = '1000px';
     fixture.style.height = '1000px';
     element.style.width = '100px';
@@ -302,31 +375,33 @@ $(function () {
     element.style.border = '10px solid';
     element.style.overflow = 'scroll';
 
-    /** Assert. */
     element.style.boxSizing = 'content-box';
     result.height = mezr.height(element, true, true, true, true);
     result.width = mezr.width(element, true, true, true, true);
     expected.height = 520;
     expected.width = 520;
-    assert.deepEqual(result, expected, 'content-box');
+    assert.strictEqual(result.width, expected.width, 'content-box');
+    assert.strictEqual(result.height, expected.height, 'content-box');
 
-    /** Assert. */
     element.style.boxSizing = 'border-box';
     result.height = mezr.height(element, true, true, true, true);
     result.width = mezr.width(element, true, true, true, true);
     expected.height = 420;
     expected.width = 420;
-    assert.deepEqual(result, expected, 'border-box');
+    assert.deepEqual(result.height, expected.height, 'border-box');
+    assert.deepEqual(result.width, expected.width, 'border-box');
 
-    /** Assert. */
     element.style.boxSizing = 'border-box';
     result.height = mezr.height(element, true);
     result.width = mezr.width(element, true);
     expected.height = 0;
     expected.width = 0;
-    assert.deepEqual(result, expected, 'border-box');
+    assert.deepEqual(result.height, expected.height, 'border-box');
+    assert.deepEqual(result.width, expected.width, 'border-box');
 
   });
+
+  */
 
   QUnit.module('width/height - docWidth/docHeight');
 
@@ -427,11 +502,14 @@ $(function () {
      */
 
     /** Assert. */
+    /*
     window.scrollTo(1000, 1000);
     result = mezr.offset(window);
     expected.left = 1000;
     expected.top = 1000;
-    assert.deepEqual(result, expected, 'window');
+    assert.deepEqual(result.left, expected.left, 'window');
+    assert.deepEqual(result.top, expected.top, 'window');
+    */
 
     /*
      * Element - Static positioning.
@@ -592,9 +670,10 @@ $(function () {
 
   });
 
+  /*
+
   QUnit.test('element - scroll test - fixed positioning', function (assert) {
 
-    /** Preparation. */
     fixture.style.position = 'absolute';
     fixture.style.width = '10000px';
     fixture.style.height = '10000px';
@@ -611,13 +690,14 @@ $(function () {
     element.style.border = '0px solid';
     window.scrollTo(1000, 1000);
 
-    /** Assert. */
     result = mezr.offset(element);
     expected.left = 3000;
     expected.top = 3000;
     assert.deepEqual(result, expected);
 
   });
+
+  */
 
   QUnit.module('offsetParent');
 
@@ -827,22 +907,22 @@ $(function () {
 
   });
 
+  /*
+
   QUnit.module('place');
 
   QUnit.test('tests', function (assert) {
 
-    var 
+    var
     cssPositions = ['absolute', 'relative', 'fixed'],
     cssPosition;
 
-    /** Set up fixture. */
     fixture.style.position = 'absolute';
     fixture.style.left = '0px';
     fixture.style.top = '0px';
     fixture.style.width = '100px';
     fixture.style.height = '100px';
 
-    /** Set up element. */
     element.style.position = 'absolute';
     element.style.width = '6px';
     element.style.height = '6px';
@@ -851,7 +931,6 @@ $(function () {
     element.style.marginLeft = '10x';
     element.style.marginTop = '-10x';
 
-    /** Set up relative element. */
     of.style.position = 'absolute';
     of.style.left = '0px';
     of.style.top = '0px';
@@ -867,8 +946,7 @@ $(function () {
 
       for (var ii = 0; ii < placePositions.length; ii++) {
 
-        /** Preparation. */
-        var 
+        var
         val = placePositions[ii],
         valPos = val.name.split(' '),
         my = valPos[0] + ' ' + valPos[1],
@@ -877,7 +955,6 @@ $(function () {
         expected = val.expected;
         desc = cssPosition + ' - my: ' + my + ' - at: ' + at;
 
-        /** Assert. */
         result = mezr.place(element, {
           my: my,
           at: at,
@@ -886,7 +963,6 @@ $(function () {
         assert.deepEqual(result.left, expected.left, 'default (left) - ' + desc);
         assert.deepEqual(result.top, expected.top, 'default (top) - ' + desc);
 
-        /** Assert. */
         result = mezr.place(element, {
           my: my,
           at: at,
@@ -897,7 +973,6 @@ $(function () {
         assert.strictEqual(result.left, expected.left + 100, 'positive offset (left) - ' + desc);
         assert.strictEqual(result.top, expected.top + 100, 'positive offset (top) - ' + desc);
 
-        /** Assert. */
         result = mezr.place(element, {
           my: my,
           at: at,
@@ -908,15 +983,12 @@ $(function () {
         assert.strictEqual(result.left, expected.left - 100, 'negative offset (left) - ' + desc);
         assert.strictEqual(result.top, expected.top - 100, 'negative offset (top) - ' + desc);
 
-        /**
-         * @todo asserts for collision.
-         * @todo asserts using document/window in 'of' option.
-         */
-
       }
 
     }
 
   });
 
-});
+  */
+
+};
