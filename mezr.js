@@ -1,76 +1,192 @@
 /*!
- * Mezr v0.3.0-2
+ * mezr v0.4.0
  * https://github.com/niklasramo/mezr
  * Copyright (c) 2015 Niklas Rämö <inramo@gmail.com>
  * Released under the MIT license
- * Date: 2015-01-27T22:31:43.642Z
  */
 
-/**
- * @todo Sync docs with readme and automate JSDoc generation.
- * @todo Adopt CI system.
- * @todo Add to Bower.
+/*
+ * @todo Account for element's transform (rotation, scale, etc) and border-radius in all
+ * calculations. At the moment all the calculation's assume that the element is a non-transformed
+ * rectangle without rounded corners. If and when this is done, it could be useful to make the
+ * behaviour optional.
  */
 
-(function (win, undefined) {
+(function (global, factory) {
+
+  if (typeof define === 'function' && define.amd) {
+
+     define('mezr', [], factory);
+
+  }
+  else if (typeof module === 'object' && module.exports) {
+
+    module.exports = global.document ?
+      factory(global) :
+      function (win) {
+        if (!win.document) {
+          throw new Error('Mezr requires a window with a document');
+        }
+        return factory(win);
+      };
+
+  }
+  else {
+
+    global.mezr = factory(global);
+
+  }
+
+}(typeof window === 'object' && window.window || this, function (win, undefined) {
+
   'use strict';
 
   var
-  lib = 'mezr',
+  // Cache reference to window, needs some special love to work properly within AMD moduls,
+  // hence the "|| window" in the end.
+  win = win || window,
+  // Cache window document and root element.
   doc = win.document,
   root = doc.documentElement,
+  // Cache some often used native functions.
+  toString = ({}).toString,
   MATH = Math,
   ABS = MATH.abs,
   MAX = MATH.max,
   MIN = MATH.min,
-  NULL = null;
-
-  /**
-   * Expose public and private methods to global scope. Private methods are prefixed with an
-   * underscore and exposed in order to make it easier to extend the library's default functionality
-   * and build third party plugins.
-   */
-  win[lib] = {
+  // Mappings for element edges.
+  elemEdges = {
+    core: 0,
+    padding: 1,
+    border: 2,
+    margin: 3
+  },
+  /** @global */
+  mezr = {
     width: getWidth,
     height: getHeight,
-    offset: getOffset,
     offsetParent: getOffsetParent,
+    offset: getOffset,
     distance: getDistance,
-    overlap: checkOverlap,
-    place: getPlace,
-    _typeOf: typeOf,
-    _toFloat: toFloat,
-    _mergeObjects: mergeObjects,
-    _getStyle: getStyle,
-    _getRect: getRect,
-    _getDimension: getDimension,
-    _getOverlap: getOverlap,
-    _getNorthwestOffset: getNorthwestOffset
+    intersection: getIntersection,
+    place: getPlace
   };
 
   /**
-   * Check the type of an object. Returns type of any object in lowercase letters. If comparison
-   * type is provided the function will compare the type directly and returns a boolean.
-   *
-   * @private
-   * @param {object} obj
-   * @param {string} [compareType]
-   * @returns {string|boolean} Returns boolean if type is defined.
+   * The browser's window object.
+   * @typedef {Object} Window
    */
-  function typeOf(obj, compareType) {
 
-    var type = typeof obj;
-    type = type === 'object' ? ({}).toString.call(obj).split(' ')[1].replace(']', '').toLowerCase() : type;
-    return compareType ? type === compareType : type;
+  /**
+   * The document contained in browser's window object.
+   * @typedef {Object} Document
+   */
+
+  /**
+   * Any HTML element including root and body elements.
+   * @typedef {Object} Element
+   */
+
+  /**
+   * Any HTML element including root and body elements, window object or document object.
+   * @typedef {Object} ElWinDoc
+   */
+
+  /**
+   * @typedef {Object} Rectangle
+   * @property {Number} left - Element's horizontal distance from the left edge of the root element.
+   * @property {Number} top - Element's vertical distance from the top edge of the root element.
+   * @property {Number} width - Element's height.
+   * @property {Number} width - Element's width.
+   */
+
+  /**
+   * @typedef {object} Offset
+   * @property {Number} left - Element's horizontal distance from the left edge of the root element.
+   * @property {Number} top - Element's vertical distance from the top edge of the root element.
+   */
+
+  /**
+   * @typedef {object} Position
+   * @property {Number} left - Element's horizontal distance from the left edge of another element.
+   * @property {Number} top - Element's vertical distance from the top edge of another element.
+   */
+
+  /**
+   * @typedef {object} Overlap
+   * @property {Number} left
+   * @property {Number} top
+   * @property {Number} right
+   * @property {Number} bottom
+   */
+
+  /**
+   * All properties accepts the following values: "push", "forcePush" and "none".
+   *
+   * @typedef {object} Collision
+   * @property {string} [left='push']
+   * @property {string} [right='push']
+   * @property {string} [top='push']
+   * @property {string} [bottom='push']
+   */
+
+  /**
+   * @typedef {Object} PlaceOptions
+   * @property {String} [my='left top']
+   * @property {String} [at='left top']
+   * @property {Array|ElWinDoc|Rectangle} [of=window]
+   * @property {?Array|ElWinDoc|Rectangle} [within=null]
+   * @property {Number} [offsetX=0]
+   * @property {Number} [offsetY=0]
+   * @property {?Collision} [collision]
+   */
+
+  /**
+   * @typedef {Object} PlaceData
+   * @property {Number} left - Target element's new left position.
+   * @property {Number} top - Target element's new top position.
+   * @property {Rectangle} target - Target's dimension and offset data.
+   * @property {Rectangle} anchor - Anchor's dimension and offset data.
+   * @property {Rectangle} container - Container's dimension and offset data.
+   */
+
+   /**
+    * Describe an element's vertical or horizontal placement relative to another element. For
+    * example, if we wanted to place target's left side to the anchor's right side we would write:
+    * "lr", which is short from  "left" and "right".
+    * left   -> "l"
+    * right  -> "r"
+    * top    -> "t"
+    * bottom -> "b"
+    * center -> "c"
+    *
+    * @typedef {String} Placement
+    */
+
+  /**
+   * Returns type of any object in lowercase letters. If "isType" is provided the function will
+   * compare the type directly and returns a boolean.
+   *
+   * @param {Object} obj
+   * @param {String} [isType]
+   * @returns {Boolean|String}
+   */
+  function typeOf(obj, isType) {
+
+    var
+    type = typeof obj;
+
+    type = type !== 'object' ? type : toString.call(obj).split(' ')[1].replace(']', '').toLowerCase();
+
+    return isType ? type === isType : type;
 
   }
 
   /**
    * Customized parseFloat function which returns 0 instead of NaN.
    *
-   * @private
-   * @param {string|number} val
-   * @returns {number}
+   * @param {Number|String} val
+   * @returns {Number}
    */
   function toFloat(val) {
 
@@ -79,11 +195,10 @@
   }
 
   /**
-   * Merge (deep) an array of objects into a new object.
+   * Deep merge an array of objects into a new object.
    *
-   * @private
-   * @param {array} array
-   * @returns {object}
+   * @param {Array} array
+   * @returns {Object}
    */
   function mergeObjects(array) {
 
@@ -96,15 +211,21 @@
     i;
 
     for (i = 0; i < len; i++) {
+
       for (propName in array[i]) {
+
         if (array[i].hasOwnProperty(propName)) {
+
           propVal = array[i][propName];
           propType = typeOf(propVal);
           obj[propName] = propType === 'object' ? mergeObjects([propVal]) :
                           propType === 'array'  ? propVal.slice() :
                                                   propVal;
+
         }
+
       }
+
     }
 
     return obj;
@@ -114,61 +235,76 @@
   /**
    * Returns the computed value of an element's style property as a string.
    *
-   * @private
-   * @param {element} el
-   * @param {string} style
-   * @returns {string}
+   * @param {Element} el
+   * @param {String} style
+   * @returns {String}
    */
   function getStyle(el, style) {
 
-    return win.getComputedStyle(el, NULL).getPropertyValue(style);
+    return win.getComputedStyle(el, null).getPropertyValue(style);
 
   }
 
   /**
-   * Returns an object containing the provided element's width, height and offset. If element is an
+   * Returns an object containing the provided element's dimensions and offsets. If element is an
    * array the function uses the array's values as arguments for internal getWidth and getHeight
-   * functions. Returns null if falsy parameter is provided. Although getWidth and getHeight have
-   * the option to include margins in the dimension margins are never included because getOffset
-   * function does not have the option to exclude offset from it's return value.
+   * functions. Returns null if falsy parameter is provided.
    *
-   * @private
-   * @param {element|array|object} el
-   * @returns {?object} The return object has the following properties: left, top, width and height.
+   * @param {Array|ElWinDoc|Rectangle} el
+   * @returns {?Rectangle}
    */
   function getRect(el) {
 
     if (!el) {
-      return NULL;
+
+      return null;
+
     }
 
     var
     type = typeOf(el),
-    ret,
-    dimArgs;
+    offset,
+    argEl,
+    argEdge,
+    argSb,
+    ret;
 
     if (type === 'object') {
+
       return el;
+
     }
     else {
-      ret = {};
-      dimArgs = type === 'array' ? el.slice(0, 4) : [el, el.self !== win.self && el !== doc, 1, 1];
-      ret.width = getWidth.apply(NULL, dimArgs);
-      ret.height = getHeight.apply(NULL, dimArgs);
-      ret.offset = getOffset(el, !dimArgs[3], !dimArgs[2]);
+
+      if (type === 'array') {
+
+        argEl = el[0];
+        argEdge = el[1];
+        argSb = el[2];
+
+      }
+      else {
+
+        argEl = el;
+
+      }
+
+      ret = getOffset(argEl, argEdge);
+      ret.width = getWidth(argEl, argEdge, argSb);
+      ret.height = getHeight(argEl, argEdge, argSb);
+
       return ret;
+
     }
 
   }
 
   /**
-   * Calculates how much element a overlaps element b from each side. Fetches element data using
-   * internal getRect function.
+   * Calculates how much element overlaps another element from each side.
    *
-   * @private
-   * @param {element|array|object} a
-   * @param {element|array|object} b
-   * @returns {object} The return object has the following properties: left, right, top and bottom.
+   * @param {Array|ElWinDoc|Rectangle} a
+   * @param {Array|ElWinDoc|Rectangle} b
+   * @returns {Overlap}
    */
   function getOverlap(a, b) {
 
@@ -176,63 +312,76 @@
     b = getRect(b);
 
     return {
-      left: a.offset.left - b.offset.left,
-      right: (b.offset.left + b.width) - (a.offset.left + a.width),
-      top: a.offset.top - b.offset.top,
-      bottom: (b.offset.top + b.height) - (a.offset.top + a.height)
+      left: a.left - b.left,
+      right: (b.left + b.width) - (a.left + a.width),
+      top: a.top - b.top,
+      bottom: (b.top + b.height) - (a.top + a.height)
     };
 
   }
 
   /**
-   * Returns an element's northwest offset which in this case means the element's
-   * offset in a state where the element's left and top CSS properties are set to 0.
+   * Calculates the distance between two points in 2D space.
    *
-   * @private
-   * @param {element} el
-   * @returns {object} The return object has the following properties: left and top.
+   * @param {Number} aLeft
+   * @param {Number} aTop
+   * @param {Number} bLeft
+   * @param {Number} bTop
+   * @returns {Number}
    */
-  function getNorthwestOffset(el) {
+  function getPointDistance(aLeft, aTop, bLeft, bTop) {
+
+    return MATH.sqrt(MATH.pow(bLeft - aLeft, 2) + MATH.pow(bTop - aTop, 2));
+
+  }
+
+  /**
+   * Calculates the distance between two unrotated rectangles in 2D space. This function assumes
+   * that the rectangles do not intersect.
+   *
+   * @param {Rectangle} a
+   * @param {Rectangle} b
+   * @returns {Number}
+   */
+  function getRectDistance(a, b) {
 
     var
-    position = getStyle(el, 'position'),
-    offset,
-    left,
-    right,
-    top,
-    bottom;
+    ret = 0,
+    aLeft = a.left,
+    aRight = aLeft + b.width,
+    aTop = a.top,
+    aBottom = aTop + b.height,
+    bLeft = b.left,
+    bRight = bLeft + b.width,
+    bTop = b.top,
+    bBottom = bTop + b.height;
 
-    if (position === 'relative') {
+    // Calculate shortest corner distance
+    if ((bLeft > aRight || bRight < aLeft) && (bTop > aBottom || bBottom < aTop)) {
 
-      /**
-       * @todo In Chrome having top or bottom values applied to relatively positioned root has no effect whatsoever. Remeber to add a test case for this.
-       */
+      if (bLeft > aRight) {
 
-      offset = getOffset(el);
-      left = getStyle(el, 'left');
-      right = getStyle(el, 'right');
-      top = getStyle(el, 'top');
-      bottom = getStyle(el, 'bottom');
+        ret = bBottom < aTop ? getPointDistance(aRight, aTop, bLeft, bBottom) : getPointDistance(aRight, aBottom, bLeft, bTop);
 
-      if (left !== 'auto' || right !== 'auto') {
-        offset.left -= left === 'auto' ? -toFloat(right) : toFloat(left);
+      }
+      else {
+
+        ret = bBottom < aTop ? getPointDistance(aLeft, aTop, bRight, bBottom) : getPointDistance(aLeft, aBottom, bRight, bTop);
+
       }
 
-      if (top !== 'auto' || bottom !== 'auto') {
-        offset.top -= top === 'auto' ? -toFloat(bottom) : toFloat(top);
-      }
+    }
+    // Calculate shortest edge distance
+    else {
 
-    } else if (position === 'static') {
-
-      offset = getOffset(el);
-
-    } else {
-
-      offset = getOffset(getOffsetParent(el) || doc, 1);
+      ret = bBottom < aTop ? aTop - bBottom :
+            bLeft > aRight ? bLeft - aRight :
+            bTop > aBottom ? bTop - aBottom :
+                             aLeft - bRight ;
 
     }
 
-    return offset;
+    return ret;
 
   }
 
@@ -243,17 +392,15 @@
    * scrollbars as the document's and window's scrollbars also. Since the root element's
    * scrollbars are always stuck on the right/bottom edge of the window (even if you specify width
    * and/or height to root element) they are generally referred to as viewport scrollbars in the
-   * docs. It's also good to keep in mind that while you can set all kind of CSS rules to the root
-   * element there are many inconsistencies and quirks in the way browsers use them.
+   * docs. Also note that negative margins are ignored when includeMargin argument is true.
    *
-   * @private
-   * @param {string} dimension - Accepts "width" or "height".
-   * @param {element} el - Accepts any DOM element, the document object and the window object.
-   * @param {boolean} [includeScrollbar=false]
-   * @param {boolean} [includePadding=false]
-   * @param {boolean} [includeBorder=false]
-   * @param {boolean} [includeMargin=false]
-   * @returns {number}
+   * @param {String} dimension - Accepts "width" or "height".
+   * @param {ElWinDoc} el
+   * @param {Boolean} [includeScrollbar=false]
+   * @param {Boolean} [includePadding=false]
+   * @param {Boolean} [includeBorder=false]
+   * @param {Boolean} [includeMargin=false]
+   * @returns {Number}
    */
   function getDimension(dimension, el, includeScrollbar, includePadding, includeBorder, includeMargin) {
 
@@ -268,7 +415,9 @@
     edgeA,
     edgeB,
     borderA,
-    borderB;
+    borderB,
+    marginA,
+    marginB;
 
     if (el.self === win.self) {
 
@@ -278,10 +427,14 @@
     else if (el === doc) {
 
       if (includeScrollbar) {
+
         sbSize = win[innerDimension] - root[clientDimension];
         ret = MAX(root[scrollDimension] + sbSize, doc.body[scrollDimension] + sbSize, win[innerDimension]);
+
       } else {
+
         ret = MAX(root[scrollDimension], doc.body[scrollDimension], root[clientDimension]);
+
       }
 
     }
@@ -292,29 +445,43 @@
       edgeB = isHeight ? 'bottom' : 'right';
 
       if (!includeScrollbar) {
+
         if (el === root) {
+
           ret -= win[innerDimension] - root[clientDimension];
+
         }
         else {
+
           borderA = toFloat(getStyle(el, 'border-' + edgeA + '-width'));
           borderB = toFloat(getStyle(el, 'border-' + edgeB + '-width'));
           ret -= MATH.round(ret) - el[clientDimension] - borderA - borderB;
+
         }
+
       }
 
       if (!includePadding) {
+
         ret -= toFloat(getStyle(el, 'padding-' + edgeA));
         ret -= toFloat(getStyle(el, 'padding-' + edgeB));
+
       }
 
       if (!includeBorder) {
+
         ret -= borderA !== undefined ? borderA : toFloat(getStyle(el, 'border-' + edgeA + '-width'));
         ret -= borderB !== undefined ? borderB : toFloat(getStyle(el, 'border-' + edgeB + '-width'));
+
       }
 
       if (includeMargin) {
-        ret += toFloat(getStyle(el, 'margin-' + edgeA));
-        ret += toFloat(getStyle(el, 'margin-' + edgeB));
+
+        marginA = toFloat(getStyle(el, 'margin-' + edgeA));
+        marginB = toFloat(getStyle(el, 'margin-' + edgeB));
+        ret += marginA > 0 ? marginA : 0;
+        ret += marginB > 0 ? marginB : 0;
+
       }
 
     }
@@ -325,71 +492,84 @@
 
   /**
    * Returns the width of an element in pixels. Accepts also the window object (for getting the
-   * viewport width) and the document object (for getting the width of the whole document) in place
-   * of element.
+   * viewport width) and the document object (for getting the document width) in place of element.
    *
-   * @public
-   * @alias mezr.width
-   * @param {element} el - Accepts any DOM element, the document object and the window object.
-   * @param {boolean} [includeScrollbar=false]
-   * @param {boolean} [includePadding=false]
-   * @param {boolean} [includeBorder=false]
-   * @param {boolean} [includeMargin=false]
-   * @returns {number}
+   * Edges:
+   * 0 -> "core"
+   * 1 -> "padding"
+   * 2 -> "border" (default)
+   * 3 -> "margin"
+   *
+   * @param {ElWinDoc} el
+   * @param {Number} [edge='border']
+   * @param {Boolean} [includeScrollbar=true]
+   * @returns {Number}
    */
-  function getWidth(el, includeScrollbar, includePadding, includeBorder, includeMargin) {
+  function getWidth(el, edge, includeScrollbar) {
 
-    return getDimension('width', el, includeScrollbar, includePadding, includeBorder, includeMargin);
+    edge = typeOf(edge, 'number') ? edge : elemEdges[edge] !== undefined ? elemEdges[edge] : 2;
+    includeScrollbar = includeScrollbar === undefined ? 1 : includeScrollbar;
+
+    return getDimension('width', el, includeScrollbar, edge > 0, edge > 1, edge > 2);
 
   }
 
   /**
    * Returns the height of an element in pixels. Accepts also the window object (for getting the
-   * viewport height) and the document object (for getting the height of the whole document) in
-   * place of element.
+   * viewport height) and the document object (for getting the document height) in place of element.
    *
-   * @public
-   * @alias mezr.height
-   * @param {element} el - Accepts any DOM element, the document object and the window object.
-   * @param {boolean} [includeScrollbar=false]
-   * @param {boolean} [includePadding=false]
-   * @param {boolean} [includeBorder=false]
-   * @param {boolean} [includeMargin=false]
-   * @returns {number}
+   * Edges:
+   * 0 -> "core"
+   * 1 -> "padding"
+   * 2 -> "border" (default)
+   * 3 -> "margin"
+   *
+   * @param {ElWinDoc} el
+   * @param {Number} [edge='border']
+   * @param {Boolean} [includeScrollbar=true]
+   * @returns {Number}
    */
-  function getHeight(el, includeScrollbar, includePadding, includeBorder, includeMargin) {
+  function getHeight(el, edge, includeScrollbar) {
 
-    return getDimension('height', el, includeScrollbar, includePadding, includeBorder, includeMargin);
+    edge = typeOf(edge, 'number') ? edge : elemEdges[edge] !== undefined ? elemEdges[edge] : 2;
+    includeScrollbar = includeScrollbar === undefined ? 1 : includeScrollbar;
+
+    return getDimension('height', el, includeScrollbar, edge > 0, edge > 1, edge > 2);
 
   }
 
   /**
    * Returns the element's offset, which in practice means the vertical and horizontal distance
-   * between the element's northwest corner and the document's northwest corner. By default the
-   * edge of the element's border is considered as the edge of the element, but you can make the
-   * function include the element's border width and padding in the return value as well.
+   * between the element's northwest corner and the document's northwest corner. The edge
+   * argument controls which layer (core, padding, border, margin) of the element is considered as
+   * the edge of the element for calculations. For example if the edge was set to 1 or "padding" the
+   * element's margins and borders would be added to the offsets.
    *
-   * @todo Support excluding margins.
+   * Edges:
+   * 0 -> "core"
+   * 1 -> "padding"
+   * 2 -> "border" (default)
+   * 3 -> "margin"
    *
-   * @public
-   * @alias mezr.offset
-   * @param {element} el
-   * @param {boolean} [includeBorder=false]
-   * @param {boolean} [includePadding=false]
-   * @returns {object} The return object has the following properties: left and top.
+   * @param {ElWinDoc} el
+   * @param {Number} [edge='border']
+   * @returns {Offset}
    */
-  function getOffset(el, includeBorder, includePadding) {
+  function getOffset(el, edge) {
 
     var
     offsetLeft = 0,
     offsetTop = 0,
     viewportScrollLeft = toFloat(win.pageXOffset),
     viewportScrollTop = toFloat(win.pageYOffset),
-    gbcr;
+    gbcr,
+    marginLeft,
+    marginTop;
 
-    /**
-     * For window we just need to get viewport's scroll distance.
-     */
+    // Sanitize edge argument.
+    edge = typeOf(edge, 'number') ? edge : elemEdges[edge] !== undefined ? elemEdges[edge] : 2;
+
+    // For window we just need to get viewport's scroll distance.
     if (el.self === win.self) {
 
       offsetLeft = viewportScrollLeft;
@@ -397,30 +577,38 @@
 
     }
 
-    /**
-     * For all elements except the document and window we can use the combination
-     * of gbcr and viewport's scroll distance.
-     */
+    // For all elements except the document and window we can use the combination of gbcr and
+    // viewport's scroll distance.
     else if (el !== doc) {
 
       gbcr = el.getBoundingClientRect();
       offsetLeft += gbcr.left + viewportScrollLeft;
       offsetTop += gbcr.top + viewportScrollTop;
 
-      /**
-       * Include border width to the offset.
-       */
-      if (includeBorder) {
-        offsetLeft += toFloat(getStyle(el, 'border-left-width'));
-        offsetTop += toFloat(getStyle(el, 'border-top-width'));
+      // Exclude element's positive margin size from the offset.
+      if (edge > 2) {
+
+        marginLeft = toFloat(getStyle(el, 'margin-left'));
+        marginTop = toFloat(getStyle(el, 'margin-top'));
+        offsetLeft -=  marginLeft > 0 ? marginLeft : 0;
+        offsetTop -= marginTop > 0 ? marginTop : 0;
+
       }
 
-      /*
-       * Include padding to the offset.
-       */
-      if (includePadding) {
+      // Include element's border size to the offset.
+      if (edge < 2) {
+
+        offsetLeft += toFloat(getStyle(el, 'border-left-width'));
+        offsetTop += toFloat(getStyle(el, 'border-top-width'));
+
+      }
+
+      // Include element's padding size to the offset.
+      if (edge < 1) {
+
         offsetLeft += toFloat(getStyle(el, 'padding-left'));
         offsetTop += toFloat(getStyle(el, 'padding-top'));
+
       }
 
     }
@@ -429,6 +617,61 @@
       left: offsetLeft,
       top: offsetTop
     };
+
+  }
+
+
+  /**
+   * Returns an element's northwest offset which in this case means the element's offset in a state
+   * where the element's left and top CSS properties are set to 0.
+   *
+   * @param {Array|ElWinDoc} el
+   * @returns {Offset}
+   */
+  function getNorthwestOffset(el) {
+
+    var
+    isArray = typeOf(el, 'array'),
+    elem = isArray ? el[0] : el,
+    edge = isArray ? el[1] : 2,
+    position = getStyle(elem, 'position'),
+    offset,
+    left,
+    right,
+    top,
+    bottom;
+
+    if (position === 'relative') {
+
+      offset = getOffset(elem, edge);
+      left = getStyle(elem, 'left');
+      right = getStyle(elem, 'right');
+      top = getStyle(elem, 'top');
+      bottom = getStyle(elem, 'bottom');
+
+      if (left !== 'auto' || right !== 'auto') {
+
+        offset.left -= left === 'auto' ? -toFloat(right) : toFloat(left);
+
+      }
+
+      if (top !== 'auto' || bottom !== 'auto') {
+
+        offset.top -= top === 'auto' ? -toFloat(bottom) : toFloat(top);
+
+      }
+
+    } else if (position === 'static') {
+
+      offset = getOffset(elem, edge);
+
+    } else {
+
+      offset = getOffset(getOffsetParent(elem) || doc, 1);
+
+    }
+
+    return offset;
 
   }
 
@@ -443,24 +686,24 @@
    * other DOM elements. For example body's offset parent is the root element if root element is
    * positioned, but if the root element is static the body's offset parent is the document object.
    *
-   * @public
-   * @alias mezr.offsetParent
-   * @param {element} el
-   * @returns {?element}
+   * @param {ElWinDoc} el
+   * @returns {?ElWinDoc}
    */
   function getOffsetParent(el) {
 
     var
     body = doc.body,
     pos = 'style' in el && getStyle(el, 'position'),
-    offsetParent = el === doc      ? NULL :
+    offsetParent = el === doc      ? null :
                    pos === 'fixed' ? win  :
                    el === body     ? root :
                    el === root     ? doc  :
                                      el.offsetParent || doc;
 
     while (offsetParent && 'style' in offsetParent && getStyle(offsetParent, 'position') === 'static') {
+
       offsetParent = offsetParent === body ? root : offsetParent.offsetParent || doc;
+
     }
 
     return offsetParent;
@@ -468,52 +711,39 @@
   }
 
   /**
-   * Returns the distance between two offset coordinates. The return object has three properties:
-   * 'left', 'top' and 'direct'. The 'left' and 'top' properties return values that need to be added
-   * to the first coordinate in order to arrive at the second coordinate (e.g. coordFrom.left +
-   * return.left = coordTo.left). The 'direct' property of the return object indicates the actual
-   * distance between the two coordinates. Accepts direct offset as an object or alternatively an
-   * array in which case the the offset is retrieved automatically using mezr.offset method with the
-   * array's values as the function arguments. This function was originally intended to mimic
-   * jQuery's position method, but evolved into a lower level utility function to provide more
-   * control.
+   * Calculate the distance between two elements or rectangles. The element data is fetched with
+   * internal getRect function which means you can specify an element directly, use an array for
+   * more control over paddings and borders (see arguments for mezr.width/height()) or just provide
+   * dimensions and offset directly in an object. Returns a number. If the elements/rectangles
+   * overlap the function returns always -1. In other cases the function returns the distance in
+   * pixels (fractional) between the the two elements/rectangles.
    *
-   * @public
-   * @alias mezr.distance
-   * @param {array|object} coordFrom
-   * @param {array|object} coordTo
-   * @returns {object} The return object has the following properties: left, top and direct.
+   * @param {Array|ElWinDoc|Rectangle} a
+   * @param {Array|ElWinDoc|Rectangle} b
+   * @returns {Number}
    */
-  function getDistance(coordFrom, coordTo) {
+  function getDistance(a, b) {
 
-    var ret = {};
+    var
+    aRect = getRect(a),
+    bRect = getRect(b);
 
-    coordFrom = typeOf(coordFrom) === 'array' ? getOffset.apply(NULL, coordFrom) : coordFrom;
-    coordTo = typeOf(coordTo) === 'array' ? getOffset.apply(NULL, coordTo) : coordTo;
-
-    ret.left = coordTo.left - coordFrom.left;
-    ret.top = coordTo.top - coordFrom.top;
-    ret.direct = MATH.sqrt(MATH.pow(ret.left, 2) + MATH.pow(ret.top, 2));
-
-    return ret;
+    return getIntersection(aRect, bRect) ? -1 : getRectDistance(aRect, bRect);
 
   }
 
   /**
-   * Check if an element overlaps with another element. The element data is fetched with internal
-   * getRect function which means you can specify an element directly, use an array for more control
-   * over paddings and borders (see arguments for mezr.width/height()) or just provide dimensions
-   * and offset directly in an object. Returns a boolean by default, but optionally one can set the
-   * returnIntersection flag to true and make the function return explicit intersection data.
+   * Detect if two elements overlap and calculate the possible intersection area's dimensions and
+   * offsets. Returns a boolean by default which indicates whether or not the two elements overlap.
+   * Optionally one can set the third argument *returnData* to true and make the function return the
+   * intersection's dimensions and offsets.
    *
-   * @public
-   * @alias mezr.overlap
-   * @param {element|array|object} a
-   * @param {element|array|object} b
-   * @param {boolean} [returnIntersection=false]
-   * @returns {boolean|object} The return object has the following properties: width, height, offset (left/top) and coverage (a/b/total).
+   * @param {Array|ElWinDoc|Rectangle} a
+   * @param {Array|ElWinDoc|Rectangle} b
+   * @param {Boolean} [returnData=false]
+   * @returns {?Boolean|Rectangle}
    */
-  function checkOverlap(a, b, returnIntersection) {
+  function getIntersection(a, b, returnData) {
 
     var
     aRect = getRect(a),
@@ -523,116 +753,64 @@
     intHeight = MAX(aRect.height + MIN(overlap.top, 0) + MIN(overlap.bottom, 0), 0),
     hasIntersection = intWidth > 0 && intHeight > 0;
 
-    /**
-     * Return early, just a boolean, if intersection data is not required.
-     */
-    if (!returnIntersection) {
-      return hasIntersection;
-    }
-
-    /**
-     * Create indepth intersection data.
-     */
-    var
-    intersection = {
+    return !returnData ? hasIntersection : !hasIntersection ? null : {
       width: intWidth,
       height: intHeight,
-      offset: {
-        left: NULL,
-        top: NULL
-      },
-      coverage: {
-        a: 0,
-        b: 0,
-        total: 0
-      }
+      left: aRect.left + ABS(MIN(overlap.left, 0)),
+      top: aRect.top + ABS(MIN(overlap.top, 0))
     };
-
-    /**
-     * Calculate offsets and coverage if the elements have an intersection.
-     */
-    if (hasIntersection) {
-      var intArea = intWidth * intHeight;
-      intersection.offset.left = aRect.offset.left + ABS(MIN(overlap.left, 0));
-      intersection.offset.top = aRect.offset.top + ABS(MIN(overlap.top, 0));
-      intersection.coverage.a = (intArea / (aRect.width * aRect.height)) * 100;
-      intersection.coverage.b = (intArea / (bRect.width * bRect.height)) * 100;
-      intersection.coverage.total = intersection.coverage.a + intersection.coverage.b;
-    }
-
-    return intersection;
 
   }
 
   /**
-   * Calculate an element's position (left/top CSS properties) when positioned relative to other
-   * elements, window or the document. This method is especially helpful in scenarios where the
-   * DOM tree is deeply nested and it's difficult to calculate an element's position using only CSS.
-   * The API is heavily inspired by the jQuery UI's position method. There are a couple of things to
-   * note though. The target element's margins affect the final position so please consider the
-   * margins as an additional offset. When calculating the dimensions of elements (target/of/within)
-   * the outer width/height (includes scrollbar, borders and padding) is used. For window and
-   * document the scrollbar width/height is always omitted.
+   * Calculate an element's position (left/top CSS properties) when positioned relative to another
+   * element, window or the document.
    *
-   * @todo Make more compact.
+   * @todo Make sure the functions works as expected with the new settings for elements. Especially
+   * revise the northwest offset function.
    *
-   * @public
-   * @alias mezr.place
-   * @param {element} el
-   * @param {object} [options]
-   * @param {string} [options.my='left top']
-   * @param {string} [options.at='left top']
-   * @param {element|array} [options.of=window]
-   * @param {number} [options.offsetX=0]
-   * @param {number} [options.offsetY=0]
-   * @param {?element|array} [options.within=null]
-   * @param {?object} [options.collision]
-   * @param {string} [options.collision.left='push']
-   * @param {string} [options.collision.right='push']
-   * @param {string} [options.collision.top='push']
-   * @param {string} [options.collision.bottom='push']
-   * @returns {object} The return object has the following properties: left, top, overlap, element, target and container.
+   * @param {Array|ElWinDoc} el
+   * @param {PlaceOptions} [options]
+   * @returns {PlaceData}
    */
   function getPlace(el, options) {
 
     var
-    o = getPlace._getOptions(el, options),
+    o = getPlaceOptions(el, options),
     collision = o.collision,
-    e = getRect(el),
-    t = getRect(o.of),
-    c = getRect(o.within),
-    eNwOffset = getNorthwestOffset(el),
+    target = getRect(el),
+    anchor = getRect(o.of),
+    container = getRect(o.within),
+    targetNwOffset = getNorthwestOffset(el),
+    containerOverlap,
     ret = {
-      overlap: NULL,
-      element: e,
-      target: t,
-      container: c
+      target: target,
+      anchor: anchor,
+      container: container
     };
 
-    /**
-     * Calculate element's new position (left/top coordinates).
-     */
-    ret.left = getPlace._getPosition(o.my[0] + o.at[0], t.width, t.offset.left, e.width, eNwOffset.left, o.offsetX);
-    ret.top = getPlace._getPosition(o.my[1] + o.at[1], t.height, t.offset.top, e.height, eNwOffset.top, o.offsetY);
+    // Calculate element's new position (left/top coordinates).
+    ret.left = getPlacePosition(o.my[0] + o.at[0], anchor.width, anchor.left, target.width, targetNwOffset.left, o.offsetX);
+    ret.top = getPlacePosition(o.my[1] + o.at[1], anchor.height, anchor.top, target.height, targetNwOffset.top, o.offsetY);
 
-    /**
-     * Update element offset data to match the newly calculated position.
-     */
-    e.offset.left = ret.left + eNwOffset.left;
-    e.offset.top = ret.left + eNwOffset.top;
+    // Update element offset data to match the newly calculated position.
+    target.left = ret.left + targetNwOffset.left;
+    target.top = ret.top + targetNwOffset.top;
 
-    /**
-     * If container is defined, let's add overlap data and handle collisions.
-     */
-    if (c !== NULL) {
-      ret.overlap = getOverlap(e, c);
+    // If container is defined, let's add overlap data and handle collisions.
+    if (container !== null) {
+
+      containerOverlap = getOverlap(target, container);
+
       if (collision) {
-        ret.left += getPlace._handleCollision(collision, ret.overlap);
-        ret.top += getPlace._handleCollision(collision, ret.overlap, 1);
-        e.offset.left = ret.left + eNwOffset.left;
-        e.offset.top = ret.left + eNwOffset.top;
-        ret.overlap = getOverlap(e, c);
+
+        ret.left += getPlaceCollision(collision, containerOverlap);
+        ret.top += getPlaceCollision(collision, containerOverlap, 1);
+        target.left = ret.left + targetNwOffset.left;
+        target.top = ret.left + targetNwOffset.top;
+
       }
+
     }
 
     return ret;
@@ -640,14 +818,13 @@
   }
 
   /**
-   * Merges default options with the instance options and also sanitizes the new options.
+   * Merges default options with the instance options and sanitizes the new options.
    *
-   * @private
-   * @param {element} el
-   * @param {object} [options]
-   * @returns {object}
+   * @param {ElWinDoc} el
+   * @param {PlaceOptions} [options]
+   * @returns {Object}
    */
-  getPlace._getOptions = function (el, options) {
+  function getPlaceOptions(el, options) {
 
     var
     defaults = getPlace.defaults,
@@ -655,9 +832,7 @@
     optType,
     optVal;
 
-    /**
-     * Merge user options with default options.
-     */
+    // Merge user options with default options.
     options = mergeObjects(typeOf(options, 'object') ? [defaults, options] : [defaults]);
 
     for (optName in options) {
@@ -665,158 +840,158 @@
       optVal = options[optName];
       optType = typeOf(optVal);
 
-      /**
-       * If option is declared as a function let's execute it right here.
-       */
+      // If option is declared as a function let's execute it right here.
       if (optType === 'function') {
+
         options[optName] = optVal(el);
+
       }
 
-      /**
-       * Transform my and at positions into an array using the first character of the position's
-       * name. For example, "center top" becomes ["c", "t"].
-       */
+      // Transform my and at positions into an array using the first character of the position's
+      // name. For example, "center top" becomes ["c", "t"].
       if (optName === 'my' || optName === 'at') {
+
         optVal = optVal.split(' ');
         optVal[0] = optVal[0].charAt(0);
         optVal[1] = optVal[1].charAt(0);
         options[optName] = optVal;
+
       }
 
-      /**
-       * Make sure offsets are numbers.
-       */
+      // Make sure offsets are numbers.
       if (optName === 'offsetX' || optName === 'offsetY') {
+
         options[optName] = toFloat(optVal);
+
       }
 
-      /**
-       * Make sure collision is an object or null.
-       */
+      // Make sure collision is an object or null.
       if (optName === 'collision' && optType !== 'object') {
-        options[optName] = NULL;
+
+        options[optName] = null;
+
       }
 
     }
 
     return options;
 
-  };
+  }
 
   /**
-   * Returns the horizontal or vertical base position of the element.
+   * Returns the horizontal or vertical base position of a target element relative to an anchor
+   * element. In other words, this function returns the value which should set as the target
+   * element's left/top CSS value in order to position it according to the placement argument.
    *
-   * @param {string} pos The position in the format elementX + targetX (e.g. "lr") or elementY + targetY (e.g. "tb").
-   * @param {number} tSize Target's width or height in pixels.
-   * @param {number} tOffset Target's left or top offset in pixels.
-   * @param {number} eSize Element's width or height in pixels.
-   * @param {number} eNwOffset Element's left or top northwest offset in pixels.
-   * @param {number} extraOffset Additional left or top offset in pixels.
-   * @returns {number}
+   * @param {Placement} placement
+   * @param {Number} anchorSize - Target's width/height in pixels.
+   * @param {Number} anchorOffset - Target's left/top offset in pixels.
+   * @param {Number} targetSize - Target's width/height in pixels.
+   * @param {Number} targetNwOffset - Target's left/top northwest offset in pixels.
+   * @param {Number} extraOffset - Additional left/top offset in pixels.
+   * @returns {Number}
    */
-  getPlace._getPosition = function (pos, tSize, tOffset, eSize, eNwOffset, extraOffset) {
+  function getPlacePosition(placement, anchorSize, anchorOffset, targetSize, targetNwOffset, extraOffset) {
 
-    var northwestPoint = tOffset + extraOffset - eNwOffset;
+    var
+    northwestPoint = anchorOffset + extraOffset - targetNwOffset;
 
-    return pos === 'll' || pos === 'tt' ? northwestPoint :
-           pos === 'lc' || pos === 'tc' ? northwestPoint + (tSize / 2) :
-           pos === 'lr' || pos === 'tb' ? northwestPoint + tSize :
-           pos === 'cl' || pos === 'ct' ? northwestPoint - (eSize / 2) :
-           pos === 'cr' || pos === 'cb' ? northwestPoint + tSize - (eSize / 2) :
-           pos === 'rl' || pos === 'bt' ? northwestPoint - eSize :
-           pos === 'rc' || pos === 'bc' ? northwestPoint - eSize + (tSize / 2) :
-           pos === 'rr' || pos === 'bb' ? northwestPoint - eSize + tSize :
-                                          northwestPoint + (tSize / 2) - (eSize / 2);
+    return placement === 'll' || placement === 'tt' ? northwestPoint :
+           placement === 'lc' || placement === 'tc' ? northwestPoint + (anchorSize / 2) :
+           placement === 'lr' || placement === 'tb' ? northwestPoint + anchorSize :
+           placement === 'cl' || placement === 'ct' ? northwestPoint - (targetSize / 2) :
+           placement === 'cr' || placement === 'cb' ? northwestPoint + anchorSize - (targetSize / 2) :
+           placement === 'rl' || placement === 'bt' ? northwestPoint - targetSize :
+           placement === 'rc' || placement === 'bc' ? northwestPoint - targetSize + (anchorSize / 2) :
+           placement === 'rr' || placement === 'bb' ? northwestPoint - targetSize + anchorSize :
+                                          northwestPoint + (anchorSize / 2) - (targetSize / 2);
 
-  };
+  }
 
   /**
    * Calculates the distance in pixels that the target element needs to be moved in order to be
    * aligned correctly if the target element overlaps with the container.
    *
-   * @private
-   * @param {object} collision
-   * @param {object} elementOverlap
-   * @param {boolean} vertical
-   * @returns {number}
+   * @param {Collision} collision
+   * @param {Overlap} targetOverlap
+   * @param {Boolean} isVertical
+   * @returns {Number}
    */
-  getPlace._handleCollision = function (collision, elementOverlap, vertical) {
+  function getPlaceCollision(collision, targetOverlap, isVertical) {
 
     var
     ret = 0,
     push = 'push',
     forcePush = 'forcePush',
-    side1 = vertical ? 'top' : 'left',
-    side2 = vertical ? 'bottom' : 'right',
-    side1Collision = collision[side1],
-    side2Collision = collision[side2],
-    side1Overlap = elementOverlap[side1],
-    side2Overlap = elementOverlap[side2],
-    sizeDifference = side1Overlap + side2Overlap;
+    sideA = isVertical ? 'top' : 'left',
+    sideB = isVertical ? 'bottom' : 'right',
+    sideACollision = collision[sideA],
+    sideBCollision = collision[sideB],
+    sideAOverlap = targetOverlap[sideA],
+    sideBOverlap = targetOverlap[sideB],
+    sizeDifference = sideAOverlap + sideBOverlap;
 
-    /**
-     * If pushing is needed from both sides.
-     */
-    if ((side1Collision === push || side1Collision === forcePush) && (side2Collision === push || side2Collision === forcePush) && (side1Overlap < 0 || side2Overlap < 0)) {
+    // If pushing is needed from both sides.
+    if ((sideACollision === push || sideACollision === forcePush) && (sideBCollision === push || sideBCollision === forcePush) && (sideAOverlap < 0 || sideBOverlap < 0)) {
 
-      /**
-       * Do push correction from opposite sides with equal force.
-       */
-      if (side1Overlap < side2Overlap) {
-        ret -= sizeDifference < 0 ? side1Overlap + ABS(sizeDifference / 2) : side1Overlap;
-      }
-      if (side2Overlap < side1Overlap) {
-        ret += sizeDifference < 0 ? side2Overlap + ABS(sizeDifference / 2) : side2Overlap;
+      // Do push correction from opposite sides with equal force.
+      if (sideAOverlap < sideBOverlap) {
+
+        ret -= sizeDifference < 0 ? sideAOverlap + ABS(sizeDifference / 2) : sideAOverlap;
+
       }
 
-      /**
-       * Update overlap data.
-       */
-      side1Overlap += ret;
-      side2Overlap -= ret;
+      // Do push correction from opposite sides with equal force.
+      if (sideBOverlap < sideAOverlap) {
 
-      /**
-       * Check if left/top side forced push correction is needed.
-       */
-      if (side1Collision === forcePush && side2Collision != forcePush && side1Overlap < 0) {
-        ret -= side1Overlap;
+        ret += sizeDifference < 0 ? sideBOverlap + ABS(sizeDifference / 2) : sideBOverlap;
+
       }
 
-      /**
-       * Check if right/top side forced push correction is needed.
-       */
-      if (side2Collision === forcePush && side1Collision != forcePush && side2Overlap < 0) {
-        ret += side2Overlap;
+      // Update overlap data.
+      sideAOverlap += ret;
+      sideBOverlap -= ret;
+
+      // Check if left/top side forced push correction is needed.
+      if (sideACollision === forcePush && sideBCollision != forcePush && sideAOverlap < 0) {
+
+        ret -= sideAOverlap;
+
+      }
+
+      // Check if right/top side forced push correction is needed.
+      if (sideBCollision === forcePush && sideACollision != forcePush && sideBOverlap < 0) {
+
+        ret += sideBOverlap;
+
       }
 
     }
 
-    /**
-     * Check if pushing is needed from left or top side only.
-     */
-    else if ((side1Collision === forcePush || side1Collision === push) && side1Overlap < 0) {
-      ret -= side1Overlap;
+    // Check if pushing is needed from left or top side only.
+    else if ((sideACollision === forcePush || sideACollision === push) && sideAOverlap < 0) {
+
+      ret -= sideAOverlap;
+
     }
 
-    /**
-     * Check if pushing is needed from right or bottom side only.
-     */
-    else if ((side2Collision === forcePush || side2Collision === push) && side2Overlap < 0) {
-      ret += side2Overlap;
+    // Check if pushing is needed from right or bottom side only.
+    else if ((sideBCollision === forcePush || sideBCollision === push) && sideBOverlap < 0) {
+
+      ret += sideBOverlap;
+
     }
 
     return ret;
 
-  };
+  }
 
-  /**
-   * Default options for getPlace.
-   */
+  // Define default options for getPlace method.
   getPlace.defaults = {
     my: 'left top',
     at: 'left top',
     of: win,
-    within: NULL,
+    within: null,
     offsetX: 0,
     offsetY: 0,
     collision: {
@@ -827,4 +1002,6 @@
     }
   };
 
-})(this);
+  return mezr;
+
+}));

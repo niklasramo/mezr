@@ -1,11 +1,9 @@
 window.onload = function() {
 
-  /**
-   * Cache elements used in testing.
-   */
+  // Cache elements used in testing.
   var
   docElem = document.documentElement,
-  head = document.head,
+  head = document.getElementsByTagName('head')[0],
   body = document.body,
   fixture = document.createElement('div'),
   element = document.createElement('div'),
@@ -18,33 +16,25 @@ window.onload = function() {
   desc,
   placePositions;
 
-  /**
-   * Give test elements an id.
-   */
+  // Give test elements an id.
   fixture.id = 'test-fixture';
   element.id = 'test-element';
   elementInner.id = 'test-element-inner';
   of.id = 'test-of';
 
-  /**
-   * Nest test fixtures and append them to body.
-   */
+  // Nest test fixtures and append them to body.
   element.appendChild(elementInner);
   fixture.appendChild(element);
   fixture.appendChild(of);
   body.appendChild(fixture);
 
-  /**
-   * Create fixture CSS rules.
-   */
+  // Create fixture CSS rules.
   fixtureCSS += 'body { margin: 0; }';
   fixtureCSS += '#test-fixture {position: absolute; left: 0px; top: 0px; width: 100px; height: 100px;}';
   fixtureCSS += '#test-element { position: absolute; width: 10px; height: 10px; }';
   fixtureCSS += '#test-of { position: absolute; left: 0px; top: 0px; width: 10px; height: 10px; margin: 10px 0 0 10px; }';
 
-  /**
-   * Append fixture stylesheet to head.
-   */
+  // Append fixture stylesheet to head.
   fixtureStyle.type = 'text/css';
   if (fixtureStyle.styleSheet) {
     fixtureStyle.styleSheet.cssText = fixtureCSS;
@@ -53,9 +43,7 @@ window.onload = function() {
   }
   head.appendChild(fixtureStyle);
 
-  /**
-   * Define all positions of place method and their expected result.
-   */
+  // Define all positions of place method and their expected result.
   placePositions = [
     {name: 'left top left top', expected: {left: 10, top: 10}},
     {name: 'center top left top', expected: {left: 5, top: 10}},
@@ -140,9 +128,7 @@ window.onload = function() {
     {name: 'right bottom right bottom', expected: {left: 10, top: 10}}
   ];
 
-  /**
-   * Helper function to set inline styles.
-   */
+  // Helper function to set inline styles.
   function addStyles(elem, styles) {
 
     for (style in styles) {
@@ -151,9 +137,7 @@ window.onload = function() {
 
   }
 
-  /**
-   * Helper function to remove inline styles.
-   */
+  // Helper function to remove inline styles.
   function removeStyles(elem, styles) {
 
     for (style in styles) {
@@ -162,9 +146,7 @@ window.onload = function() {
 
   }
 
-  /**
-   * Helper function to get calculated style.
-   */
+  // Helper function to get calculated style.
   function getStyle(el, style) {
 
     return window.getComputedStyle(el, null).getPropertyValue(style);
@@ -173,7 +155,7 @@ window.onload = function() {
 
   QUnit.testStart(function () {
 
-    /** Reset element inline styles. */
+    // Reset element inline styles.
     document.documentElement.removeAttribute('style');
     document.body.removeAttribute('style');
     fixture.removeAttribute('style');
@@ -181,10 +163,10 @@ window.onload = function() {
     elementInner.removeAttribute('style');
     of.removeAttribute('style');
 
-    /** Scroll window to top. */
+    // Scroll window to top.
     window.scrollTo(0, 0);
 
-    /** Reset result and expected. */
+    // Reset result and expected.
     result = {};
     expected = {};
 
@@ -194,7 +176,8 @@ window.onload = function() {
 
   QUnit.test('element - without scrollbar', function (assert) {
 
-    /** Preparation. */
+    assert.expect(5);
+
     element.style.position = 'relative';
     element.style.overflow = 'scroll';
     elementInner.style.position = 'absolute';
@@ -203,7 +186,6 @@ window.onload = function() {
     elementInner.style.top = '0px';
     elementInner.style.bottom = '0px';
 
-    /** Assert. */
     element.style.width = '100px';
     element.style.height = '100px';
     result.height = mezr.height(element);
@@ -212,7 +194,6 @@ window.onload = function() {
     expected.width = elementInner.getBoundingClientRect().width;
     assert.deepEqual(result, expected, 'integer values');
 
-    /** Assert. */
     element.style.width = '100.4px';
     element.style.height = '100.4px';
     result.height = mezr.height(element);
@@ -221,7 +202,6 @@ window.onload = function() {
     expected.width = elementInner.getBoundingClientRect().width;
     assert.deepEqual(result, expected, 'fractional values');
 
-    /** Assert. */
     element.style.width = '100.5px';
     element.style.height = '100.5px';
     result.height = mezr.height(element);
@@ -230,7 +210,6 @@ window.onload = function() {
     expected.width = elementInner.getBoundingClientRect().width;
     assert.deepEqual(result, expected, 'fractional values');
 
-    /** Assert. */
     element.style.width = '100.6px';
     element.style.height = '100.6px';
     result.height = mezr.height(element);
@@ -239,7 +218,6 @@ window.onload = function() {
     expected.width = elementInner.getBoundingClientRect().width;
     assert.deepEqual(result, expected, 'fractional values');
 
-    /** Assert. */
     element.style.width = '73.7%';
     element.style.height = '73.7%';
     result.height = mezr.height(element);
@@ -252,7 +230,8 @@ window.onload = function() {
 
   QUnit.test('element - with scrollbar', function (assert) {
 
-    /** Preparation. */
+    assert.expect(2);
+
     element.style.width = '100px';
     element.style.height = '100px';
     element.style.margin = '10px';
@@ -260,7 +239,6 @@ window.onload = function() {
     element.style.border = '10px solid';
     element.style.overflow = 'scroll';
 
-    /** Assert. */
     element.style.boxSizing = 'content-box';
     result.height = mezr.height(element, true);
     result.width = mezr.width(element, true);
@@ -268,7 +246,7 @@ window.onload = function() {
     expected.width = 100;
     assert.deepEqual(result, expected, 'content-box');
 
-    /** Assert. */
+    // Assert. */
     element.style.boxSizing = 'border-box';
     result.height = mezr.height(element, true);
     result.width = mezr.width(element, true);
@@ -280,7 +258,8 @@ window.onload = function() {
 
   QUnit.test('element - with padding and scrollbar', function (assert) {
 
-    /** Preparation. */
+    assert.expect(2);
+
     element.style.width = '100px';
     element.style.height = '100px';
     element.style.margin = '10px';
@@ -288,7 +267,6 @@ window.onload = function() {
     element.style.border = '10px solid';
     element.style.overflow = 'scroll';
 
-    /** Assert. */
     element.style.boxSizing = 'content-box';
     result.height = mezr.height(element, true, true);
     result.width = mezr.width(element, true, true);
@@ -296,7 +274,6 @@ window.onload = function() {
     expected.width = 120;
     assert.deepEqual(result, expected, 'content-box');
 
-    /** Assert. */
     element.style.boxSizing = 'border-box';
     result.height = mezr.height(element, true, true);
     result.width = mezr.width(element, true, true);
@@ -308,7 +285,8 @@ window.onload = function() {
 
   QUnit.test('element - with border and scrollbar', function (assert) {
 
-    /** Preparation. */
+    assert.expect(2);
+
     element.style.width = '100px';
     element.style.height = '100px';
     element.style.margin = '10px';
@@ -316,7 +294,6 @@ window.onload = function() {
     element.style.border = '10px solid';
     element.style.overflow = 'scroll';
 
-    /** Assert. */
     element.style.boxSizing = 'content-box';
     result.height = mezr.height(element, true, false, true);
     result.width = mezr.width(element, true, false, true);
@@ -324,7 +301,6 @@ window.onload = function() {
     expected.width = 120;
     assert.deepEqual(result, expected, 'content-box');
 
-    /** Assert. */
     element.style.boxSizing = 'border-box';
     result.height = mezr.height(element, true, false, true);
     result.width = mezr.width(element, true, false, true);
@@ -336,7 +312,8 @@ window.onload = function() {
 
   QUnit.test('element - with margin and scrollbar', function (assert) {
 
-    /** Preparation. */
+    assert.expect(2);
+
     element.style.width = '100px';
     element.style.height = '100px';
     element.style.margin = '10px';
@@ -344,7 +321,6 @@ window.onload = function() {
     element.style.border = '10px solid';
     element.style.overflow = 'scroll';
 
-    /** Assert. */
     element.style.boxSizing = 'content-box';
     result.height = mezr.height(element, true, false, false, true);
     result.width = mezr.width(element, true, false, false, true);
@@ -352,7 +328,6 @@ window.onload = function() {
     expected.width = 120;
     assert.deepEqual(result, expected, 'content-box');
 
-    /** Assert. */
     element.style.boxSizing = 'border-box';
     result.height = mezr.height(element, true, false, false, true);
     result.width = mezr.width(element, true, false, false, true);
@@ -362,15 +337,59 @@ window.onload = function() {
 
   });
 
-  /*
+  QUnit.test('element - padding in percentages', function (assert) {
 
-  QUnit.test('element - margin and padding as percentage', function (assert) {
+    assert.expect(6);
 
     fixture.style.width = '1000px';
     fixture.style.height = '1000px';
     element.style.width = '100px';
     element.style.height = '100px';
-    element.style.padding = '10%';
+    element.style.padding = '1%';
+    element.style.margin = '0px';
+    element.style.border = '10px solid';
+    element.style.overflow = 'scroll';
+
+    element.style.boxSizing = 'content-box';
+    result.height = mezr.height(element, true, true, true, true);
+    result.width = mezr.width(element, true, true, true, true);
+    expected.height = 140;
+    expected.width = 140;
+    assert.strictEqual(result.width, expected.width, 'content-box');
+    assert.strictEqual(result.height, expected.height, 'content-box');
+
+    element.style.boxSizing = 'border-box';
+    result.height = mezr.height(element, true, true, true, true);
+    result.width = mezr.width(element, true, true, true, true);
+    expected.height = 100;
+    expected.width = 100;
+    assert.deepEqual(result.height, expected.height, 'border-box');
+    assert.deepEqual(result.width, expected.width, 'border-box');
+
+    element.style.boxSizing = 'border-box';
+    result.height = mezr.height(element, true);
+    result.width = mezr.width(element, true);
+    expected.height = 60;
+    expected.width = 60;
+    assert.deepEqual(result.height, expected.height, 'border-box');
+    assert.deepEqual(result.width, expected.width, 'border-box');
+
+  });
+
+  // TODO: Add test case where margin is is greater than the width/height
+  // and check if the scrollbar is placed within margin or outside margin
+  // and if mezr handles it correctly. EDGE pushes the scrollbar outside
+  // of padding whereas other browsers do not.
+
+  QUnit.test('element - margin in percentages', function (assert) {
+
+    assert.expect(6);
+
+    fixture.style.width = '1000px';
+    fixture.style.height = '1000px';
+    element.style.width = '100px';
+    element.style.height = '100px';
+    element.style.padding = '0px';
     element.style.margin = '10%';
     element.style.border = '10px solid';
     element.style.overflow = 'scroll';
@@ -378,36 +397,33 @@ window.onload = function() {
     element.style.boxSizing = 'content-box';
     result.height = mezr.height(element, true, true, true, true);
     result.width = mezr.width(element, true, true, true, true);
-    expected.height = 520;
-    expected.width = 520;
+    expected.height = 320;
+    expected.width = 320;
     assert.strictEqual(result.width, expected.width, 'content-box');
     assert.strictEqual(result.height, expected.height, 'content-box');
 
     element.style.boxSizing = 'border-box';
     result.height = mezr.height(element, true, true, true, true);
     result.width = mezr.width(element, true, true, true, true);
-    expected.height = 420;
-    expected.width = 420;
+    expected.height = 300;
+    expected.width = 300;
     assert.deepEqual(result.height, expected.height, 'border-box');
     assert.deepEqual(result.width, expected.width, 'border-box');
 
     element.style.boxSizing = 'border-box';
     result.height = mezr.height(element, true);
     result.width = mezr.width(element, true);
-    expected.height = 0;
-    expected.width = 0;
+    expected.height = 80;
+    expected.width = 80;
     assert.deepEqual(result.height, expected.height, 'border-box');
     assert.deepEqual(result.width, expected.width, 'border-box');
 
   });
 
-  */
-
-  QUnit.module('width/height - docWidth/docHeight');
-
   QUnit.test('document', function (assert) {
 
-    /** Preparation. */
+    assert.expect(2);
+
     element.style.position = 'absolute';
     element.style.left = '0px';
     element.style.top = '0px';
@@ -418,14 +434,12 @@ window.onload = function() {
     element.style.margin = '0px';
     element.style.boxSizing = 'border-box';
 
-    /** Assert. */
     expected.width = 10000;
     expected.height = 10000;
     result.width = mezr.width(document);
     result.height = mezr.height(document);
     assert.deepEqual(result, expected, 'width/height - without viewport scrollbar');
 
-    /** Assert. */
     expected.width = 10000 + window.innerWidth - document.documentElement.clientWidth;
     expected.height = 10000 + window.innerHeight - document.documentElement.clientHeight;
     result.width = mezr.width(document, true);
@@ -434,11 +448,10 @@ window.onload = function() {
 
   });
 
-  QUnit.module('width/height - winWidth/winHeight');
-
   QUnit.test('window', function (assert) {
 
-    /** Preparation. */
+    assert.expect(2);
+
     element.style.position = 'absolute';
     element.style.left = '0px';
     element.style.top = '0px';
@@ -449,14 +462,12 @@ window.onload = function() {
     element.style.margin = '0px';
     element.style.boxSizing = 'border-box';
 
-    /** Assert. */
     expected.width = document.documentElement.clientWidth;
     expected.height = document.documentElement.clientHeight;
     result.width = mezr.width(window);
     result.height = mezr.height(window);
     assert.deepEqual(result, expected, 'width/height - without viewport scrollbar');
 
-    /** Assert. */
     expected.width = window.innerWidth;
     expected.height = window.innerHeight;
     result.width = mezr.width(window, true);
@@ -469,7 +480,8 @@ window.onload = function() {
 
   QUnit.test('default tests', function (assert) {
 
-    /** Preparation. */
+    assert.expect(19);
+
     fixture.style.position = 'absolute';
     fixture.style.width = '10000px';
     fixture.style.height = '10000px';
@@ -486,154 +498,118 @@ window.onload = function() {
     element.style.border = '10px solid';
     element.style.padding = '15px';
 
-    /*
-     * Document.
-     */
+    // Document.
 
-    /** Assert. */
     window.scrollTo(1000, 1000);
     result = mezr.offset(document);
     expected.left = 0;
     expected.top = 0;
     assert.deepEqual(result, expected, 'document');
 
-    /*
-     * Window.
-     */
+    // Window.
 
-    /** Assert. */
-    /*
     window.scrollTo(1000, 1000);
     result = mezr.offset(window);
     expected.left = 1000;
     expected.top = 1000;
     assert.deepEqual(result.left, expected.left, 'window');
     assert.deepEqual(result.top, expected.top, 'window');
-    */
 
-    /*
-     * Element - Static positioning.
-     */
+    // Element - Static positioning.
 
-    /** Preparation. */
     window.scrollTo(0, 0);
     element.style.position = 'static';
 
-    /** Assert. */
     result = mezr.offset(element);
     expected.left = 50;
     expected.top = 50;
     assert.deepEqual(result, expected, element.style.position + ' positioning - default');
 
-    /** Assert. */
     result = mezr.offset(element, true);
     expected.left = 60;
     expected.top = 60;
     assert.deepEqual(result, expected, element.style.position + ' positioning - include border');
 
-    /** Assert. */
     result = mezr.offset(element, false, true);
     expected.left = 65;
     expected.top = 65;
     assert.deepEqual(result, expected, element.style.position + ' positioning - include padding');
 
-    /** Assert. */
     result = mezr.offset(element, true, true);
     expected.left = 75;
     expected.top = 75;
     assert.deepEqual(result, expected, element.style.position + ' positioning - include padding and border');
 
-    /*
-     * Element - Relative positioning.
-     */
+    // Element - Relative positioning.
 
-    /** Preparation. */
     window.scrollTo(0, 0);
     element.style.position = 'relative';
 
-    /** Assert. */
     result = mezr.offset(element);
     expected.left = 60;
     expected.top = 60;
     assert.deepEqual(result, expected, element.style.position + ' positioning - default');
 
-    /** Assert. */
     result = mezr.offset(element, true);
     expected.left = 70;
     expected.top = 70;
     assert.deepEqual(result, expected, element.style.position + ' positioning - include border');
 
-    /** Assert. */
     result = mezr.offset(element, false, true);
     expected.left = 75;
     expected.top = 75;
     assert.deepEqual(result, expected, element.style.position + ' positioning - include padding');
 
-    /** Assert. */
     result = mezr.offset(element, true, true);
     expected.left = 85;
     expected.top = 85;
     assert.deepEqual(result, expected, element.style.position + ' positioning - include padding and border');
 
-    /*
-     * Element - Absolute positioning.
-     */
+    // Element - Absolute positioning.
 
-    /** Preparation. */
     window.scrollTo(0, 0);
     element.style.position = 'absolute';
 
-    /** Assert. */
     result = mezr.offset(element);
     expected.left = 50;
     expected.top = 50;
     assert.deepEqual(result, expected, element.style.position + ' positioning - default');
 
-    /** Assert. */
     result = mezr.offset(element, true);
     expected.left = 60;
     expected.top = 60;
     assert.deepEqual(result, expected, element.style.position + ' positioning - include border');
 
-    /** Assert. */
     result = mezr.offset(element, false, true);
     expected.left = 65;
     expected.top = 65;
     assert.deepEqual(result, expected, element.style.position + ' positioning - include padding');
 
-    /** Assert. */
     result = mezr.offset(element, true, true);
     expected.left = 75;
     expected.top = 75;
     assert.deepEqual(result, expected, element.style.position + ' positioning - include padding and border');
 
-    /*
-     * Element - Fixed positioning.
-     */
+    // Element - Fixed positioning.
 
-    /** Preparation. */
     window.scrollTo(0, 0);
     element.style.position = 'fixed';
 
-    /** Assert. */
     result = mezr.offset(element);
     expected.left = 20;
     expected.top = 20;
     assert.deepEqual(result, expected, element.style.position + ' positioning - default');
 
-    /** Assert. */
     result = mezr.offset(element, true);
     expected.left = 30;
     expected.top = 30;
     assert.deepEqual(result, expected, element.style.position + ' positioning - include border');
 
-    /** Assert. */
     result = mezr.offset(element, false, true);
     expected.left = 35;
     expected.top = 35;
     assert.deepEqual(result, expected, element.style.position + ' positioning - include padding');
 
-    /** Assert. */
     result = mezr.offset(element, true, true);
     expected.left = 45;
     expected.top = 45;
@@ -643,7 +619,8 @@ window.onload = function() {
 
   QUnit.test('element - scroll test - absolute positioning', function (assert) {
 
-    /** Preparation. */
+    assert.expect(1);
+
     fixture.style.position = 'absolute';
     fixture.style.width = '10000px';
     fixture.style.height = '10000px';
@@ -662,7 +639,6 @@ window.onload = function() {
     element.style.border = '0px solid';
     window.scrollTo(1000, 1000);
 
-    /** Assert. */
     result = mezr.offset(element);
     expected.left = 9990;
     expected.top = 9990;
@@ -670,9 +646,9 @@ window.onload = function() {
 
   });
 
-  /*
-
   QUnit.test('element - scroll test - fixed positioning', function (assert) {
+
+    assert.expect(1);
 
     fixture.style.position = 'absolute';
     fixture.style.width = '10000px';
@@ -697,56 +673,46 @@ window.onload = function() {
 
   });
 
-  */
-
   QUnit.module('offsetParent');
 
   QUnit.test('tests', function (assert) {
 
-    /**
-     * Special cases.
-     */
+    assert.expect(21);
 
-    /** Assert. */
+    // Special cases.
+
     result = mezr.offsetParent(document);
     expected = null;
     assert.deepEqual(result, expected, 'document offsetParent -> null');
 
-    /** Assert. */
     result = mezr.offsetParent(window);
     expected = document;
     assert.deepEqual(result, expected, 'window offsetParent -> document');
 
-    /** Assert. */
     result = mezr.offsetParent(document.documentElement);
     expected = document;
     assert.deepEqual(result, expected, 'document.documentElement offsetParent -> document');
 
-    /** Assert. */
     document.documentElement.style.position = 'static';
     result = mezr.offsetParent(document.body);
     expected = document;
     assert.deepEqual(result, expected, 'document.body offsetParent -> document (when documentElement is static)');
 
-    /** Assert. */
     document.documentElement.style.position = 'relative';
     result = mezr.offsetParent(document.body);
     expected = document.documentElement;
     assert.deepEqual(result, expected, 'document.body offsetParent -> document.documentElement (when documentElement is relative)');
 
-    /** Assert. */
     document.documentElement.style.position = 'absolute';
     result = mezr.offsetParent(document.body);
     expected = document.documentElement;
     assert.deepEqual(result, expected, 'document.body offsetParent -> document.documentElement (when documentElement is absolute)');
 
-    /** Assert. */
     document.documentElement.style.position = 'fixed';
     result = mezr.offsetParent(document.body);
     expected = document.documentElement;
     assert.deepEqual(result, expected, 'document.body offsetParent -> document.documentElement (when documentElement is fixed)');
 
-    /** Assert. */
     document.documentElement.style.position = 'static';
     document.body.style.position = 'static';
     fixture.style.position = 'static';
@@ -756,108 +722,84 @@ window.onload = function() {
     expected = document;
     assert.deepEqual(result, expected, 'deep nested element with only static positioned parents -> offsetParent should be document');
 
-    /**
-     * Fixed positioned element.
-     */
+    // Fixed positioned element.
 
-    /** Assert. */
     fixture.style.position = 'fixed';
     element.style.position = 'fixed';
     result = mezr.offsetParent(element);
     expected = window;
     assert.deepEqual(result, expected, 'fixed element offsetParent -> window (even if the element is a child of another fixed element)');
 
-    /**
-     * Static positioned element.
-     */
+    // Static positioned element.
 
-    /** Preparation. */
     document.body.style.position = 'relative';
     element.style.position = 'static';
 
-    /** Assert. */
     fixture.style.position = 'relative';
     result = mezr.offsetParent(element);
     expected = fixture;
     assert.deepEqual(result, expected, 'static element with relative parent');
 
-    /** Assert. */
     fixture.style.position = 'absolute';
     result = mezr.offsetParent(element);
     expected = fixture;
     assert.deepEqual(result, expected, 'static element with absolute parent');
 
-    /** Assert. */
     fixture.style.position = 'fixed';
     result = mezr.offsetParent(element);
     expected = fixture;
     assert.deepEqual(result, expected, 'static element with fixed parent');
 
-    /** Assert. */
     fixture.style.position = 'static';
     result = mezr.offsetParent(element);
     expected = document.body;
     assert.deepEqual(result, expected, 'static element with static parent');
 
-    /**
-     * Relative positioned element.
-     */
+    // Relative positioned element.
 
-    /** Preparation. */
     document.body.style.position = 'relative';
     element.style.position = 'relative';
 
-    /** Assert. */
     fixture.style.position = 'relative';
     result = mezr.offsetParent(element);
     expected = fixture;
     assert.deepEqual(result, expected, 'relative element with relative parent');
 
-    /** Assert. */
     fixture.style.position = 'absolute';
     result = mezr.offsetParent(element);
     expected = fixture;
     assert.deepEqual(result, expected, 'relative element with absolute parent');
 
-    /** Assert. */
     fixture.style.position = 'fixed';
     result = mezr.offsetParent(element);
     expected = fixture;
     assert.deepEqual(result, expected, 'relative element with fixed parent');
 
-    /** Assert. */
     fixture.style.position = 'static';
     result = mezr.offsetParent(element);
     expected = document.body;
     assert.deepEqual(result, expected, 'relative element with static parent');
 
-    /**
-     * Absolute positioned element.
-     */
+    // Absolute positioned element.
 
-    /** Preparation. */
     document.body.style.position = 'relative';
     element.style.position = 'absolute';
 
-    /** Assert. */
     fixture.style.position = 'relative';
     result = mezr.offsetParent(element);
     expected = fixture;
     assert.deepEqual(result, expected, 'absolute element with relative parent');
 
-    /** Assert. */
     fixture.style.position = 'absolute';
     result = mezr.offsetParent(element);
     expected = fixture;
     assert.deepEqual(result, expected, 'absolute element with absolute parent');
 
-    /** Assert. */
     fixture.style.position = 'fixed';
     result = mezr.offsetParent(element);
     expected = fixture;
     assert.deepEqual(result, expected, 'absolute element with fixed parent');
 
-    /** Assert. */
     fixture.style.position = 'static';
     result = mezr.offsetParent(element);
     expected = document.body;
@@ -865,53 +807,120 @@ window.onload = function() {
 
   });
 
+  QUnit.module('position');
+
+  QUnit.test('tests', function (assert) {
+
+    // TODO
+
+    assert.expect(1);
+
+    assert.equal(1, 1);
+
+  });
+
+  QUnit.module('intersection');
+
+  QUnit.test('tests', function (assert) {
+
+    assert.expect(4);
+
+    var
+    a = {width: 5, height: 5, left: 0, top: 0},
+    b = {width: 5, height: 5, left: 4, top: 4};
+
+    result = mezr.intersection(a, b);
+    expected = true;
+    assert.equal(result, expected, 'has intersection - boolean');
+
+    result = mezr.intersection(a, b, 1);
+    expected = {left: 4, top: 4, height: 1, width: 1};
+    assert.deepEqual(result, expected, 'has intersection - data');
+
+    a = {width: 5, height: 5, left: 0, top: 0};
+    b = {width: 5, height: 5, left: 5, top: 5};
+
+    result = mezr.intersection(a, b);
+    expected = false;
+    assert.equal(result, expected, 'no intersection - boolean');
+
+    result = mezr.intersection(a, b, 1);
+    expected = null;
+    assert.equal(result, expected, 'no intersection - data');
+
+  });
+
   QUnit.module('distance');
 
   QUnit.test('tests', function (assert) {
 
-    /** Preparation. */
+    assert.expect(8);
+
     function distanceFormula(a, b) {
+
       return Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2));
+
     }
 
-    /** Assert. */
-    result = mezr.distance({left: 5, top: 5}, {left: 10, top: 10});
-    expected = {left: 5, top: 5, direct: distanceFormula(5, 5)};
-    assert.deepEqual(result, expected, 'objects as arguments');
+    var
+    a = {width: 5, height: 5, left: 10, top: 10},
+    b = {width: 5, height: 5};
 
-    /** Assert. */
-    result = mezr.distance({left: -15, top: 10}, {left: 10, top: -30});
-    expected = {left: 25, top: -40, direct: distanceFormula(25, 40)};
-    assert.deepEqual(result, expected, 'objects as arguments');
+    b.left = 20;
+    b.top = 0;
+    result = mezr.distance(a, b);
+    expected = distanceFormula(5, 5);
+    assert.equal(result, expected, 'right top corner');
 
-    /** Preparation. */
-    fixture.style.position = 'absolute';
-    fixture.style.border = '10px solid #000';
-    fixture.style.padding = '10px';
-    element.style.position = 'relative';
-    element.style.left = '10px';
-    element.style.top = '10px';
-    element.style.margin = '10px';
-    element.style.padding = '10px';
-    element.style.border = '10px solid #000';
+    b.left = 20;
+    b.top = 20;
+    result = mezr.distance(a, b);
+    expected = distanceFormula(5, 5);
+    assert.equal(result, expected, 'right bottom corner');
 
-    /** Assert. */
-    result = mezr.distance([element], [fixture, true, true]);
-    expected = {left: -20, top: -20, direct: distanceFormula(20, 20)};
-    assert.deepEqual(result, expected, 'arrays as arguments');
+    b.left = 0;
+    b.top = 20;
+    result = mezr.distance(a, b);
+    expected = distanceFormula(5, 5);
+    assert.equal(result, expected, 'left bottom corner');
 
-    /** Assert. */
-    result = mezr.distance([fixture, true, true], [element]);
-    expected = {left: 20, top: 20, direct: distanceFormula(20, 20)};
-    assert.deepEqual(result, expected, 'arrays as arguments');
+    b.left = 0;
+    b.top = 0;
+    result = mezr.distance(a, b);
+    expected = distanceFormula(5, 5);
+    assert.equal(result, expected, 'left top corner');
+
+    b.left = 10;
+    b.top = 0;
+    result = mezr.distance(a, b);
+    expected = 5;
+    assert.equal(result, expected, 'top edge');
+
+    b.left = 10;
+    b.top = 20;
+    result = mezr.distance(a, b);
+    expected = 5;
+    assert.equal(result, expected, 'bottom edge');
+
+    b.left = 0;
+    b.top = 10;
+    result = mezr.distance(a, b);
+    expected = 5;
+    assert.equal(result, expected, 'left edge');
+
+    b.left = 20;
+    b.top = 10;
+    result = mezr.distance(a, b);
+    expected = 5;
+    assert.equal(result, expected, 'right edge');
 
   });
-
-  /*
 
   QUnit.module('place');
 
   QUnit.test('tests', function (assert) {
+
+    assert.expect(1458);
 
     var
     cssPositions = ['absolute', 'relative', 'fixed'],
@@ -988,7 +997,5 @@ window.onload = function() {
     }
 
   });
-
-  */
 
 };

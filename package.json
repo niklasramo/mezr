@@ -1,8 +1,10 @@
 {
-  "name": "Mezr",
-  "version": "0.3.0-2",
+  "name": "mezr",
+  "version": "0.4.0",
   "description": "Measure and compare the dimensions and distances of DOM elements.",
-  "keywords": ["width, height, offset, position, dimension, element"],
+  "keywords": [
+    "width, height, offset, position, dimension, element"
+  ],
   "homepage": "https://github.com/niklasramo/mezr",
   "license": "MIT",
   "author": {
@@ -27,16 +29,11 @@
     "run-sequence": "^1.0.2",
     "qunitjs": "^1.17.1",
     "karma": "^0.12.31",
-    "karma-phantomjs-launcher": "^0.1.4",
     "karma-chrome-launcher": "^0.1.7",
     "karma-firefox-launcher": "^0.1.4",
     "karma-ie-launcher": "^0.1.5",
     "karma-qunit": "^0.1.4",
     "karma-story-reporter": "^0.3.1",
-    "phantomjs": "^1.9.15",
-    "karma-sauce-launcher": "^0.2.10",
-    "karma-coveralls": "^0.1.5",
-    "karma-coverage": "^0.2.7",
     "rimraf": "^2.2.8"
   }
 }

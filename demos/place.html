@@ -149,9 +149,9 @@
     <script src="../mezr.js"></script>
     <script>
 
-      var 
-      element = document.getElementById('target'),
-      target = document.getElementById('base'),
+      var
+      target = document.getElementById('target'),
+      base = document.getElementById('base'),
       container = document.getElementById('container'),
       targetX = document.getElementById('target-x'),
       targetY = document.getElementById('target-y'),
@@ -160,27 +160,21 @@
 
       function positionTarget() {
 
-        var 
+        var
         val1 = targetX.options[targetX.selectedIndex].value,
         val2 = targetY.options[targetY.selectedIndex].value,
         val3 = baseX.options[baseX.selectedIndex].value,
         val4 = baseY.options[baseY.selectedIndex].value,
-        position = mezr.place(element, {
+        position = mezr.place(target, {
           my: val1 + ' ' + val2,
           at: val3 + ' ' + val4,
-          of: target,
-          within: container,
-          collision: {
-            left: 'push',
-            right: 'push',
-            top: 'push',
-            bottom: 'push'
-          }
+          of: base,
+          within: base
         });
 
         // Move element
-        element.style.left = position.left + 'px';
-        element.style.top = position.top + 'px';
+        target.style.left = position.left + 'px';
+        target.style.top = position.top + 'px';
 
       }
 
