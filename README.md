@@ -9,7 +9,6 @@ Mezr is a lightweight JavaScript utility library for measuring and comparing the
 * Fast (does not touch DOM, ever).
 * Advanced element positioning.
 * Collision detection.
-* Enough buzzwords already..?
 
 ## API 0.4.0
 
@@ -29,76 +28,98 @@ Returns the width of an element in pixels. Accepts also the window object (for g
 
 **Syntax**
 
-`mezr.width( el [, edge ] [, includeScrollbar ] )`
+`mezr.width( el [, edgeLayer ] )`
 
 **Parameters**
 
 * **el** &nbsp;&mdash;&nbsp; *element / window / document*
   * Accepts any DOM element, the document object or the window object.
-* **edge** &nbsp;&mdash;&nbsp; *number / string*
+* **edgeLayer** &nbsp;&mdash;&nbsp; *number / string*
   * Default: `"border"`
-  * Defines which layer (core, padding, border, margin) of the element is considered as the outer edge of the element.
-  * This argument has no effect for `window` and `document`.
+  * Defines which layer (core, padding, scroll, border, margin) of the element is considered as the outer edge of the element.
   * The edge can be described with a number or a string, here are the possible values:
-    * `"core"` -> `0`
-    * `"padding"` -> `1`
-    * `"border"` -> `2`
-    * `"margin"` -> `3`
-  * If the value of this argument is set to `"margin"` only positive margins are considered as part of the element's size. Negative margins are completelty ignored and not subtracted from the end value as some might expect. This is an intentional design choice.
-* **includeScrollbar** &nbsp;&mdash;&nbsp; *boolean*
-  * Default: `true`
-  * When set to false the element's vertical scrollbar's width will be substracted from the return value (if visible). Please note that excluding the scrollbar's width makes sense only when the edge argument's value is either `"core"` or `"border"` due to the way scrollbar behaves.
+    * `"core"` or `0`: Inner width.
+    * `"padding"` or `1`: "core" + left/right paddings.
+    * `"scroll"` or `2`: "padding" + vertical scrollbar's width (if it exists).
+    * `"border"` or `3`: "scroll" + left/right borders.
+    * `"margin"` or `4`: "border" + left/right margins (only positive margins).
+  * For `window` and `document` objects this argument behaves a bit differently since they cannot have any paddings, borders or margins.
+    * Only `"core"` (without vertical scrollbar's width) and `"scroll"` (with vertical scrollbar's width) are effective values.
+    * `"padding"` is normalized to `"core"`.
+    * `"border"` and `"margin"` are normalized to `"scroll"`.
 
 **Returns** &nbsp;&mdash;&nbsp; *number*
 
-The return value may be fractional when calculating the width of an element. For window and document objects the value is always an integer though.
+The return value may be fractional when calculating the width of an element. For `window` and `document` objects the value is always an integer though.
 
 **Examples**
 
+Document width with viewport scrollbar.
+
 ```javascript
-// Document width with viewport scrollbar.
 // No jQuery alternative.
 var docWidth = mezr.width(document);
+// or
+var docWidth = mezr.width(document. "scroll");
+```
 
-// Document width without viewport scrollbar.
+Document width without viewport scrollbar.
+
+```javascript
 // jQuery -> $(document).width()
-var docWidth = mezr.width(document, "core", false);
+var docWidth = mezr.width(document, "core");
+```
 
-// Window width with viewport scrollbar (handy for working with media queries).
+Window width with viewport scrollbar (handy for working with media queries).
+
+```javascript
 // No jQuery alternative.
 var winWidth = mezr.width(window);
+var winWidth = mezr.width(window, 'scroll');
+```
 
-// Window width without viewport scrollbar.
+Window width without viewport scrollbar.
+
+```javascript
 // jQuery -> $(window).width()
-var winWidth = mezr.width(window, "core", false);
+var winWidth = mezr.width(window, "core");
+```
 
-// Element width with scrollbar.
-// jQuery -> $('body').width()
+Element's inner width. Note that Mezr's implementation differs slightly from jQuery's `.width()` and should not be used as a drop in replacement. If the element has vertical scrollbar Mezr never includes it in the result unlike jQuery. In other words jQuery version returns the element's *potential* inner width whereas Mezr version returns the element's *true* inner width.
+
+```javascript
+// Partial jQuery alternative -> $('body').width()
 var coreWidth = mezr.width(document.body, "core");
+```
 
-// Element width with scrollbar and padding.
-// jQuery -> $('body').innerWidth()
+Element's width with paddings, but without vertical scollbar's width (if it exists). The same stuff applies to this example as the one above. jQuery's `.innerWidth()` method returns identical values as Mezr's "padding" width as long as the element does not have a vertical scrollbar.
+
+```javascript
+// Partial jQuery alternative -> $('body').innerWidth()
 var paddingWidth = mezr.width(document.body, "padding");
+```
 
-// Element width with scrollbar, padding and border.
-// Note that "border" is the default value for the 2nd argument.
+Element's width with paddings and vertical scollbar's width (if it exists).
+
+```javascript
+// jQuery -> $('body').innerWidth()
+var scrollWidth = mezr.width(document.body, "scroll");
+```
+
+Element's width with paddings, borders and vertical scollbar's width (if it exists).
+
+```javascript
 // jQuery -> $('body').outerWidth()
 var borderWidth = mezr.width(document.body, "border");
+// or
 var borderWidth = mezr.width(document.body);
+```
 
-// Element width with scrollbar, padding, border and margin.
-// Note that Mezr ignores negative margins. They are not
-// added to nor subtracted from the end result.
+Element's width with paddings, borders margins and vertical scollbar's width (if it exists). Note that Mezr ignores negative margins completely so they do not affect the result in any way.
+
+```javascript
 // jQuery -> $('body').outerWidth(true)
 var marginWidth = mezr.width(document.body, "margin");
-
-// Element core width without scrollbar.
-// No jQuery alternative.
-var coreWidthNoSb = mezr.width(document.body, "core", false);
-
-// Element core + padding width without scrollbar.
-// No jQuery alternative.
-var paddingWidthNoSb = mezr.width(document.body, "padding", false);
 ```
 
 &nbsp;
@@ -109,33 +130,33 @@ Returns the height of an element in pixels. Accepts also the window object (for 
 
 **Syntax**
 
-`mezr.height( el [, edge ] [, includeScrollbar ] )`
+`mezr.height( el [, edgeLayer ] )`
 
 **Parameters**
 
 * **el** &nbsp;&mdash;&nbsp; *element / window / document*
   * Accepts any DOM element, the document object or the window object.
-* **edge** &nbsp;&mdash;&nbsp; *number / string*
+* **edgeLayer** &nbsp;&mdash;&nbsp; *number / string*
   * Default: `"border"`
-  * Defines which layer (core, padding, border, margin) of the element is considered as the outer edge of the element.
-  * This argument has no effect for `window` and `document`.
+  * Defines which layer (core, padding, scroll, border, margin) of the element is considered as the outer edge of the element.
   * The edge can be described with a number or a string, here are the possible values:
-    * `"core"` -> `0`
-    * `"padding"` -> `1`
-    * `"border"` -> `2`
-    * `"margin"` -> `3`
-  * If the value of this argument is set to `"margin"` only positive margins are considered as part of the element's size. Negative margins are completelty ignored and not subtracted from the end value as some might expect. This is an intentional design choice.
-* **includeScrollbar** &nbsp;&mdash;&nbsp; *boolean*
-  * Default: `true`
-  * When set to false the element's horizontal scrollbar's height will be substracted from the return value (if visible). Please note that excluding the scrollbar's height makes sense only when the edge argument's value is either `"core"` or `"border"` due to the way scrollbar behaves.
+    * `"core"` or `0`: Inner height.
+    * `"padding"` or `1`: "core" + top/bottom paddings.
+    * `"scroll"` or `2`: "padding" + horizontal scrollbar's height (if it exists).
+    * `"border"` or `3`: "scroll" + top/bottom borders.
+    * `"margin"` or `4`: "border" + top/bottom margins (only positive margins).
+  * For `window` and `document` objects this argument behaves a bit differently since they cannot have any paddings, borders or margins.
+    * Only `"core"` (without horizontal scrollbar's height) and `"scroll"` (with horizontal scrollbar's height) are effective values.
+    * `"padding"` is normalized to `"core"`.
+    * `"border"` and `"margin"` are normalized to `"scroll"`.
 
 **Returns** &nbsp;&mdash;&nbsp; *number*
 
-The return value may be fractional when calculating the height of an element. For window and document objects the value is always an integer though.
+The return value may be fractional when calculating the height of an element. For `window` and `document` objects the value is always an integer though.
 
 **Examples**
 
-Check the examples for [.width()](#width), same stuff applies to [.height()](#height). Just translate all mentions of *width* to *height*.
+Check the examples for [.width()](#width), same stuff applies to [.height()](#height).
 
 &nbsp;
 

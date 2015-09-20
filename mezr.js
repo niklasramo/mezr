@@ -12,6 +12,14 @@
  * behaviour optional.
  */
 
+/*
+ * @todo Check element's scrolbar behaviour on init and account for the varying behaviours. For
+ * example EDGE pushes the scrollbar in some scenarios outside of padding whereas other browsers do
+ * not. Based on this knowledge implement automatic scrollbar detection behvaiour so that
+ * explicit scrollbar inclusion/exclusion arguments are not needed. Replace that behaviour with
+ * another edge layer named "scrollbar" or "scroll" for example.
+ */
+
 (function (global, factory) {
 
   if (typeof define === 'function' && define.amd) {
@@ -55,11 +63,12 @@
   MAX = MATH.max,
   MIN = MATH.min,
   // Mappings for element edges.
-  elemEdges = {
+  elemLayers = {
     core: 0,
     padding: 1,
-    border: 2,
-    margin: 3
+    scroll: 2,
+    border: 3,
+    margin: 4
   },
   /** @global */
   mezr = {
@@ -183,6 +192,20 @@
   }
 
   /**
+   * Check if an object is a DOM HTML element that can be visible and have styling. More accurately
+   * this method specifically checks if the provided object is the root element, body element or an
+   * element within the body element.
+   *
+   * @param {Object} obj
+   * @returns {Boolean}
+   */
+  function isElem(elem) {
+
+    return elem === root || elem === doc.body || (typeOf(elem).indexOf('html') > -1 && doc.body.contains(elem));
+
+  }
+
+  /**
    * Customized parseFloat function which returns 0 instead of NaN.
    *
    * @param {Number|String} val
@@ -264,9 +287,8 @@
     var
     type = typeOf(el),
     offset,
-    argEl,
-    argEdge,
-    argSb,
+    elem,
+    edgeLayer,
     ret;
 
     if (type === 'object') {
@@ -278,20 +300,19 @@
 
       if (type === 'array') {
 
-        argEl = el[0];
-        argEdge = el[1];
-        argSb = el[2];
+        elem = el[0];
+        edgeLayer = el[1];
 
       }
       else {
 
-        argEl = el;
+        elem = el;
 
       }
 
-      ret = getOffset(argEl, argEdge);
-      ret.width = getWidth(argEl, argEdge, argSb);
-      ret.height = getHeight(argEl, argEdge, argSb);
+      ret = getOffset(elem, edgeLayer);
+      ret.width = getWidth(elem, edgeLayer);
+      ret.height = getHeight(elem, edgeLayer);
 
       return ret;
 
@@ -497,20 +518,19 @@
    * Edges:
    * 0 -> "core"
    * 1 -> "padding"
-   * 2 -> "border" (default)
-   * 3 -> "margin"
+   * 2 -> "scroll"
+   * 3 -> "border" (default)
+   * 4 -> "margin"
    *
    * @param {ElWinDoc} el
-   * @param {Number} [edge='border']
-   * @param {Boolean} [includeScrollbar=true]
+   * @param {Number} [edgeLayer='border']
    * @returns {Number}
    */
-  function getWidth(el, edge, includeScrollbar) {
+  function getWidth(el, edgeLayer) {
 
-    edge = typeOf(edge, 'number') ? edge : elemEdges[edge] !== undefined ? elemEdges[edge] : 2;
-    includeScrollbar = includeScrollbar === undefined ? 1 : includeScrollbar;
+    edgeLayer = typeOf(edgeLayer, 'number') ? edgeLayer : elemLayers[edgeLayer] !== undefined ? elemLayers[edgeLayer] : 3;
 
-    return getDimension('width', el, includeScrollbar, edge > 0, edge > 1, edge > 2);
+    return getDimension('width', el, edgeLayer > 1, edgeLayer > 0, edgeLayer > 2, edgeLayer > 3);
 
   }
 
@@ -521,41 +541,44 @@
    * Edges:
    * 0 -> "core"
    * 1 -> "padding"
-   * 2 -> "border" (default)
-   * 3 -> "margin"
+   * 2 -> "scroll"
+   * 3 -> "border" (default)
+   * 4 -> "margin"
    *
    * @param {ElWinDoc} el
-   * @param {Number} [edge='border']
-   * @param {Boolean} [includeScrollbar=true]
+   * @param {Number} [edgeLayer='border']
    * @returns {Number}
    */
-  function getHeight(el, edge, includeScrollbar) {
+  function getHeight(el, edgeLayer) {
 
-    edge = typeOf(edge, 'number') ? edge : elemEdges[edge] !== undefined ? elemEdges[edge] : 2;
-    includeScrollbar = includeScrollbar === undefined ? 1 : includeScrollbar;
+    edgeLayer = typeOf(edgeLayer, 'number') ? edgeLayer : elemLayers[edgeLayer] !== undefined ? elemLayers[edgeLayer] : 3;
 
-    return getDimension('height', el, includeScrollbar, edge > 0, edge > 1, edge > 2);
+    return getDimension('height', el, edgeLayer > 1, edgeLayer > 0, edgeLayer > 2, edgeLayer > 3);
 
   }
 
   /**
    * Returns the element's offset, which in practice means the vertical and horizontal distance
-   * between the element's northwest corner and the document's northwest corner. The edge
-   * argument controls which layer (core, padding, border, margin) of the element is considered as
-   * the edge of the element for calculations. For example if the edge was set to 1 or "padding" the
-   * element's margins and borders would be added to the offsets.
+   * between the element's northwest corner and the document's northwest corner. The edgeLayer
+   * argument controls which layer (core, padding, scroll, border, margin) of the element is
+   * considered as the edge of the element for calculations. For example, if the edgeLayer is set to
+   * 1 or "padding" the element's margins and borders will be added to the offsets. Note that
+   * setting the edgeLayer value to "padding" or "scroll" will always produce identical result here
+   * due to the way scrollbars behave, but the "scroll" option is left here intentionally to match
+   * with the syntax of width and height methods.
    *
    * Edges:
    * 0 -> "core"
    * 1 -> "padding"
-   * 2 -> "border" (default)
-   * 3 -> "margin"
+   * 2 -> "scroll"
+   * 3 -> "border" (default)
+   * 4 -> "margin"
    *
    * @param {ElWinDoc} el
-   * @param {Number} [edge='border']
+   * @param {Number} [edgeLayer='border']
    * @returns {Offset}
    */
-  function getOffset(el, edge) {
+  function getOffset(el, edgeLayer) {
 
     var
     offsetLeft = 0,
@@ -566,8 +589,8 @@
     marginLeft,
     marginTop;
 
-    // Sanitize edge argument.
-    edge = typeOf(edge, 'number') ? edge : elemEdges[edge] !== undefined ? elemEdges[edge] : 2;
+    // Sanitize edgeLayer argument.
+    edgeLayer = typeOf(edgeLayer, 'number') ? edgeLayer : elemLayers[edgeLayer] !== undefined ? elemLayers[edgeLayer] : 3;
 
     // For window we just need to get viewport's scroll distance.
     if (el.self === win.self) {
@@ -586,7 +609,7 @@
       offsetTop += gbcr.top + viewportScrollTop;
 
       // Exclude element's positive margin size from the offset.
-      if (edge > 2) {
+      if (edgeLayer > 3) {
 
         marginLeft = toFloat(getStyle(el, 'margin-left'));
         marginTop = toFloat(getStyle(el, 'margin-top'));
@@ -596,7 +619,7 @@
       }
 
       // Include element's border size to the offset.
-      if (edge < 2) {
+      if (edgeLayer < 3) {
 
         offsetLeft += toFloat(getStyle(el, 'border-left-width'));
         offsetTop += toFloat(getStyle(el, 'border-top-width'));
@@ -604,7 +627,7 @@
       }
 
       // Include element's padding size to the offset.
-      if (edge < 1) {
+      if (edgeLayer < 1) {
 
         offsetLeft += toFloat(getStyle(el, 'padding-left'));
         offsetTop += toFloat(getStyle(el, 'padding-top'));
@@ -633,7 +656,7 @@
     var
     isArray = typeOf(el, 'array'),
     elem = isArray ? el[0] : el,
-    edge = isArray ? el[1] : 2,
+    edgeLayer = isArray ? el[1] : undefined,
     position = getStyle(elem, 'position'),
     offset,
     left,
@@ -643,7 +666,7 @@
 
     if (position === 'relative') {
 
-      offset = getOffset(elem, edge);
+      offset = getOffset(elem, edgeLayer);
       left = getStyle(elem, 'left');
       right = getStyle(elem, 'right');
       top = getStyle(elem, 'top');
@@ -663,11 +686,11 @@
 
     } else if (position === 'static') {
 
-      offset = getOffset(elem, edge);
+      offset = getOffset(elem, edgeLayer);
 
     } else {
 
-      offset = getOffset(getOffsetParent(elem) || doc, 1);
+      offset = getOffset(getOffsetParent(elem) || doc, 'padding');
 
     }
 
@@ -693,14 +716,15 @@
 
     var
     body = doc.body,
-    pos = 'style' in el && getStyle(el, 'position'),
-    offsetParent = el === doc      ? null :
-                   pos === 'fixed' ? win  :
-                   el === body     ? root :
-                   el === root     ? doc  :
-                                     el.offsetParent || doc;
+    isDomElement = isElem(el),
+    pos = isDomElement && getStyle(el, 'position'),
+    offsetParent = pos === 'fixed' ? win :
+                   el === body ? root :
+                   el === root || el === win ? doc :
+                   isDomElement ? el.offsetParent :
+                   null;
 
-    while (offsetParent && 'style' in offsetParent && getStyle(offsetParent, 'position') === 'static') {
+    while (offsetParent && isElem(offsetParent) && getStyle(offsetParent, 'position') === 'static') {
 
       offsetParent = offsetParent === body ? root : offsetParent.offsetParent || doc;
 

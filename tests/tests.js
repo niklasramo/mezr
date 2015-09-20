@@ -1,5 +1,7 @@
 window.onload = function() {
 
+  QUnit.config.reorder = false;
+
   // Cache elements used in testing.
   var
   docElem = document.documentElement,
@@ -13,8 +15,7 @@ window.onload = function() {
   fixtureCSS = '',
   result,
   expected,
-  desc,
-  placePositions;
+  desc;
 
   // Give test elements an id.
   fixture.id = 'test-fixture';
@@ -43,90 +44,17 @@ window.onload = function() {
   }
   head.appendChild(fixtureStyle);
 
-  // Define all positions of place method and their expected result.
-  placePositions = [
-    {name: 'left top left top', expected: {left: 10, top: 10}},
-    {name: 'center top left top', expected: {left: 5, top: 10}},
-    {name: 'right top left top', expected: {left: 0, top: 10}},
-    {name: 'left center left top', expected: {left: 10, top: 5}},
-    {name: 'center center left top', expected: {left: 5, top: 5}},
-    {name: 'right center left top', expected: {left: 0, top: 5}},
-    {name: 'left bottom left top', expected: {left: 10, top: 0}},
-    {name: 'center bottom left top', expected: {left: 5, top: 0}},
-    {name: 'right bottom left top', expected: {left: 0, top: 0}},
-    {name: 'left top center top', expected: {left: 15, top: 10}},
-    {name: 'center top center top', expected: {left: 10, top: 10}},
-    {name: 'right top center top', expected: {left: 5, top: 10}},
-    {name: 'left center center top', expected: {left: 15, top: 5}},
-    {name: 'center center center top', expected: {left: 10, top: 5}},
-    {name: 'right center center top', expected: {left: 5, top: 5}},
-    {name: 'left bottom center top', expected: {left: 15, top: 0}},
-    {name: 'center bottom center top', expected: {left: 10, top: 0}},
-    {name: 'right bottom center top', expected: {left: 5, top: 0}},
-    {name: 'left top right top', expected: {left: 20, top: 10}},
-    {name: 'center top right top', expected: {left: 15, top: 10}},
-    {name: 'right top right top', expected: {left: 10, top: 10}},
-    {name: 'left center right top', expected: {left: 20, top: 5}},
-    {name: 'center center right top', expected: {left: 15, top: 5}},
-    {name: 'right center right top', expected: {left: 10, top: 5}},
-    {name: 'left bottom right top', expected: {left: 20, top: 0}},
-    {name: 'center bottom right top', expected: {left: 15, top: 0}},
-    {name: 'right bottom right top', expected: {left: 10, top: 0}},
-    {name: 'left top left center', expected: {left: 10, top: 15}},
-    {name: 'center top left center', expected: {left: 5, top: 15}},
-    {name: 'right top left center', expected: {left: 0, top: 15}},
-    {name: 'left center left center', expected: {left: 10, top: 10}},
-    {name: 'center center left center', expected: {left: 5, top: 10}},
-    {name: 'right center left center', expected: {left: 0, top: 10}},
-    {name: 'left bottom left center', expected: {left: 10, top: 5}},
-    {name: 'center bottom left center', expected: {left: 5, top: 5}},
-    {name: 'right bottom left center', expected: {left: 0, top: 5}},
-    {name: 'left top center center', expected: {left: 15, top: 15}},
-    {name: 'center top center center', expected: {left: 10, top: 15}},
-    {name: 'right top center center', expected: {left: 5, top: 15}},
-    {name: 'left center center center', expected: {left: 15, top: 10}},
-    {name: 'center center center center', expected: {left: 10, top: 10}},
-    {name: 'right center center center', expected: {left: 5, top: 10}},
-    {name: 'left bottom center center', expected: {left: 15, top: 5}},
-    {name: 'center bottom center center', expected: {left: 10, top: 5}},
-    {name: 'right bottom center center', expected: {left: 5, top: 5}},
-    {name: 'left top right center', expected: {left: 20, top: 15}},
-    {name: 'center top right center', expected: {left: 15, top: 15}},
-    {name: 'right top right center', expected: {left: 10, top: 15}},
-    {name: 'left center right center', expected: {left: 20, top: 10}},
-    {name: 'center center right center', expected: {left: 15, top: 10}},
-    {name: 'right center right center', expected: {left: 10, top: 10}},
-    {name: 'left bottom right center', expected: {left: 20, top: 5}},
-    {name: 'center bottom right center', expected: {left: 15, top: 5}},
-    {name: 'right bottom right center', expected: {left: 10, top: 5}},
-    {name: 'left top left bottom', expected: {left: 10, top: 20}},
-    {name: 'center top left bottom', expected: {left: 5, top: 20}},
-    {name: 'right top left bottom', expected: {left: 0, top: 20}},
-    {name: 'left center left bottom', expected: {left: 10, top: 15}},
-    {name: 'center center left bottom', expected: {left: 5, top: 15}},
-    {name: 'right center left bottom', expected: {left: 0, top: 15}},
-    {name: 'left bottom left bottom', expected: {left: 10, top: 10}},
-    {name: 'center bottom left bottom', expected: {left: 5, top: 10}},
-    {name: 'right bottom left bottom', expected: {left: 0, top: 10}},
-    {name: 'left top center bottom', expected: {left: 15, top: 20}},
-    {name: 'center top center bottom', expected: {left: 10, top: 20}},
-    {name: 'right top center bottom', expected: {left: 5, top: 20}},
-    {name: 'left center center bottom', expected: {left: 15, top: 15}},
-    {name: 'center center center bottom', expected: {left: 10, top: 15}},
-    {name: 'right center center bottom', expected: {left: 5, top: 15}},
-    {name: 'left bottom center bottom', expected: {left: 15, top: 10}},
-    {name: 'center bottom center bottom', expected: {left: 10, top: 10}},
-    {name: 'right bottom center bottom', expected: {left: 5, top: 10}},
-    {name: 'left top right bottom', expected: {left: 20, top: 20}},
-    {name: 'center top right bottom', expected: {left: 15, top: 20}},
-    {name: 'right top right bottom', expected: {left: 10, top: 20}},
-    {name: 'left center right bottom', expected: {left: 20, top: 15}},
-    {name: 'center center right bottom', expected: {left: 15, top: 15}},
-    {name: 'right center right bottom', expected: {left: 10, top: 15}},
-    {name: 'left bottom right bottom', expected: {left: 20, top: 10}},
-    {name: 'center bottom right bottom', expected: {left: 15, top: 10}},
-    {name: 'right bottom right bottom', expected: {left: 10, top: 10}}
-  ];
+  // Helper to wrap assertions in a more readable format.
+  function assertion(assert, obj) {
+
+    if (typeof obj.setup === 'function') {
+      obj.setup();
+    }
+    forceRedraw(body);
+    assert[obj.should](obj.result(), obj.expected(), obj.description);
+    window.scrollTo(0, 0);
+
+  };
 
   // Helper function to set inline styles.
   function addStyles(elem, styles) {
@@ -134,6 +62,7 @@ window.onload = function() {
     for (style in styles) {
       elem.style[style] = styles[style];
     }
+    forceRedraw(elem);
 
   }
 
@@ -143,6 +72,7 @@ window.onload = function() {
     for (style in styles) {
       elem.style[style] = '';
     }
+    forceRedraw(elem);
 
   }
 
@@ -150,6 +80,15 @@ window.onload = function() {
   function getStyle(el, style) {
 
     return window.getComputedStyle(el, null).getPropertyValue(style);
+
+  }
+
+  function forceRedraw(element) {
+
+    var disp = element.style.display;
+    element.style.display = 'none';
+    var trick = element.offsetHeight;
+    element.style.display = disp;
 
   }
 
@@ -174,168 +113,852 @@ window.onload = function() {
 
   QUnit.module('width/height');
 
-  QUnit.test('element - without scrollbar', function (assert) {
+  QUnit.test('document', function (assert) {
 
-    assert.expect(5);
-
-    element.style.position = 'relative';
-    element.style.overflow = 'scroll';
-    elementInner.style.position = 'absolute';
-    elementInner.style.left = '0px';
-    elementInner.style.right = '0px';
-    elementInner.style.top = '0px';
-    elementInner.style.bottom = '0px';
-
-    element.style.width = '100px';
-    element.style.height = '100px';
-    result.height = mezr.height(element);
-    result.width = mezr.width(element);
-    expected.height = elementInner.getBoundingClientRect().height;
-    expected.width = elementInner.getBoundingClientRect().width;
-    assert.deepEqual(result, expected, 'integer values');
-
-    element.style.width = '100.4px';
-    element.style.height = '100.4px';
-    result.height = mezr.height(element);
-    result.width = mezr.width(element);
-    expected.height = elementInner.getBoundingClientRect().height;
-    expected.width = elementInner.getBoundingClientRect().width;
-    assert.deepEqual(result, expected, 'fractional values');
-
-    element.style.width = '100.5px';
-    element.style.height = '100.5px';
-    result.height = mezr.height(element);
-    result.width = mezr.width(element);
-    expected.height = elementInner.getBoundingClientRect().height;
-    expected.width = elementInner.getBoundingClientRect().width;
-    assert.deepEqual(result, expected, 'fractional values');
-
-    element.style.width = '100.6px';
-    element.style.height = '100.6px';
-    result.height = mezr.height(element);
-    result.width = mezr.width(element);
-    expected.height = elementInner.getBoundingClientRect().height;
-    expected.width = elementInner.getBoundingClientRect().width;
-    assert.deepEqual(result, expected, 'fractional values');
-
-    element.style.width = '73.7%';
-    element.style.height = '73.7%';
-    result.height = mezr.height(element);
-    result.width = mezr.width(element);
-    expected.height = elementInner.getBoundingClientRect().height;
-    expected.width = elementInner.getBoundingClientRect().width;
-    assert.deepEqual(result, expected, 'percentage values');
-
-  });
-
-  QUnit.test('element - with scrollbar', function (assert) {
+    // TODO: Add tests for edgeLayer value normalization and default value check
 
     assert.expect(2);
 
-    element.style.width = '100px';
-    element.style.height = '100px';
-    element.style.margin = '10px';
-    element.style.padding = '10px';
-    element.style.border = '10px solid';
-    element.style.overflow = 'scroll';
+    addStyles(element, {
+      position: 'absolute',
+      left: '0px',
+      top: '0px',
+      width: '10000px',
+      height: '10000px',
+      padding : '0px',
+      border : '0px solid',
+      margin: '0px',
+      boxSizing : 'border-box'
+    });
 
-    element.style.boxSizing = 'content-box';
-    result.height = mezr.height(element, true);
-    result.width = mezr.width(element, true);
-    expected.height = 100;
-    expected.width = 100;
-    assert.deepEqual(result, expected, 'content-box');
+    assertion(assert, {
+      description: 'size without viewport scrollbar',
+      expected: function () {
+        return {
+          width: 10000,
+          height: 10000
+        }
+      },
+      should: 'deepEqual',
+      result: function () {
+        return {
+          width: mezr.width(document, 'core'),
+          height: mezr.height(document, 'core')
+        }
+      }
+    });
 
-    // Assert. */
-    element.style.boxSizing = 'border-box';
-    result.height = mezr.height(element, true);
-    result.width = mezr.width(element, true);
-    expected.height = 60;
-    expected.width = 60;
-    assert.deepEqual(result, expected, 'border-box');
+    assertion(assert, {
+      description: 'size with viewport scrollbar',
+      expected: function () {
+        return {
+          width: 10000 + window.innerWidth - document.documentElement.clientWidth,
+          height: 10000 + window.innerHeight - document.documentElement.clientHeight
+        }
+      },
+      should: 'deepEqual',
+      result: function () {
+        return {
+          width: mezr.width(document, 'scroll'),
+          height: mezr.height(document, 'scroll')
+        }
+      }
+    });
 
   });
 
-  QUnit.test('element - with padding and scrollbar', function (assert) {
+  QUnit.test('window', function (assert) {
+
+    // TODO: Add tests for edgeLayer value normalization and default value check
 
     assert.expect(2);
 
-    element.style.width = '100px';
-    element.style.height = '100px';
-    element.style.margin = '10px';
-    element.style.padding = '10px';
-    element.style.border = '10px solid';
-    element.style.overflow = 'scroll';
+    addStyles(element, {
+      position: 'absolute',
+      left: '0px',
+      top: '0px',
+      width: '10000px',
+      height: '10000px',
+      padding : '0px',
+      border : '0px solid',
+      margin: '0px',
+      boxSizing : 'border-box'
+    });
 
-    element.style.boxSizing = 'content-box';
-    result.height = mezr.height(element, true, true);
-    result.width = mezr.width(element, true, true);
-    expected.height = 120;
-    expected.width = 120;
-    assert.deepEqual(result, expected, 'content-box');
 
-    element.style.boxSizing = 'border-box';
-    result.height = mezr.height(element, true, true);
-    result.width = mezr.width(element, true, true);
-    expected.height = 80;
-    expected.width = 80;
-    assert.deepEqual(result, expected, 'border-box');
+    assertion(assert, {
+      description: 'size without viewport scrollbar',
+      expected: function () {
+        return {
+          width: document.documentElement.clientWidth,
+          height: document.documentElement.clientHeight
+        }
+      },
+      should: 'deepEqual',
+      result: function () {
+        return {
+          width: mezr.width(window, 'core'),
+          height: mezr.height(window, 'core')
+        }
+      }
+    });
+
+    assertion(assert, {
+      description: 'size with viewport scrollbar',
+      expected: function () {
+        return {
+          width: window.innerWidth,
+          height: window.innerHeight
+        }
+      },
+      should: 'deepEqual',
+      result: function () {
+        return {
+          width: mezr.width(window, 'scroll'),
+          height: mezr.height(window, 'scroll')
+        }
+      }
+    });
+
+  });
+
+  QUnit.test('element', function (assert) {
+
+    assert.expect(35);
+
+    addStyles(element, {
+      width: '100px',
+      height: '100px',
+      margin: '10px 10px -10px -10px',
+      padding: '10px',
+      border: '10px solid',
+      overflow: 'scroll',
+      boxSizing: 'content-box'
+    });
+
+    addStyles(elementInner, {
+      position: 'absolute',
+      display: 'block',
+      left: '0px',
+      right: '0px',
+      top: '0px',
+      bottom: '0px',
+      overflow: 'hidden'
+    })
+
+    // Test that the width and height methods' edge argument can be a either a number
+    // or a string and that the string/number values match each other correctly.
+
+    assertion(assert, {
+      description: 'width "edge" argument: "core" === 0',
+      expected: function () {
+        return mezr.width(element, 'core');
+      },
+      should: 'equal',
+      result: function () {
+        return mezr.width(element, 0);
+      }
+    });
+
+    assertion(assert, {
+      description: 'height "edge" argument: "core" === 0',
+      expected: function () {
+        return mezr.height(element, 'core');
+      },
+      should: 'equal',
+      result: function () {
+        return mezr.height(element, 0);
+      }
+    });
+
+    assertion(assert, {
+      description: 'width "edge" argument: "padding" === 1',
+      expected: function () {
+        return mezr.width(element, 'padding');
+      },
+      should: 'equal',
+      result: function () {
+        return mezr.width(element, 1);
+      }
+    });
+
+    assertion(assert, {
+      description: 'height "edge" argument: "padding" === 1',
+      expected: function () {
+        return mezr.height(element, 'padding');
+      },
+      should: 'equal',
+      result: function () {
+        return mezr.height(element, 1);
+      }
+    });
+
+    assertion(assert, {
+      description: 'width "edge" argument: "scroll" === 2',
+      expected: function () {
+        return mezr.width(element, 'scroll');
+      },
+      should: 'equal',
+      result: function () {
+        return mezr.width(element, 2);
+      }
+    });
+
+    assertion(assert, {
+      description: 'height "edge" argument: "scroll" === 2',
+      expected: function () {
+        return mezr.height(element, 'scroll');
+      },
+      should: 'equal',
+      result: function () {
+        return mezr.height(element, 2);
+      }
+    });
+
+    assertion(assert, {
+      description: 'width "edge" argument: "border" === 3',
+      expected: function () {
+        return mezr.width(element, 'border');
+      },
+      should: 'equal',
+      result: function () {
+        return mezr.width(element, 3);
+      }
+    });
+
+    assertion(assert, {
+      description: 'height "edge" argument: "border" === 3',
+      expected: function () {
+        return mezr.height(element, 'border');
+      },
+      should: 'equal',
+      result: function () {
+        return mezr.height(element, 3);
+      }
+    });
+
+    assertion(assert, {
+      description: 'width "edge" argument: "margin" === 4',
+      expected: function () {
+        return mezr.width(element, 'margin');
+      },
+      should: 'equal',
+      result: function () {
+        return mezr.width(element, 4);
+      }
+    });
+
+    assertion(assert, {
+      description: 'height "edge" argument: "margin" === 4',
+      expected: function () {
+        return mezr.height(element, 'margin');
+      },
+      should: 'equal',
+      result: function () {
+        return mezr.height(element, 4);
+      }
+    });
+
+    // Default edge argument value should be "border".
+
+    assertion(assert, {
+      description: 'Default "edge" argument value should be "border"',
+      setup: function () {
+        addStyles(element, {
+          overflow: 'scroll',
+          boxSizing: 'content-box'
+        });
+      },
+      expected: function () {
+        return {
+          width: mezr.width(element, 'border'),
+          height: mezr.height(element, 'border')
+        };
+      },
+      should: 'deepEqual',
+      result: function () {
+        return {
+          width: mezr.width(element),
+          height: mezr.height(element)
+        };
+      }
+    });
+
+    // Core
+
+    assertion(assert, {
+      description: '"core" size with scrollbar: box-sizing = content-box, overflow = scroll',
+      setup: function () {
+        addStyles(element, {
+          overflow: 'scroll',
+          boxSizing: 'content-box'
+        });
+      },
+      expected: function () {
+        return {
+          width: elementInner.getBoundingClientRect().width - 20,
+          height: elementInner.getBoundingClientRect().height - 20
+        };
+      },
+      should: 'deepEqual',
+      result: function () {
+        return {
+          width: mezr.width(element, 'core'),
+          height: mezr.height(element, 'core')
+        };
+      }
+    });
+
+    assertion(assert, {
+      description: '"core" size with scrollbar: box-sizing = content-box, overflow = hidden',
+      setup: function () {
+        addStyles(element, {
+          overflow: 'hidden',
+          boxSizing: 'content-box'
+        });
+      },
+      expected: function () {
+        return {
+          width: elementInner.getBoundingClientRect().width - 20,
+          height: elementInner.getBoundingClientRect().height - 20
+        };
+      },
+      should: 'deepEqual',
+      result: function () {
+        return {
+          width: mezr.width(element, 'core'),
+          height: mezr.height(element, 'core')
+        };
+      }
+    });
+
+    assertion(assert, {
+      description: '"core" size with scrollbar: box-sizing = border-box, overflow = scroll',
+      setup: function () {
+        addStyles(element, {
+          overflow: 'scroll',
+          boxSizing: 'border-box'
+        });
+      },
+      expected: function () {
+        return {
+          width: elementInner.getBoundingClientRect().width - 20,
+          height: elementInner.getBoundingClientRect().height - 20
+        };
+      },
+      should: 'deepEqual',
+      result: function () {
+        return {
+          width: mezr.width(element, 'core'),
+          height: mezr.height(element, 'core')
+        };
+      }
+    });
+
+    assertion(assert, {
+      description: '"core" size with scrollbar: box-sizing = border-box, overflow = scroll',
+      setup: function () {
+        addStyles(element, {
+          overflow: 'hidden',
+          boxSizing: 'border-box'
+        });
+      },
+      expected: function () {
+        return {
+          width: elementInner.getBoundingClientRect().width - 20,
+          height: elementInner.getBoundingClientRect().height - 20
+        };
+      },
+      should: 'deepEqual',
+      result: function () {
+        return {
+          width: mezr.width(element, 'core'),
+          height: mezr.height(element, 'core')
+        };
+      }
+    });
+
+    // Padding
+
+    assertion(assert, {
+      description: '"padding" size with scrollbar: box-sizing = content-box, overflow = scroll',
+      setup: function () {
+        addStyles(element, {
+          overflow: 'scroll',
+          boxSizing: 'content-box'
+        });
+      },
+      expected: function () {
+        return {
+          width: elementInner.getBoundingClientRect().width,
+          height: elementInner.getBoundingClientRect().height
+        };
+      },
+      should: 'deepEqual',
+      result: function () {
+        return {
+          width: mezr.width(element, 'padding'),
+          height: mezr.height(element, 'padding')
+        };
+      }
+    });
+
+    assertion(assert, {
+      description: '"padding" size with scrollbar: box-sizing = content-box, overflow = hidden',
+      setup: function () {
+        addStyles(element, {
+          overflow: 'hidden',
+          boxSizing: 'content-box'
+        });
+      },
+      expected: function () {
+        return {
+          width: elementInner.getBoundingClientRect().width,
+          height: elementInner.getBoundingClientRect().height
+        };
+      },
+      should: 'deepEqual',
+      result: function () {
+        return {
+          width: mezr.width(element, 'padding'),
+          height: mezr.height(element, 'padding')
+        };
+      }
+    });
+
+    assertion(assert, {
+      description: '"padding" size with scrollbar: box-sizing = border-box, overflow = scroll',
+      setup: function () {
+        addStyles(element, {
+          overflow: 'scroll',
+          boxSizing: 'border-box'
+        });
+      },
+      expected: function () {
+        return {
+          width: elementInner.getBoundingClientRect().width,
+          height: elementInner.getBoundingClientRect().height
+        };
+      },
+      should: 'deepEqual',
+      result: function () {
+        return {
+          width: mezr.width(element, 'padding'),
+          height: mezr.height(element, 'padding')
+        };
+      }
+    });
+
+    assertion(assert, {
+      description: '"padding" size with scrollbar: box-sizing = border-box, overflow = scroll',
+      setup: function () {
+        addStyles(element, {
+          overflow: 'hidden',
+          boxSizing: 'border-box'
+        });
+      },
+      expected: function () {
+        return {
+          width: elementInner.getBoundingClientRect().width,
+          height: elementInner.getBoundingClientRect().height
+        };
+      },
+      should: 'deepEqual',
+      result: function () {
+        return {
+          width: mezr.width(element, 'padding'),
+          height: mezr.height(element, 'padding')
+        };
+      }
+    });
+
+    // Scroll
+
+    assertion(assert, {
+      description: '"scroll" size with scrollbar: box-sizing = content-box, overflow = scroll',
+      setup: function () {
+        addStyles(element, {
+          overflow: 'scroll',
+          boxSizing: 'content-box'
+        });
+      },
+      expected: function () {
+        return {
+          width: 120,
+          height: 120
+        };
+      },
+      should: 'deepEqual',
+      result: function () {
+        return {
+          width: mezr.width(element, 'scroll'),
+          height: mezr.height(element, 'scroll')
+        };
+      }
+    });
+
+    assertion(assert, {
+      description: '"scroll" size with scrollbar: box-sizing = content-box, overflow = hidden',
+      setup: function () {
+        addStyles(element, {
+          overflow: 'hidden',
+          boxSizing: 'content-box'
+        });
+      },
+      expected: function () {
+        return {
+          width: 120,
+          height: 120
+        };
+      },
+      should: 'deepEqual',
+      result: function () {
+        return {
+          width: mezr.width(element, 'scroll'),
+          height: mezr.height(element, 'scroll')
+        };
+      }
+    });
+
+    assertion(assert, {
+      description: '"scroll" size with scrollbar: box-sizing = border-box, overflow = scroll',
+      setup: function () {
+        addStyles(element, {
+          overflow: 'scroll',
+          boxSizing: 'border-box'
+        });
+      },
+      expected: function () {
+        return {
+          width: 80,
+          height: 80
+        };
+      },
+      should: 'deepEqual',
+      result: function () {
+        return {
+          width: mezr.width(element, 'scroll'),
+          height: mezr.height(element, 'scroll')
+        };
+      }
+    });
+
+    assertion(assert, {
+      description: '"scroll" size with scrollbar: box-sizing = border-box, overflow = scroll',
+      setup: function () {
+        addStyles(element, {
+          overflow: 'hidden',
+          boxSizing: 'border-box'
+        });
+      },
+      expected: function () {
+        return {
+          width: 80,
+          height: 80
+        };
+      },
+      should: 'deepEqual',
+      result: function () {
+        return {
+          width: mezr.width(element, 'scroll'),
+          height: mezr.height(element, 'scroll')
+        };
+      }
+    });
+
+    // Border
+
+    assertion(assert, {
+      description: '"border" size with scrollbar: box-sizing = content-box, overflow = scroll',
+      setup: function () {
+        addStyles(element, {
+          overflow: 'scroll',
+          boxSizing: 'content-box'
+        });
+      },
+      expected: function () {
+        return {
+          width: 140,
+          height: 140
+        };
+      },
+      should: 'deepEqual',
+      result: function () {
+        return {
+          width: mezr.width(element, 'border'),
+          height: mezr.height(element, 'border')
+        };
+      }
+    });
+
+    assertion(assert, {
+      description: '"border" size with scrollbar: box-sizing = content-box, overflow = hidden',
+      setup: function () {
+        addStyles(element, {
+          overflow: 'hidden',
+          boxSizing: 'content-box'
+        });
+      },
+      expected: function () {
+        return {
+          width: 140,
+          height: 140
+        };
+      },
+      should: 'deepEqual',
+      result: function () {
+        return {
+          width: mezr.width(element, 'border'),
+          height: mezr.height(element, 'border')
+        };
+      }
+    });
+
+    assertion(assert, {
+      description: '"border" size with scrollbar: box-sizing = border-box, overflow = scroll',
+      setup: function () {
+        addStyles(element, {
+          overflow: 'scroll',
+          boxSizing: 'border-box'
+        });
+      },
+      expected: function () {
+        return {
+          width: 100,
+          height: 100
+        };
+      },
+      should: 'deepEqual',
+      result: function () {
+        return {
+          width: mezr.width(element, 'border'),
+          height: mezr.height(element, 'border')
+        };
+      }
+    });
+
+    assertion(assert, {
+      description: '"border" size with scrollbar: box-sizing = border-box, overflow = scroll',
+      setup: function () {
+        addStyles(element, {
+          overflow: 'hidden',
+          boxSizing: 'border-box'
+        });
+      },
+      expected: function () {
+        return {
+          width: 100,
+          height: 100
+        };
+      },
+      should: 'deepEqual',
+      result: function () {
+        return {
+          width: mezr.width(element, 'border'),
+          height: mezr.height(element, 'border')
+        };
+      }
+    });
+
+    // Margin
+
+    assertion(assert, {
+      description: '"margin" size with scrollbar: box-sizing = content-box, overflow = scroll',
+      setup: function () {
+        addStyles(element, {
+          overflow: 'scroll',
+          boxSizing: 'content-box'
+        });
+      },
+      expected: function () {
+        return {
+          width: 150,
+          height: 150
+        };
+      },
+      should: 'deepEqual',
+      result: function () {
+        return {
+          width: mezr.width(element, 'margin'),
+          height: mezr.height(element, 'margin')
+        };
+      }
+    });
+
+    assertion(assert, {
+      description: '"margin" size with scrollbar: box-sizing = content-box, overflow = hidden',
+      setup: function () {
+        addStyles(element, {
+          overflow: 'hidden',
+          boxSizing: 'content-box'
+        });
+      },
+      expected: function () {
+        return {
+          width: 150,
+          height: 150
+        };
+      },
+      should: 'deepEqual',
+      result: function () {
+        return {
+          width: mezr.width(element, 'margin'),
+          height: mezr.height(element, 'margin')
+        };
+      }
+    });
+
+    assertion(assert, {
+      description: '"margin" size with scrollbar: box-sizing = border-box, overflow = scroll',
+      setup: function () {
+        addStyles(element, {
+          overflow: 'scroll',
+          boxSizing: 'border-box'
+        });
+      },
+      expected: function () {
+        return {
+          width: 110,
+          height: 110
+        };
+      },
+      should: 'deepEqual',
+      result: function () {
+        return {
+          width: mezr.width(element, 'margin'),
+          height: mezr.height(element, 'margin')
+        };
+      }
+    });
+
+    assertion(assert, {
+      description: '"margin" size with scrollbar: box-sizing = border-box, overflow = scroll',
+      setup: function () {
+        addStyles(element, {
+          overflow: 'hidden',
+          boxSizing: 'border-box'
+        });
+      },
+      expected: function () {
+        return {
+          width: 110,
+          height: 110
+        };
+      },
+      should: 'deepEqual',
+      result: function () {
+        return {
+          width: mezr.width(element, 'margin'),
+          height: mezr.height(element, 'margin')
+        };
+      }
+    });
+
+    // Fractional values
+
+    assertion(assert, {
+      description: 'fractional values',
+      setup: function () {
+        addStyles(element, {
+          overflow: 'scroll',
+          boxSizing: 'content-box',
+          width: '100.4px',
+          height: '100.4px'
+        });
+      },
+      expected: function () {
+        return {
+          width: elementInner.getBoundingClientRect().width,
+          height: elementInner.getBoundingClientRect().height
+        };
+      },
+      should: 'deepEqual',
+      result: function () {
+        return {
+          width: mezr.width(element, 'padding'),
+          height: mezr.height(element, 'padding')
+        };
+      }
+    });
+
+    assertion(assert, {
+      description: 'fractional values',
+      setup: function () {
+        addStyles(element, {
+          overflow: 'scroll',
+          boxSizing: 'content-box',
+          width: '100.5px',
+          height: '100.5px'
+        });
+      },
+      expected: function () {
+        return {
+          width: elementInner.getBoundingClientRect().width,
+          height: elementInner.getBoundingClientRect().height
+        };
+      },
+      should: 'deepEqual',
+      result: function () {
+        return {
+          width: mezr.width(element, 'padding', false),
+          height: mezr.height(element, 'padding', false)
+        };
+      }
+    });
+
+    assertion(assert, {
+      description: 'fractional values',
+      setup: function () {
+        addStyles(element, {
+          overflow: 'scroll',
+          boxSizing: 'content-box',
+          width: '100.6px',
+          height: '100.6px'
+        });
+      },
+      expected: function () {
+        return {
+          width: elementInner.getBoundingClientRect().width,
+          height: elementInner.getBoundingClientRect().height
+        };
+      },
+      should: 'deepEqual',
+      result: function () {
+        return {
+          width: mezr.width(element, 'padding', false),
+          height: mezr.height(element, 'padding', false)
+        };
+      }
+    });
+
+    assertion(assert, {
+      description: 'fractional values',
+      setup: function () {
+        addStyles(element, {
+          overflow: 'scroll',
+          boxSizing: 'content-box',
+          width: '77.7%',
+          height: '77.7%'
+        });
+      },
+      expected: function () {
+        return {
+          width: elementInner.getBoundingClientRect().width,
+          height: elementInner.getBoundingClientRect().height
+        };
+      },
+      should: 'deepEqual',
+      result: function () {
+        return {
+          width: mezr.width(element, 'padding', false),
+          height: mezr.height(element, 'padding', false)
+        };
+      }
+    });
 
   });
 
-  QUnit.test('element - with border and scrollbar', function (assert) {
-
-    assert.expect(2);
-
-    element.style.width = '100px';
-    element.style.height = '100px';
-    element.style.margin = '10px';
-    element.style.padding = '10px';
-    element.style.border = '10px solid';
-    element.style.overflow = 'scroll';
-
-    element.style.boxSizing = 'content-box';
-    result.height = mezr.height(element, true, false, true);
-    result.width = mezr.width(element, true, false, true);
-    expected.height = 120;
-    expected.width = 120;
-    assert.deepEqual(result, expected, 'content-box');
-
-    element.style.boxSizing = 'border-box';
-    result.height = mezr.height(element, true, false, true);
-    result.width = mezr.width(element, true, false, true);
-    expected.height = 80;
-    expected.width = 80;
-    assert.deepEqual(result, expected, 'border-box');
-
-  });
-
-  QUnit.test('element - with margin and scrollbar', function (assert) {
-
-    assert.expect(2);
-
-    element.style.width = '100px';
-    element.style.height = '100px';
-    element.style.margin = '10px';
-    element.style.padding = '10px';
-    element.style.border = '10px solid';
-    element.style.overflow = 'scroll';
-
-    element.style.boxSizing = 'content-box';
-    result.height = mezr.height(element, true, false, false, true);
-    result.width = mezr.width(element, true, false, false, true);
-    expected.height = 120;
-    expected.width = 120;
-    assert.deepEqual(result, expected, 'content-box');
-
-    element.style.boxSizing = 'border-box';
-    result.height = mezr.height(element, true, false, false, true);
-    result.width = mezr.width(element, true, false, false, true);
-    expected.height = 80;
-    expected.width = 80;
-    assert.deepEqual(result, expected, 'border-box');
-
-  });
+  /*
 
   QUnit.test('element - padding in percentages', function (assert) {
 
@@ -376,11 +999,6 @@ window.onload = function() {
 
   });
 
-  // TODO: Add test case where margin is is greater than the width/height
-  // and check if the scrollbar is placed within margin or outside margin
-  // and if mezr handles it correctly. EDGE pushes the scrollbar outside
-  // of padding whereas other browsers do not.
-
   QUnit.test('element - margin in percentages', function (assert) {
 
     assert.expect(6);
@@ -417,62 +1035,6 @@ window.onload = function() {
     expected.width = 80;
     assert.deepEqual(result.height, expected.height, 'border-box');
     assert.deepEqual(result.width, expected.width, 'border-box');
-
-  });
-
-  QUnit.test('document', function (assert) {
-
-    assert.expect(2);
-
-    element.style.position = 'absolute';
-    element.style.left = '0px';
-    element.style.top = '0px';
-    element.style.width = '10000px';
-    element.style.height = '10000px';
-    element.style.padding = '0px';
-    element.style.border = '0px solid';
-    element.style.margin = '0px';
-    element.style.boxSizing = 'border-box';
-
-    expected.width = 10000;
-    expected.height = 10000;
-    result.width = mezr.width(document);
-    result.height = mezr.height(document);
-    assert.deepEqual(result, expected, 'width/height - without viewport scrollbar');
-
-    expected.width = 10000 + window.innerWidth - document.documentElement.clientWidth;
-    expected.height = 10000 + window.innerHeight - document.documentElement.clientHeight;
-    result.width = mezr.width(document, true);
-    result.height = mezr.height(document, true);
-    assert.deepEqual(result, expected, 'width/height - with viewport scrollbar');
-
-  });
-
-  QUnit.test('window', function (assert) {
-
-    assert.expect(2);
-
-    element.style.position = 'absolute';
-    element.style.left = '0px';
-    element.style.top = '0px';
-    element.style.width = '10000px';
-    element.style.height = '10000px';
-    element.style.padding = '0px';
-    element.style.border = '0px solid';
-    element.style.margin = '0px';
-    element.style.boxSizing = 'border-box';
-
-    expected.width = document.documentElement.clientWidth;
-    expected.height = document.documentElement.clientHeight;
-    result.width = mezr.width(window);
-    result.height = mezr.height(window);
-    assert.deepEqual(result, expected, 'width/height - without viewport scrollbar');
-
-    expected.width = window.innerWidth;
-    expected.height = window.innerHeight;
-    result.width = mezr.width(window, true);
-    result.height = mezr.height(window, true);
-    assert.deepEqual(result, expected, 'width/height - with viewport scrollbar');
 
   });
 
@@ -673,6 +1235,8 @@ window.onload = function() {
 
   });
 
+  */
+
   QUnit.module('offsetParent');
 
   QUnit.test('tests', function (assert) {
@@ -807,18 +1371,6 @@ window.onload = function() {
 
   });
 
-  QUnit.module('position');
-
-  QUnit.test('tests', function (assert) {
-
-    // TODO
-
-    assert.expect(1);
-
-    assert.equal(1, 1);
-
-  });
-
   QUnit.module('intersection');
 
   QUnit.test('tests', function (assert) {
@@ -924,7 +1476,91 @@ window.onload = function() {
 
     var
     cssPositions = ['absolute', 'relative', 'fixed'],
-    cssPosition;
+    cssPosition,
+    // Define all positions of place method and their expected result.
+    placePositions = [
+      {name: 'left top left top', expected: {left: 10, top: 10}},
+      {name: 'center top left top', expected: {left: 5, top: 10}},
+      {name: 'right top left top', expected: {left: 0, top: 10}},
+      {name: 'left center left top', expected: {left: 10, top: 5}},
+      {name: 'center center left top', expected: {left: 5, top: 5}},
+      {name: 'right center left top', expected: {left: 0, top: 5}},
+      {name: 'left bottom left top', expected: {left: 10, top: 0}},
+      {name: 'center bottom left top', expected: {left: 5, top: 0}},
+      {name: 'right bottom left top', expected: {left: 0, top: 0}},
+      {name: 'left top center top', expected: {left: 15, top: 10}},
+      {name: 'center top center top', expected: {left: 10, top: 10}},
+      {name: 'right top center top', expected: {left: 5, top: 10}},
+      {name: 'left center center top', expected: {left: 15, top: 5}},
+      {name: 'center center center top', expected: {left: 10, top: 5}},
+      {name: 'right center center top', expected: {left: 5, top: 5}},
+      {name: 'left bottom center top', expected: {left: 15, top: 0}},
+      {name: 'center bottom center top', expected: {left: 10, top: 0}},
+      {name: 'right bottom center top', expected: {left: 5, top: 0}},
+      {name: 'left top right top', expected: {left: 20, top: 10}},
+      {name: 'center top right top', expected: {left: 15, top: 10}},
+      {name: 'right top right top', expected: {left: 10, top: 10}},
+      {name: 'left center right top', expected: {left: 20, top: 5}},
+      {name: 'center center right top', expected: {left: 15, top: 5}},
+      {name: 'right center right top', expected: {left: 10, top: 5}},
+      {name: 'left bottom right top', expected: {left: 20, top: 0}},
+      {name: 'center bottom right top', expected: {left: 15, top: 0}},
+      {name: 'right bottom right top', expected: {left: 10, top: 0}},
+      {name: 'left top left center', expected: {left: 10, top: 15}},
+      {name: 'center top left center', expected: {left: 5, top: 15}},
+      {name: 'right top left center', expected: {left: 0, top: 15}},
+      {name: 'left center left center', expected: {left: 10, top: 10}},
+      {name: 'center center left center', expected: {left: 5, top: 10}},
+      {name: 'right center left center', expected: {left: 0, top: 10}},
+      {name: 'left bottom left center', expected: {left: 10, top: 5}},
+      {name: 'center bottom left center', expected: {left: 5, top: 5}},
+      {name: 'right bottom left center', expected: {left: 0, top: 5}},
+      {name: 'left top center center', expected: {left: 15, top: 15}},
+      {name: 'center top center center', expected: {left: 10, top: 15}},
+      {name: 'right top center center', expected: {left: 5, top: 15}},
+      {name: 'left center center center', expected: {left: 15, top: 10}},
+      {name: 'center center center center', expected: {left: 10, top: 10}},
+      {name: 'right center center center', expected: {left: 5, top: 10}},
+      {name: 'left bottom center center', expected: {left: 15, top: 5}},
+      {name: 'center bottom center center', expected: {left: 10, top: 5}},
+      {name: 'right bottom center center', expected: {left: 5, top: 5}},
+      {name: 'left top right center', expected: {left: 20, top: 15}},
+      {name: 'center top right center', expected: {left: 15, top: 15}},
+      {name: 'right top right center', expected: {left: 10, top: 15}},
+      {name: 'left center right center', expected: {left: 20, top: 10}},
+      {name: 'center center right center', expected: {left: 15, top: 10}},
+      {name: 'right center right center', expected: {left: 10, top: 10}},
+      {name: 'left bottom right center', expected: {left: 20, top: 5}},
+      {name: 'center bottom right center', expected: {left: 15, top: 5}},
+      {name: 'right bottom right center', expected: {left: 10, top: 5}},
+      {name: 'left top left bottom', expected: {left: 10, top: 20}},
+      {name: 'center top left bottom', expected: {left: 5, top: 20}},
+      {name: 'right top left bottom', expected: {left: 0, top: 20}},
+      {name: 'left center left bottom', expected: {left: 10, top: 15}},
+      {name: 'center center left bottom', expected: {left: 5, top: 15}},
+      {name: 'right center left bottom', expected: {left: 0, top: 15}},
+      {name: 'left bottom left bottom', expected: {left: 10, top: 10}},
+      {name: 'center bottom left bottom', expected: {left: 5, top: 10}},
+      {name: 'right bottom left bottom', expected: {left: 0, top: 10}},
+      {name: 'left top center bottom', expected: {left: 15, top: 20}},
+      {name: 'center top center bottom', expected: {left: 10, top: 20}},
+      {name: 'right top center bottom', expected: {left: 5, top: 20}},
+      {name: 'left center center bottom', expected: {left: 15, top: 15}},
+      {name: 'center center center bottom', expected: {left: 10, top: 15}},
+      {name: 'right center center bottom', expected: {left: 5, top: 15}},
+      {name: 'left bottom center bottom', expected: {left: 15, top: 10}},
+      {name: 'center bottom center bottom', expected: {left: 10, top: 10}},
+      {name: 'right bottom center bottom', expected: {left: 5, top: 10}},
+      {name: 'left top right bottom', expected: {left: 20, top: 20}},
+      {name: 'center top right bottom', expected: {left: 15, top: 20}},
+      {name: 'right top right bottom', expected: {left: 10, top: 20}},
+      {name: 'left center right bottom', expected: {left: 20, top: 15}},
+      {name: 'center center right bottom', expected: {left: 15, top: 15}},
+      {name: 'right center right bottom', expected: {left: 10, top: 15}},
+      {name: 'left bottom right bottom', expected: {left: 20, top: 10}},
+      {name: 'center bottom right bottom', expected: {left: 15, top: 10}},
+      {name: 'right bottom right bottom', expected: {left: 10, top: 10}}
+    ];
 
     fixture.style.position = 'absolute';
     fixture.style.left = '0px';
