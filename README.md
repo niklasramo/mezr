@@ -162,26 +162,27 @@ Check the examples for [.width()](#width), same stuff applies to [.height()](#he
 
 ### .offset()
 
-Returns the element's offset, which in practice means the vertical and horizontal distance between the element's northwest corner and the document's northwest corner. The edge argument controls which layer (core, padding, border, margin) of the element is considered as the edge of the element for calculations. For example if the edge was set to 1 or "padding" the element's margins and borders would be added to the offsets.
+Returns the element's "offsets", which in practice means the vertical and horizontal distance between the element's northwest corner and the document's northwest corner. The edgeLayer argument controls which layer (core, padding, scroll, border, margin) of the element is considered as the edge of the element for the calculations. For example, if the edgeLayer was set to 1 or "padding" the element's margins and borders would be added to the offsets.
 
 **Syntax**
 
-`mezr.offset( el [, edge ] )`
+`mezr.offset( el [, edgeLayer ] )`
 
 **Parameters**
 
 * **el** &nbsp;&mdash;&nbsp; *element / window / document*
   * Accepts any DOM element, the document object or the window object.
-* **edge** &nbsp;&mdash;&nbsp; *boolean*
+* **edgeLayer** &nbsp;&mdash;&nbsp; *boolean*
   * Default: `"border"`
-  * Defines which layer (core, padding, border, margin) of the element is considered as the outer edge of the element.
+  * Defines which layer (core, padding, scroll, border, margin) of the element is considered as the outer edge of the element.
   * This argument has no effect for `window` and `document`.
   * The edge can be described with a number or a string, here are the possible values:
-    * `"core"` -> `0`
-    * `"padding"` -> `1`
-    * `"border"` -> `2`
-    * `"margin"` -> `3`
-  * If the value of this argument is set to `"margin"` only positive margins are considered as part of the element's size. Negative margins are completelty ignored and not subtracted from the end value as some might expect. This is an intentional design choice.
+    * `"core"` or `0`: Inner height.
+    * `"padding"` or `1`: "core" + top/bottom paddings.
+    * `"scroll"` or `2`: "padding" + horizontal scrollbar's height (if it exists).
+    * `"border"` or `3`: "scroll" + top/bottom borders.
+    * `"margin"` or `4`: "border" + top/bottom margins (only positive margins).
+  * Note that `"padding"` and `"scroll"` values produce identical results. The `"scroll"` value is only allowed here in order to make this method work in sync with [`.width()`](#width) and [`.height()`](#height) methods.
 
 **Returns** &nbsp;&mdash;&nbsp; *object*
 
@@ -245,8 +246,8 @@ Returns the distance between two elements (in pixels) or `-1` if the elements ov
 **Parameters**
 
 * **elemA** &nbsp;&mdash;&nbsp; *element / array / object*
-  * Element: calculates the element's dimensions with scrollbar, paddings and borders.
-  * Array: calculates the element's dimensions using the [`.width()`](#width) and [`.height()`](#height) methods. The array's values are used as the arguments for the method calls.
+  * Element: the element's edge layer is considered to be "border".
+  * Array: allows one to control which layer (core, padding, scroll, border, margin) is considered as the element's edge layer, e.g. `[someElem, 'core']`.
   * Object: must have width, height, left and top properties with numeric values (e.g. `{width: 10, height: 10, left: 10, top: -10}`).
 * **elemB** &nbsp;&mdash;&nbsp; *element / array / object*
   * Same specs as with elemA.
@@ -286,8 +287,8 @@ Detect if two elements overlap and calculate the possible intersection area's di
 **Parameters**
 
 * **a** &nbsp;&mdash;&nbsp; *array / element / object*
-  * Element: Calculates the element's dimensions and offsets with scrollbar, padding and border included.
-  * Array: Calculates the element's dimensions and offsets using the [`.width()`](#width), [`.height()`](#height) and [`.offset()`](#offset) methods. The array's values are used as the arguments for the dimensions methods and the offset is calculated automatically based on the provided argument values.
+  * Element: the element's edge layer is considered to be "border".
+  * Array: allows one to control which layer (core, padding, scroll, border, margin) is considered as the element's edge layer, e.g. `[someElem, 'core']`.
   * Object: must have width, height, left and top properties with numeric values (e.g. `{width: 10, height: 20, left: 15, top: -10}`).
 * **b** &nbsp;&mdash;&nbsp; *array / element / object*
   * Same specs as for a.
@@ -336,8 +337,8 @@ Calculate an element's position (left/top CSS properties) when positioned relati
 
 * **el** &nbsp;&mdash;&nbsp; *element / window / document / array*
   * The element which is to be positioned (target).
-  * Element: calculates the element's dimensions with scrollbar, paddings and borders.
-  * Array: calculates the element's dimensions using the [`.width()`](#width) and [`.height()`](#height) methods. The array's values are used as the arguments for the method calls.
+  * Element: the element's edge layer is considered to be "border".
+  * Array: allows one to control which layer (core, padding, scroll, border, margin) is considered as the element's edge layer, e.g. `[someElem, 'core']`.
 * **options** &nbsp;&mdash;&nbsp; *object*
   * A set of options that defines how the target element is positioned against the relative element.
 * **options.my** &nbsp;&mdash;&nbsp; *string*
@@ -355,14 +356,14 @@ Calculate an element's position (left/top CSS properties) when positioned relati
 * **options.of** &nbsp;&mdash;&nbsp; *element / window / document / array / object*
   * Default: `window`
   * Defines which element the target element is positioned against (anchor).
-  * Element: Calculates the element's dimensions and offsets with scrollbar, padding and border included.
-  * Array: calculates the element's dimensions using the [`.width()`](#width) and [`.height()`](#height) methods. The array's values are used as the arguments for the method calls.
+  * Element: the element's edge layer is considered to be "border".
+  * Array: allows one to control which layer (core, padding, scroll, border, margin) is considered as the element's edge layer, e.g. `[someElem, 'core']`.
   * Object: must have width, height, left and top properties with numeric values (e.g. `{width: 10, height: 20, left: 15, top: -10}`).
 * **options.within** &nbsp;&mdash;&nbsp; *element / window / document / array / object*
   * Default: `null`
   * Defines an optional element/area that is used for collision detection (container). Basically this element/area defines the boundaries for the positioning while the `options.collision` defines what to do if the target element is about to be positioned over the boundaries.
-  * Element: Calculates the element's dimensions and offsets with scrollbar, padding and border included.
-  * Array: calculates the element's dimensions using the [`.width()`](#width) and [`.height()`](#height) methods. The array's values are used as the arguments for the method calls.
+  * Element: the element's edge layer is considered to be "border".
+  * Array: allows one to control which layer (core, padding, scroll, border, margin) is considered as the element's edge layer, e.g. `[someElem, 'core']`.
   * Object: must have width, height, left and top properties with numeric values (e.g. `{width: 10, height: 20, left: 15, top: -10}`).
 * **options.offsetX** &nbsp;&mdash;&nbsp; *number*
   * Default: `0`
