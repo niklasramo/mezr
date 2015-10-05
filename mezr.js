@@ -5,26 +5,11 @@
  * Released under the MIT license
  */
 
-/*
- * @todo Account for element's transform (rotation, scale, etc) and border-radius in all
- * calculations. At the moment all the calculation's assume that the element is a non-transformed
- * rectangle without rounded corners. If and when this is done, it could be useful to make the
- * behaviour optional.
- */
-
-/*
- * @todo Check element's scrolbar behaviour on init and account for the varying behaviours. For
- * example EDGE pushes the scrollbar in some scenarios outside of padding whereas other browsers do
- * not. Based on this knowledge implement automatic scrollbar detection behvaiour so that
- * explicit scrollbar inclusion/exclusion arguments are not needed. Replace that behaviour with
- * another edge layer named "scrollbar" or "scroll" for example.
- */
-
 (function (global, factory) {
 
   if (typeof define === 'function' && define.amd) {
 
-     define('mezr', [], factory);
+    define('mezr', [], factory);
 
   }
   else if (typeof module === 'object' && module.exports) {
@@ -32,10 +17,13 @@
     module.exports = global.document ?
       factory(global) :
       function (win) {
+
         if (!win.document) {
           throw new Error('Mezr requires a window with a document');
         }
+
         return factory(win);
+
       };
 
   }
@@ -50,7 +38,7 @@
   'use strict';
 
   var
-  // Cache reference to window, needs some special love to work properly within AMD moduls,
+  // Cache reference to window, needs some special love to work properly within AMD modules,
   // hence the "|| window" in the end.
   win = win || window,
   // Cache window document and root element.
@@ -196,7 +184,7 @@
    * this method specifically checks if the provided object is the root element, body element or an
    * element within the body element.
    *
-   * @param {Object} obj
+   * @param {Object} elem
    * @returns {Boolean}
    */
   function isElem(elem) {
@@ -214,6 +202,20 @@
   function toFloat(val) {
 
     return parseFloat(val) || 0;
+
+  }
+
+  /**
+   * Sanitize edge layer argument.
+   *
+   * @param {Number|String} edgeLayer
+   * @returns {Number}
+   */
+  function sanitizeEdgeLayer(edgeLayer) {
+
+    edgeLayer = typeOf(edgeLayer, 'number') ? edgeLayer : elemLayers[edgeLayer] !== undefined ? elemLayers[edgeLayer] : 3;
+
+    return edgeLayer > -1 && edgeLayer < 5 ? edgeLayer : 3;
 
   }
 
@@ -301,7 +303,7 @@
       if (type === 'array') {
 
         elem = el[0];
-        edgeLayer = el[1];
+        edgeLayer = sanitizeEdgeLayer(el[1]);
 
       }
       else {
@@ -528,7 +530,7 @@
    */
   function getWidth(el, edgeLayer) {
 
-    edgeLayer = typeOf(edgeLayer, 'number') ? edgeLayer : elemLayers[edgeLayer] !== undefined ? elemLayers[edgeLayer] : 3;
+    edgeLayer = sanitizeEdgeLayer(edgeLayer);
 
     return getDimension('width', el, edgeLayer > 1, edgeLayer > 0, edgeLayer > 2, edgeLayer > 3);
 
@@ -551,7 +553,7 @@
    */
   function getHeight(el, edgeLayer) {
 
-    edgeLayer = typeOf(edgeLayer, 'number') ? edgeLayer : elemLayers[edgeLayer] !== undefined ? elemLayers[edgeLayer] : 3;
+    edgeLayer = sanitizeEdgeLayer(edgeLayer);
 
     return getDimension('height', el, edgeLayer > 1, edgeLayer > 0, edgeLayer > 2, edgeLayer > 3);
 
@@ -590,7 +592,7 @@
     marginTop;
 
     // Sanitize edgeLayer argument.
-    edgeLayer = typeOf(edgeLayer, 'number') ? edgeLayer : elemLayers[edgeLayer] !== undefined ? elemLayers[edgeLayer] : 3;
+    edgeLayer = sanitizeEdgeLayer(edgeLayer);
 
     // For window we just need to get viewport's scroll distance.
     if (el.self === win.self) {
@@ -609,7 +611,7 @@
       offsetTop += gbcr.top + viewportScrollTop;
 
       // Exclude element's positive margin size from the offset.
-      if (edgeLayer > 3) {
+      if (edgeLayer === 4) {
 
         marginLeft = toFloat(getStyle(el, 'margin-left'));
         marginTop = toFloat(getStyle(el, 'margin-top'));
@@ -627,7 +629,7 @@
       }
 
       // Include element's padding size to the offset.
-      if (edgeLayer < 1) {
+      if (edgeLayer === 0) {
 
         offsetLeft += toFloat(getStyle(el, 'padding-left'));
         offsetTop += toFloat(getStyle(el, 'padding-top'));
@@ -643,7 +645,6 @@
 
   }
 
-
   /**
    * Returns an element's northwest offset which in this case means the element's offset in a state
    * where the element's left and top CSS properties are set to 0.
@@ -656,7 +657,7 @@
     var
     isArray = typeOf(el, 'array'),
     elem = isArray ? el[0] : el,
-    edgeLayer = isArray ? el[1] : undefined,
+    edgeLayer = sanitizeEdgeLayer(isArray && el[1]),
     position = getStyle(elem, 'position'),
     offset,
     left,
@@ -691,6 +692,56 @@
     } else {
 
       offset = getOffset(getOffsetParent(elem) || doc, 'padding');
+
+      var
+      marginLeft = toFloat(getStyle(elem, 'margin-left')),
+      marginTop = toFloat(getStyle(elem, 'margin-top')),
+      borderLeft,
+      borderTop,
+      paddingLeft,
+      paddingTop;
+
+      // If edge layer is "margin" remove negative left/top
+      // margins from offset to account for their effect on
+      // position.
+      if (edgeLayer > 3) {
+
+        offset.left -= ABS(MIN(marginLeft, 0));
+        offset.top -= ABS(MIN(marginTop, 0));
+
+      }
+
+      // If edge layer is "border" or smaller add positive
+      // left/top margins and remove negative left/top margins
+      // from offset to account for their effect on position.
+      if (edgeLayer < 4) {
+
+        offset.left += marginLeft;
+        offset.top += marginTop;
+
+      }
+
+      // If edge layer is "scroll" or smaller add left/top
+      // borders to offset to account for their effect on position.
+      if (edgeLayer < 3) {
+
+        borderLeft = toFloat(getStyle(elem, 'border-left-width'));
+        borderTop = toFloat(getStyle(elem, 'border-top-width'));
+        offset.left += borderLeft;
+        offset.top += borderTop;
+
+      }
+
+      // If edge layer is "core" add left/top paddings to
+      // offset to account for their effect on position.
+      if (edgeLayer < 1) {
+
+        paddingLeft = toFloat(getStyle(elem, 'padding-left'));
+        paddingTop = toFloat(getStyle(elem, 'padding-top'));
+        offset.left += paddingLeft;
+        offset.top += paddingTop;
+
+      }
 
     }
 
@@ -789,9 +840,6 @@
   /**
    * Calculate an element's position (left/top CSS properties) when positioned relative to another
    * element, window or the document.
-   *
-   * @todo Make sure the functions works as expected with the new settings for elements. Especially
-   * revise the northwest offset function.
    *
    * @param {Array|ElWinDoc} el
    * @param {PlaceOptions} [options]

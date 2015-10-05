@@ -1,6 +1,6 @@
 # Mezr
 
-Mezr is a lightweight JavaScript utility library for measuring and comparing the dimensions and positions of HTML DOM elements in modern browsers (IE9+). Intended for developers who want to keep their sanity when doing DOM algebra =)
+Mezr is a lightweight JavaScript utility library for measuring and comparing the dimensions and positions of HTML DOM elements in modern browsers (IE9+). For starters Mezr provides a bit more extended variations of jQuery's popular [offset](http://api.jquery.com/category/offset/) and [dimension](http://api.jquery.com/category/dimension/) methods. Bonus features include collision detection and positioning elements relative to other elements in the style of jQuery UI's [position](https://jqueryui.com/position/) method. The library is well tested and documented, and squeezed into a relatively tiny space withouth sacrificing performance.
 
 **Features**
 
@@ -35,8 +35,8 @@ Returns the width of an element in pixels. Accepts also the window object (for g
 * **el** &nbsp;&mdash;&nbsp; *element / window / document*
   * Accepts any DOM element, the document object or the window object.
 * **edgeLayer** &nbsp;&mdash;&nbsp; *number / string*
+  * Defines which layer (core, padding, scroll, border, margin) of the element is considered as its outer edge.
   * Default: `"border"`
-  * Defines which layer (core, padding, scroll, border, margin) of the element is considered as the outer edge of the element.
   * The edge can be described with a number or a string, here are the possible values:
     * `"core"` or `0`: Inner width.
     * `"padding"` or `1`: "core" + left/right paddings.
@@ -137,8 +137,8 @@ Returns the height of an element in pixels. Accepts also the window object (for 
 * **el** &nbsp;&mdash;&nbsp; *element / window / document*
   * Accepts any DOM element, the document object or the window object.
 * **edgeLayer** &nbsp;&mdash;&nbsp; *number / string*
+  * Defines which layer (core, padding, scroll, border, margin) of the element is considered as its outer edge.
   * Default: `"border"`
-  * Defines which layer (core, padding, scroll, border, margin) of the element is considered as the outer edge of the element.
   * The edge can be described with a number or a string, here are the possible values:
     * `"core"` or `0`: Inner height.
     * `"padding"` or `1`: "core" + top/bottom paddings.
@@ -173,8 +173,8 @@ Returns the element's "offsets", which in practice means the vertical and horizo
 * **el** &nbsp;&mdash;&nbsp; *element / window / document*
   * Accepts any DOM element, the document object or the window object.
 * **edgeLayer** &nbsp;&mdash;&nbsp; *boolean*
+  * Defines which layer (core, padding, scroll, border, margin) of the element is considered as its outer edge.
   * Default: `"border"`
-  * Defines which layer (core, padding, scroll, border, margin) of the element is considered as the outer edge of the element.
   * This argument has no effect for `window` and `document`.
   * The edge can be described with a number or a string, here are the possible values:
     * `"core"` or `0`: Inner height.
@@ -293,8 +293,8 @@ Detect if two elements overlap and calculate the possible intersection area's di
 * **b** &nbsp;&mdash;&nbsp; *array / element / object*
   * Same specs as for a.
 * **returnData** &nbsp;&mdash;&nbsp; *boolean*
-  * Default: `false`
   * Make the function return explicit intersection data instead of boolean.
+  * Default: `false`
 
 **Returns** &nbsp;&mdash;&nbsp; *boolean / null / object*
 
@@ -342,38 +342,38 @@ Calculate an element's position (left/top CSS properties) when positioned relati
 * **options** &nbsp;&mdash;&nbsp; *object*
   * A set of options that defines how the target element is positioned against the relative element.
 * **options.my** &nbsp;&mdash;&nbsp; *string*
-  * Default: `"left top"`
   * The position of the target element that will be aligned against the relative element's position.
+  * Default: `"left top"`
   * The syntax is "horizontal vertical" .
     * Describe horizontal position with `"left"`, `"center"` and `"right"`.
     * Describe vertical position with `"top"`, `"center"` and `"bottom"`.
 * **options.at** &nbsp;&mdash;&nbsp; *string*
-  * Default: `"left top"`
   * The position of the relative element that will be aligned against the target element's position.
+  * Default: `"left top"`
   * The syntax is "horizontal vertical" .
     * Describe horizontal position with `"left"`, `"center"` and `"right"`.
     * Describe vertical position with `"top"`, `"center"` and `"bottom"`.
 * **options.of** &nbsp;&mdash;&nbsp; *element / window / document / array / object*
-  * Default: `window`
   * Defines which element the target element is positioned against (anchor).
+  * Default: `window`
   * Element: the element's edge layer is considered to be "border".
   * Array: allows one to control which layer (core, padding, scroll, border, margin) is considered as the element's edge layer, e.g. `[someElem, 'core']`.
   * Object: must have width, height, left and top properties with numeric values (e.g. `{width: 10, height: 20, left: 15, top: -10}`).
 * **options.within** &nbsp;&mdash;&nbsp; *element / window / document / array / object*
-  * Default: `null`
   * Defines an optional element/area that is used for collision detection (container). Basically this element/area defines the boundaries for the positioning while the `options.collision` defines what to do if the target element is about to be positioned over the boundaries.
+  * Default: `null`
   * Element: the element's edge layer is considered to be "border".
   * Array: allows one to control which layer (core, padding, scroll, border, margin) is considered as the element's edge layer, e.g. `[someElem, 'core']`.
   * Object: must have width, height, left and top properties with numeric values (e.g. `{width: 10, height: 20, left: 15, top: -10}`).
 * **options.offsetX** &nbsp;&mdash;&nbsp; *number*
-  * Default: `0`
   * An optional horizontal offset in pixels.
-* **options.offsetY** &nbsp;&mdash;&nbsp; *number*
   * Default: `0`
+* **options.offsetY** &nbsp;&mdash;&nbsp; *number*
   * An optional vertical offset in pixels.
+  * Default: `0`
 * **options.collision** &nbsp;&mdash;&nbsp; *object / null*
-  * Default: `{left: 'push', right: 'push', top: 'push', bottom: 'push'}`
   * Defines how the collisions are handled per each side when a container element/area (`options.within`) is defined. The option expects an object that has left, right, top and bottom properties set, representing the sides of the target element.
+  * Default: `{left: 'push', right: 'push', top: 'push', bottom: 'push'}`
   * Acceptable values for each side are `"none"`, `"push"` and `"forcePush"`.
     * `"none"` will ignore containment for the specific side.
     * `"push"` tries to keep the targeted side of the target element within the container element's boundaries.
