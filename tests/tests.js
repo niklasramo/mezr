@@ -174,19 +174,10 @@ window.onload = function() {
 
     addStyles(fixture, {
       position: 'absolute',
-      width: '100px',
-      height: '100px',
-      left: '0px',
-      top: '0px'
-    });
-
-    addStyles(element, {
-      position: 'absolute',
       left: '0px',
       top: '0px',
       width: '10000px',
       height: '10000px',
-      boxSizing : 'border-box'
     });
 
     a(assert, {
@@ -210,7 +201,7 @@ window.onload = function() {
     a(assert, {
       description: 'height with viewport scrollbar',
       result: mezr.height(document, 'scroll'),
-      equal: 10000 + window.innerWidth - document.documentElement.clientHeight
+      equal: 10000 + window.innerHeight - document.documentElement.clientHeight
     });
 
   });
@@ -220,23 +211,6 @@ window.onload = function() {
     // TODO: Add tests for edgeLayer value normalization and default value check
 
     assert.expect(4);
-
-    addStyles(fixture, {
-      position: 'absolute',
-      width: '100px',
-      height: '100px',
-      left: '0px',
-      top: '0px'
-    });
-
-    addStyles(element, {
-      position: 'absolute',
-      left: '0px',
-      top: '0px',
-      width: '10000px',
-      height: '10000px',
-      boxSizing : 'border-box'
-    });
 
     a(assert, {
       description: 'width without viewport scrollbar',
@@ -277,9 +251,7 @@ window.onload = function() {
     });
 
     addStyles(element, {
-      position: 'absolute',
-      left: '0px',
-      top: '0px',
+      position: 'relative',
       width: '100px',
       height: '100px',
       margin: '10px 10px -10px -10px',
@@ -493,9 +465,7 @@ window.onload = function() {
     });
 
     addStyles(element, {
-      position: 'absolute',
-      left: '0px',
-      top: '0px',
+      position: 'relative',
       width: '100px',
       height: '100px',
       margin: '10px',
@@ -532,9 +502,7 @@ window.onload = function() {
     });
 
     addStyles(element, {
-      position: 'absolute',
-      left: '0px',
-      top: '0px',
+      position: 'relative',
       width: '100px',
       height: '100px',
       margin: '10px',
@@ -609,72 +577,6 @@ window.onload = function() {
 
   });
 
-  QUnit.test('element - fractional values', function (assert) {
-
-    assert.expect(8);
-
-    addStyles(fixture, {
-      position: 'absolute',
-      width: '100px',
-      height: '100px',
-      left: '0px',
-      top: '0px'
-    });
-
-    addStyles(element, {
-      position: 'absolute',
-      left: '0px',
-      top: '0px',
-      width: '100px',
-      height: '100px',
-      margin: '10px 10px -10px -10px',
-      padding: '10px',
-      border: '10px solid',
-      overflow: 'hidden',
-      boxSizing: 'content-box'
-    });
-
-    addStyles(elementInner, {
-      position: 'absolute',
-      display: 'block',
-      left: '0px',
-      right: '0px',
-      top: '0px',
-      bottom: '0px',
-      overflow: 'hidden'
-    });
-
-    var
-    assertData = {
-      a: '100.4px',
-      b: '100.5px',
-      c: '100.6px',
-      d: '77.7%'
-    };
-
-    forIn(assertData, function (val) {
-
-      addStyles(element, {
-        width: val,
-        height: val
-      });
-
-      a(assert, {
-        description: 'fractional width - ' + val,
-        result: mezr.width(element, 'padding'),
-        equal: elementInner.getBoundingClientRect().width
-      });
-
-      a(assert, {
-        description: 'fractional height - ' + val,
-        result: mezr.height(element, 'padding'),
-        equal: elementInner.getBoundingClientRect().height
-      });
-
-    });
-
-  });
-
   QUnit.test('element - padding in percentages', function (assert) {
 
     assert.expect(4);
@@ -688,9 +590,7 @@ window.onload = function() {
     });
 
     addStyles(element, {
-      position: 'absolute',
-      left: '0px',
-      top: '0px',
+      position: 'relative',
       width: '100px',
       height: '100px',
       padding: '1.5%',
@@ -704,13 +604,13 @@ window.onload = function() {
 
     a(assert, {
       description: '"margin" width - box-sizing = content-box',
-      result: width: mezr.width(element, 'margin'),
+      result: mezr.width(element, 'margin'),
       equal: 150
     });
 
     a(assert, {
       description: '"margin" height - box-sizing = content-box',
-      result: width: mezr.height(element, 'margin'),
+      result: mezr.height(element, 'margin'),
       equal: 150
     });
 
@@ -720,13 +620,13 @@ window.onload = function() {
 
     a(assert, {
       description: '"margin" width - box-sizing = border-box',
-      result: width: mezr.width(element, 'margin'),
+      result: mezr.width(element, 'margin'),
       equal: 100
     });
 
     a(assert, {
       description: '"margin" height - box-sizing = border-box',
-      result: width: mezr.height(element, 'margin'),
+      result: mezr.height(element, 'margin'),
       equal: 100
     });
 
@@ -745,9 +645,7 @@ window.onload = function() {
     });
 
     addStyles(element, {
-      position: 'absolute',
-      left: '0px',
-      top: '0px',
+      position: 'relative',
       width: '100px',
       height: '100px',
       margin: '10%',
@@ -924,13 +822,13 @@ window.onload = function() {
         a(assert, {
           description: 'left - ' + positionName + ' - ' + edgeLayerName,
           result: mezr.offset(element, edgeLayerName).left,
-          equal: edgeLayerValue.left
+          equal: edgeLayerValue
         });
 
         a(assert, {
           description: 'top - ' + positionName + ' - ' + edgeLayerName,
           result: mezr.offset(element, edgeLayerName).top,
-          equal: edgeLayerValue.top
+          equal: edgeLayerValue
         });
 
       });

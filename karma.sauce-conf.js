@@ -50,6 +50,7 @@ module.exports = function (config) {
       platform: 'Windows 7',
       version: '9.0'
     },
+    /*
     win8_ie10: {
       base: 'SauceLabs',
       browserName: 'internet explorer',
@@ -62,6 +63,7 @@ module.exports = function (config) {
       platform: 'Windows 8.1',
       version: '11.0'
     },
+    */
 
     // Desktop - Edge
 
