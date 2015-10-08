@@ -1,40 +1,35 @@
+require('dotenv').load();
+
 var
-paths = {
-  mezr: './mezr.js',
-  tests: './tests/tests.js',
-  jscsRules: './jscsrc.json',
-  karmaConf: './karma.conf.js'
-},
 gulp = require('gulp'),
-gulpJscs = require('gulp-jscs'),
-gulpKarma = require('gulp-karma'),
-rimraf = require('rimraf'),
-runSequence = require('run-sequence');
+jscs = require('gulp-jscs'),
+karma = require('karma');
 
 gulp.task('validate', function () {
 
   return gulp
-  .src(paths.mezr)
-  .pipe(gulpJscs(paths.jscsRules));
+  .src('./mezr.js')
+  .pipe(jscs())
+  .pipe(jscs.reporter());
 
 });
 
-gulp.task('test', function (cb) {
+gulp.task('test-local', function (done) {
 
-  return gulp
-  .src([paths.mezr, paths.tests])
-  .pipe(gulpKarma({
-    configFile: paths.karmaConf,
+  (new karma.Server({
+    configFile: __dirname + '/karma.local-conf.js',
     action: 'run'
-  }))
-  .on('error', function (err) {
-    throw err;
-  });
+  }, done)).start();
 
 });
 
-gulp.task('default', function (cb) {
+gulp.task('test-sauce', function (done) {
 
-  runSequence('validate', 'test', cb);
+  (new karma.Server({
+    configFile: __dirname + '/karma.sauce-conf.js',
+    action: 'run'
+  }, done)).start();
 
 });
+
+gulp.task('default', ['validate', 'test-local']);

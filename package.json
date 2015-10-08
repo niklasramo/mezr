@@ -20,20 +20,19 @@
     "test": "gulp"
   },
   "devDependencies": {
-    "gulp": "*",
-    "gulp-jscs": "*",
-    "gulp-karma": "*",
-    "gulp-util": "*",
-    "jscs": "*",
-    "jscs-jsdoc": "*",
-    "run-sequence": "*",
-    "qunitjs": "*",
-    "karma": "*",
-    "karma-chrome-launcher": "*",
-    "karma-firefox-launcher": "*",
-    "karma-ie-launcher": "*",
-    "karma-qunit": "*",
-    "karma-story-reporter": "*",
-    "rimraf": "*"
+    "dotenv": "^1.2.0",
+    "gulp": "^3.9.0",
+    "gulp-jscs": "^3.0.1",
+    "gulp-util": "^3.0.6",
+    "jscs-jsdoc": "^1.2.0",
+    "karma": "^0.13.10",
+    "karma-chrome-launcher": "^0.2.0",
+    "karma-firefox-launcher": "^0.1.6",
+    "karma-ie-launcher": "^0.2.0",
+    "karma-qunit": "^0.1.5",
+    "karma-sauce-launcher": "^0.2.14",
+    "karma-story-reporter": "^0.3.1",
+    "node-env-file": "^0.1.7",
+    "qunitjs": "^1.19.0"
   }
 }

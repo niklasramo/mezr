@@ -19,16 +19,17 @@ module.exports = function (config) {
   ];
 
   // list of files / patterns to load in the browser
-  stn.files = [];
+  stn.files = [
+    './mezr.js',
+    './tests/tests.js'
+  ];
 
   // list of files to exclude
   stn.exclude = [];
 
   // possible values: 'dots', 'progress', 'story'
   // https://npmjs.org/browse/keyword/karma-reporter
-  stn.reporters = [
-    'story'
-  ];
+  stn.reporters = ['story'];
 
   // web server port
   stn.port = 8888;

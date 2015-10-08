@@ -38,18 +38,22 @@
   'use strict';
 
   var
+
   // Cache reference to window, needs some special love to work properly within AMD modules,
   // hence the "|| window" in the end.
   win = win || window,
+
   // Cache window document and root element.
   doc = win.document,
   root = doc.documentElement,
+
   // Cache some often used native functions.
   toString = ({}).toString,
   MATH = Math,
   ABS = MATH.abs,
   MAX = MATH.max,
   MIN = MATH.min,
+
   // Mappings for element edges.
   elemLayers = {
     core: 0,
@@ -58,6 +62,7 @@
     border: 3,
     margin: 4
   },
+
   /** @global */
   mezr = {
     width: getWidth,
@@ -147,7 +152,7 @@
    * @property {Rectangle} container - Container's dimension and offset data.
    */
 
-   /**
+  /**
     * Describe an element's vertical or horizontal placement relative to another element. For
     * example, if we wanted to place target's left side to the anchor's right side we would write:
     * "lr", which is short from  "left" and "right".
@@ -394,6 +399,7 @@
       }
 
     }
+
     // Calculate shortest edge distance
     else {
 
@@ -976,7 +982,7 @@
            placement === 'rl' || placement === 'bt' ? northwestPoint - targetSize :
            placement === 'rc' || placement === 'bc' ? northwestPoint - targetSize + (anchorSize / 2) :
            placement === 'rr' || placement === 'bb' ? northwestPoint - targetSize + anchorSize :
-                                          northwestPoint + (anchorSize / 2) - (targetSize / 2);
+                                                      northwestPoint + (anchorSize / 2) - (targetSize / 2);
 
   }
 
