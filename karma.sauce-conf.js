@@ -46,7 +46,9 @@ module.exports = function (config) {
 
   stn.captureTimeout = 240000;
 
-  stn.browserDisconnectTolerance = 2;
+  stn.browserDisconnectTimeout = 5000;
+
+  stn.browserDisconnectTolerance = 4;
 
   stn.singleRun = true;
 
