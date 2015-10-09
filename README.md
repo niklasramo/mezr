@@ -1,6 +1,6 @@
 # Mezr
 
-[![Build Status](https://travis-ci.org/niklasramo/mezr.svg?branch=master)](https://travis-ci.org/niklasramo/mezr)
+[![Build Status](https://travis-ci.org/niklasramo/mezr.svg?branch=dev)](https://travis-ci.org/niklasramo/mezr)
 
 Mezr is a lightweight JavaScript utility library for measuring and comparing the dimensions and positions of HTML DOM elements in modern browsers (IE9+). For starters Mezr provides a bit more extended variations of jQuery's popular [offset](http://api.jquery.com/category/offset/) and [dimension](http://api.jquery.com/category/dimension/) methods. Bonus features include collision detection and positioning elements relative to other elements in the style of jQuery UI's [position](https://jqueryui.com/position/) method. The library is well tested and documented, and squeezed into a relatively tiny space.
 
