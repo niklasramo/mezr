@@ -3,6 +3,9 @@ fs = require('fs'),
 gulp = require('gulp'),
 jscs = require('gulp-jscs'),
 karma = require('karma'),
+uglify = require('gulp-uglify'),
+rename = require('gulp-rename'),
+size = require('gulp-size'),
 argv = require('yargs').argv;
 
 // Load environment variables if .env file exists
@@ -16,6 +19,21 @@ gulp.task('validate', function () {
   .src('./mezr.js')
   .pipe(jscs())
   .pipe(jscs.reporter());
+
+});
+
+gulp.task('compress', function() {
+
+  return gulp
+  .src('./mezr.js')
+  .pipe(size({title: 'development'}))
+  .pipe(uglify({
+    preserveComments: 'some'
+  }))
+  .pipe(size({title: 'minified'}))
+  .pipe(size({title: 'gzipped', gzip: true}))
+  .pipe(rename('mezr.min.js'))
+  .pipe(gulp.dest('./'));
 
 });
 
