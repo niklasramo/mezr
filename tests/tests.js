@@ -740,13 +740,13 @@ window.onload = function() {
     a(assert, {
       description: 'left',
       result: mezr.offset(window).left,
-      equal: 1000
+      equal: window.pageXOffset
     });
 
     a(assert, {
       description: 'top',
       result: mezr.offset(window).top,
-      equal: 1000
+      equal: window.pageYOffset
     });
 
   });
@@ -822,13 +822,13 @@ window.onload = function() {
         a(assert, {
           description: 'left - ' + positionName + ' - ' + edgeLayerName,
           result: mezr.offset(element, edgeLayerName).left,
-          equal: edgeLayerValue
+          equal: window.pageXOffset + edgeLayerValue
         });
 
         a(assert, {
           description: 'top - ' + positionName + ' - ' + edgeLayerName,
           result: mezr.offset(element, edgeLayerName).top,
-          equal: edgeLayerValue
+          equal:  window.pageYOffset + edgeLayerValue
         });
 
       });
@@ -839,7 +839,7 @@ window.onload = function() {
 
   QUnit.test('absolute element - scroll test', function (assert) {
 
-    assert.expect(1);
+    assert.expect(2);
 
     addStyles(fixture, {
       position: 'absolute',
@@ -857,28 +857,31 @@ window.onload = function() {
       height: '10px'
     });
 
-    window.scrollTo(1000, 1000);
+    var
+    result = mezr.offset(element);
 
     a(assert, {
-      result: mezr.offset(element),
-      deepEqual: {
-        left: 9990,
-        top: 9990
-      }
+      description: 'left offset',
+      result: result.left,
+      equal: 9990
+    });
+
+    a(assert, {
+      description: 'top offset',
+      result: result.top,
+      equal: 9990
     });
 
   });
 
   QUnit.test('fixed element - scroll test', function (assert) {
 
-    assert.expect(1);
+    assert.expect(2);
 
     addStyles(fixture, {
       position: 'absolute',
       width: '10000px',
-      height: '10000px',
-      left: '1000px',
-      top: '1000px'
+      height: '10000px'
     });
 
     addStyles(element, {
@@ -889,12 +892,19 @@ window.onload = function() {
 
     window.scrollTo(1000, 1000);
 
+    var
+    result = mezr.offset(element);
+
     a(assert, {
-      result: mezr.offset(element),
-      deepEqual: {
-        left: 3000,
-        top: 3000
-      }
+      description: 'left offset',
+      result: result.left,
+      equal:  window.pageXOffset + 2000
+    });
+
+    a(assert, {
+      description: 'top offset',
+      result: result.top,
+      equal: window.pageYOffset + 2000
     });
 
   });
@@ -1056,7 +1066,7 @@ window.onload = function() {
 
   QUnit.module('intersection');
 
-  // TODO: Elements and arrays
+  // TODO: Test that elements and arrays can be given as arguments
 
   QUnit.test('objects', function (assert) {
 
@@ -1095,7 +1105,7 @@ window.onload = function() {
 
   QUnit.module('distance');
 
-  // TODO: Elements and arrays
+  // TODO: Test that elements and arrays can be given as arguments
 
   QUnit.test('objects', function (assert) {
 
@@ -1175,14 +1185,13 @@ window.onload = function() {
 
   });
 
-
   QUnit.module('place');
 
   // TODO: Collision method tests, offset tests and more special case tests.
 
   QUnit.test('default cases', function (assert) {
 
-    assert.expect(243);
+    assert.expect(486);
 
     var
     cssPositions = {
@@ -1313,17 +1322,16 @@ window.onload = function() {
         });
 
         a(assert, {
-          description: cssPosition + ' - my: ' + my + ' - at: ' + at,
-          result: {
-            left: result.left,
-            top: result.top
-          },
-          deepEqual: {
-            left: pos.left,
-            top: pos.top
-          }
+          description: 'place().left - ' + cssPosition + ' - my: ' + my + ' - at: ' + at,
+          result: result.left,
+          equal: pos.left
         });
 
+        a(assert, {
+          description: 'place().top - ' + cssPosition + ' - my: ' + my + ' - at: ' + at,
+          result: result.top,
+          equal: pos.top
+        });
 
       });
 
@@ -1333,7 +1341,7 @@ window.onload = function() {
 
 QUnit.test('special cases', function (assert) {
 
-    assert.expect(4);
+    assert.expect(8);
 
     addStyles(fixture, {
       position: 'absolute',
@@ -1373,15 +1381,15 @@ QUnit.test('special cases', function (assert) {
     });
 
     a(assert, {
-      description: 'margin size - negative left/top margin on absolute element',
-      result: {
-        left: result.left,
-        top: result.top
-      },
-      deepEqual: {
-        left: 10,
-        top: 10
-      }
+      description: 'place().left - edgeLayer = margin - negative left/top margin on absolute element',
+      result: result.left,
+      equal: 10
+    });
+
+    a(assert, {
+      description: 'place().top - edgeLayer = margin - negative left/top margin on absolute element',
+      result: result.top,
+      equal: 10
     });
 
     // Case #2
@@ -1398,15 +1406,15 @@ QUnit.test('special cases', function (assert) {
     });
 
     a(assert, {
-      description: 'margin size - positive left/top margin on absolute element',
-      result: {
-        left: result.left,
-        top: result.top
-      },
-      deepEqual: {
-        left: 0,
-        top: 0
-      }
+      description: 'place().left - edgeLayer = margin - positive left/top margin on absolute element',
+      result: result.left,
+      equal: 0
+    });
+
+    a(assert, {
+      description: 'place().top - edgeLayer = margin - positive left/top margin on absolute element',
+      result: result.top,
+      equal: 0
     });
 
     // Case #3
@@ -1423,15 +1431,15 @@ QUnit.test('special cases', function (assert) {
     });
 
     a(assert, {
-      description: 'border size - positive left/top margin on absolute element',
-      result: {
-        left: result.left,
-        top: result.top
-      },
-      deepEqual: {
-        left: -10,
-        top: -10
-      }
+      description: 'place().left - edgeLayer = border - positive left/top margin on absolute element',
+      result: result.left,
+      equal: -10
+    });
+
+    a(assert, {
+      description: 'place().top - edgeLayer = border - positive left/top margin on absolute element',
+      result: result.top,
+      equal: -10
     });
 
     // Case #4
@@ -1450,15 +1458,15 @@ QUnit.test('special cases', function (assert) {
     });
 
     a(assert, {
-      description: 'margin size - 100% bottom margin on relative element',
-      result: {
-        left: result.left,
-        top: result.top
-      },
-      deepEqual: {
-        left: 0,
-        top: -190
-      }
+      description: 'place().left - edgeLayer = margin - 100% bottom margin on relative element',
+      result: result.left,
+      equal: 0
+    });
+
+    a(assert, {
+      description: 'place().top - edgeLayer = margin - 100% bottom margin on relative element',
+      result: result.top,
+      equal: -190
     });
 
   });

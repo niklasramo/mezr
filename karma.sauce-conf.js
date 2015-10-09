@@ -40,65 +40,13 @@ module.exports = function (config) {
 
   stn.autoWatch = false;
 
-  stn.customLaunchers = {
+  stn.customLaunchers = require('./karma.sauce-browsers.js').getLaunchers();
 
-    // Desktop - IE
+  stn.browsers = require('./karma.sauce-browsers.js').getBrowsers();
 
-    win7_ie9: {
-      base: 'SauceLabs',
-      browserName: 'internet explorer',
-      platform: 'Windows 7',
-      version: '9.0'
-    },
-    /*
-    win8_ie10: {
-      base: 'SauceLabs',
-      browserName: 'internet explorer',
-      platform: 'Windows 8',
-      version: '10.0'
-    },
-    win81_ie11: {
-      base: 'SauceLabs',
-      browserName: 'internet explorer',
-      platform: 'Windows 8.1',
-      version: '11.0'
-    },
-    */
-
-    // Desktop - Edge
-
-    win10_edge: {
-      base: 'SauceLabs',
-      browserName: 'microsoftedge',
-      platform: 'Windows 10',
-      version: '20.10240'
-    }
-
-    // Desktop - Firefox
-
-    // Desktop - Chrome
-
-    // Desktop - Safari
-
-    // Mobile - IE
-
-    // Mobile - Safari
-
-    // Mobile - Chrome
-
-    // Mobile - Android browser
-
-  };
-
-  stn.browsers = Object.keys(stn.customLaunchers);
-
-  stn.captureTimeout = 60000;
+  stn.captureTimeout = 240000;
 
   stn.browserDisconnectTolerance = 2;
-
-  stn.browserDisconnectTimeout = 10000;
-
-  stn.browserNoActivityTimeout = 120000;
 
   stn.singleRun = true;
 

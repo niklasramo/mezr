@@ -33,6 +33,7 @@
     "karma-sauce-launcher": "^0.2.14",
     "karma-story-reporter": "^0.3.1",
     "node-env-file": "^0.1.7",
-    "qunitjs": "^1.19.0"
+    "qunitjs": "^1.19.0",
+    "yargs": "^3.27.0"
   }
 }
