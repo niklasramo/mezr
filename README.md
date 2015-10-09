@@ -1,7 +1,5 @@
 # Mezr
 
-[![Build Status](https://travis-ci.org/niklasramo/mezr.svg?branch=master)](https://travis-ci.org/niklasramo/mezr)
-
 Mezr is a lightweight JavaScript utility library for measuring and comparing the dimensions and positions of HTML DOM elements in modern browsers (IE9+). For starters Mezr provides a bit more extended variations of jQuery's popular [offset](http://api.jquery.com/category/offset/) and [dimension](http://api.jquery.com/category/dimension/) methods. Bonus features include collision detection and positioning elements relative to other elements in the style of jQuery UI's [position](https://jqueryui.com/position/) method. The library is well tested and documented, and squeezed into a relatively tiny space.
 
 **Features**
@@ -10,6 +8,64 @@ Mezr is a lightweight JavaScript utility library for measuring and comparing the
 * Cross-browser (IE9+).
 * Advanced element positioning.
 * Collision detection.
+
+**Getting started**
+
+Include [mezr.js](https://raw.githubusercontent.com/niklasramo/mezr/v0.4.0/mezr.js) somewhere on your site. Then just start measuring the DOM. Here are some simple examples to get you started.
+
+```javascript
+
+// Get element content width.
+mezr.width(elem, 'core');
+
+// Get element content + padding width.
+mezr.width(elem, 'padding');
+
+// Get element content + padding + scrollbar width (default).
+mezr.width(elemA, 'scroll');
+mezr.width(elem);
+
+// Get element content + padding + scrollbar + border width.
+mezr.width(elem, 'border');
+
+// Get element content + padding + scrollbar + border + margin width.
+mezr.width(elem, 'margin');
+
+// All the above stuff applies to mezr.height() also.
+mezr.height(elem);
+
+// Calculate element's offset (distance from document's northwest corner).
+// You can define which "layer" is considered as the element's edge.
+// Defaults to "scroll".
+mezr.offset(elem); // {left: ..., top: ...}
+mezr.offset(elem, 'core');
+mezr.offset(elem, 'padding');
+mezr.offset(elem, 'scroll');
+mezr.offset(elem, 'border');
+mezr.offset(elem, 'margin');
+
+// Calculate direct distance between two elements. You can define which
+// "layer" is considered as the element's edge. Defaults to "scroll".
+mezr.distance(elemA, elemB);
+mezr.distance([elemA, 'core'], [elemB, 'margin']);
+
+// Check if two elements overlap. You can also define which "layer"
+// is considered as the element's edge. Defaults to "scroll".
+mezr.intersection(elemA, elemB); // boolean
+mezr.intersection([elemA, 'core'], [elemB, 'margin']);
+
+// Calculate what elemA's position (left and top CSS properties) should
+// be when it's left-top (northwest) corner is placed in the center of
+// elemB. Works only for for positioned elements (CSS position attribute
+// must be something else than static).
+mezr.place(elemA, {
+  my: 'left top',
+  at: 'center center',
+  of: elemB
+});
+
+
+```
 
 ## API 0.4.0
 
