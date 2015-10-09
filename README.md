@@ -298,7 +298,7 @@ Returns the distance between two elements (in pixels) or `-1` if the elements ov
 
 **Returns** &nbsp;&mdash;&nbsp; *number*
 
-If elements overlap returns -1. Otherwise returns the distance between the elements.
+If elements overlap returns `-1`. Otherwise returns the distance between the elements.
 
 **Examples**
 
@@ -423,7 +423,7 @@ Calculate an element's position (left/top CSS properties) when positioned relati
 
 **Examples**
 
-```
+```javascript
 // Calculate elemA's new position (left and top CSS properties)
 // when it's northwest corner is positioned in the center of elemB.
 // Also add some static offsets and make sure that elemA stays
