@@ -14,7 +14,6 @@ Mezr is a lightweight JavaScript utility library for measuring and comparing the
 Include [mezr.js](https://raw.githubusercontent.com/niklasramo/mezr/v0.4.0/mezr.js) somewhere on your site. Then just start measuring the DOM. Here are some simple examples to get you started.
 
 ```javascript
-
 // Get element content width.
 mezr.width(elem, 'core');
 
@@ -22,7 +21,7 @@ mezr.width(elem, 'core');
 mezr.width(elem, 'padding');
 
 // Get element content + padding + scrollbar width (default).
-mezr.width(elemA, 'scroll');
+mezr.width(elem, 'scroll');
 mezr.width(elem);
 
 // Get element content + padding + scrollbar + border width.
@@ -63,8 +62,6 @@ mezr.place(elemA, {
   at: 'center center',
   of: elemB
 });
-
-
 ```
 
 ## API 0.4.0
@@ -115,68 +112,66 @@ Document width with viewport scrollbar.
 
 ```javascript
 // No jQuery alternative.
-var docWidth = mezr.width(document);
-// or
-var docWidth = mezr.width(document. "scroll");
+mezr.width(document);
+mezr.width(document. "scroll");
 ```
 
 Document width without viewport scrollbar.
 
 ```javascript
 // jQuery -> $(document).width()
-var docWidth = mezr.width(document, "core");
+mezr.width(document, "core");
 ```
 
 Window width with viewport scrollbar (handy for working with media queries).
 
 ```javascript
 // No jQuery alternative.
-var winWidth = mezr.width(window);
-var winWidth = mezr.width(window, 'scroll');
+mezr.width(window);
+mezr.width(window, 'scroll');
 ```
 
 Window width without viewport scrollbar.
 
 ```javascript
 // jQuery -> $(window).width()
-var winWidth = mezr.width(window, "core");
+mezr.width(window, "core");
 ```
 
 Element's inner width. Note that Mezr's implementation differs slightly from jQuery's `.width()` and should not be used as a drop in replacement. If the element has vertical scrollbar Mezr never includes it in the result unlike jQuery. In other words jQuery version returns the element's *potential* inner width whereas Mezr version returns the element's *true* inner width.
 
 ```javascript
-// Partial jQuery alternative -> $('body').width()
-var coreWidth = mezr.width(document.body, "core");
+// No jQuery alternative
+mezr.width(elem, "core");
 ```
 
 Element's width with paddings, but without vertical scollbar's width (if it exists). The same stuff applies to this example as the one above. jQuery's `.innerWidth()` method returns identical values as Mezr's "padding" width as long as the element does not have a vertical scrollbar.
 
 ```javascript
-// Partial jQuery alternative -> $('body').innerWidth()
-var paddingWidth = mezr.width(document.body, "padding");
+// No jQuery alternative
+mezr.width(elem, "padding");
 ```
 
 Element's width with paddings and vertical scollbar's width (if it exists).
 
 ```javascript
 // jQuery -> $('body').innerWidth()
-var scrollWidth = mezr.width(document.body, "scroll");
+mezr.width(elem, "scroll");
 ```
 
 Element's width with paddings, borders and vertical scollbar's width (if it exists).
 
 ```javascript
 // jQuery -> $('body').outerWidth()
-var borderWidth = mezr.width(document.body, "border");
-// or
-var borderWidth = mezr.width(document.body);
+mezr.width(elem, "border");
+mezr.width(elem);
 ```
 
-Element's width with paddings, borders margins and vertical scollbar's width (if it exists). Note that Mezr ignores negative margins completely so they do not affect the result in any way.
+Element's width with paddings, borders margins and vertical scollbar's width (if it exists). Note that negative margins are not subtracted from the width, they are just ignored. This is by design. Visually negative margins do not reduce the element's width so it makes sense to ignore them in this scenario. jQuery's `.outerWidth(true)` method returns exactly the same results as "margin" width with the exception that it does subtract negative margins from the width.
 
 ```javascript
-// jQuery -> $('body').outerWidth(true)
-var marginWidth = mezr.width(document.body, "margin");
+// No jQuery alternative
+mezr.width(elem, "margin");
 ```
 
 &nbsp;
@@ -251,13 +246,9 @@ Returns the element's "offsets", which in practice means the vertical and horizo
 **Examples**
 
 ```javascript
-var elem = document.createElement('div');
-document.body.appendChild(elem);
-elem.style.cssText = 'position: fixed; width: 100px; height: 100px; left: 100px; top: 50px;';
-window.scrollTo(0, 0);
-
 // Get element's offset.
-var offset = mezr.offset(elem); // {left: 100, top: 50}
+mezr.offset(elem); // {left: ..., top: ...}
+mezr.offset(elem, 'margin');
 ```
 
 &nbsp;
@@ -282,12 +273,8 @@ The return value is `null` if document object is provided as the element.
 **Examples**
 
 ```javascript
-var elem = document.createElement('div');
-document.body.appendChild(elem);
-elem.style.cssText = 'position: fixed;';
-
-// Get fixed element's offset parent.
-var offsetParent = mezr.offsetParent(elem); // window
+// Get element's offset parent.
+mezr.offsetParent(elem);
 ```
 
 &nbsp;
@@ -316,19 +303,8 @@ If elements overlap returns -1. Otherwise returns the distance between the eleme
 **Examples**
 
 ```javascript
-var elemA = document.createElement('div');
-var elemB = document.createElement('div');
-document.body.appendChild(elemA);
-document.body.appendChild(elemB);
-elemA.style.cssText = 'position: fixed; width: 100px; height: 100px; left: 0; top: 0;';
-elemB.style.cssText = 'position: fixed; width: 100px; height: 100px; left: 150px; top: 0;';
-
 // Calculate the distance between two elements.
-var distance = mezr.distance(elemA, elemB); // 50
-
-// If the element's overlap -1 is always returned.
-elemB.style.left = '50px';
-var distance = mezr.distance(elemA, elemB); // -1
+mezr.distance(elemA, elemB);
 ```
 
 &nbsp;
@@ -369,14 +345,16 @@ If *returnData* argument is set to `false` a boolean is returned which indicates
 **Examples**
 
 ```javascript
-var rectA = {width: 10, height: 10, left: 10, top: 10};
-var rectB = {width: 10, height: 10, left: 19, top: 19};
+// Check if two elements have an intersection.
+mezr.intersection(elemA, [elemB, 'core']); // boolean
 
 // Check if two rectangles have an intersection.
-var overlap = mezr.intersection(rectA, rectB); // true
+var rectA = {width: 10, height: 10, left: 10, top: 10};
+var rectB = {width: 10, height: 10, left: 19, top: 19};
+mezr.intersection(rectA, rectB); // true
 
 // Calculate the intersection area's dimensions and offsets.
-var overlapData = mezr.intersection(rectA, rectB, true);
+mezr.intersection(rectA, rectB, true);
 // {width: 1, height: 1, left: 19: top: 19}
 ```
 
@@ -442,6 +420,31 @@ Calculate an element's position (left/top CSS properties) when positioned relati
   * The positioned element's left (CSS) property value (fractional).
 * **obj.top** &nbsp;&mdash;&nbsp; *number*
   * The positioned element's top (CSS) property value (fractional).
+
+**Examples**
+
+```
+// Calculate elemA's new position (left and top CSS properties)
+// when it's northwest corner is positioned in the center of elemB.
+// Also add some static offsets and make sure that elemA stays
+// within the boundaries elemC. The collision option determines
+// what to do when/if a specific edge of elemC is "breached" by
+// elemA.
+mezr.place([elemA, 'core'], {
+  my: 'left top',
+  at: 'center center',
+  of: [elemB, 'margin'],
+  offsetX: -5,
+  offsetY: 10,
+  within: [elemC, 'padding'],
+  collision: {
+    left: 'pushForce',
+    right: 'push',
+    top: 'none',
+    bottom: 'push'
+  }
+});
+```
 
 &nbsp;
 
