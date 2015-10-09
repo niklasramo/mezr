@@ -10,8 +10,7 @@ Mezr is a lightweight JavaScript utility library for measuring and comparing the
 * Collision detection.
 
 **Getting started**
-
-Include [mezr.js](https://raw.githubusercontent.com/niklasramo/mezr/v0.4.0/mezr.js) somewhere on your site. Then just start measuring the DOM. Here are some simple examples to get you started.
+Include [mezr.js](https://raw.githubusercontent.com/niklasramo/mezr/0.4.0/mezr.js) somewhere on your site. Then just start measuring the DOM. Here are some simple examples to get you started.
 
 ```javascript
 // Get element content width.
