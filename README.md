@@ -438,7 +438,7 @@ mezr.place([elemA, 'core'], {
   offsetY: 10,
   within: [elemC, 'padding'],
   collision: {
-    left: 'pushForce',
+    left: 'forcePush',
     right: 'push',
     top: 'none',
     bottom: 'push'
