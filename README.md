@@ -1,6 +1,6 @@
 # Mezr
 
-Mezr is a lightweight JavaScript utility library for measuring and comparing the dimensions and positions of HTML DOM elements in modern browsers (IE9+). For starters Mezr provides a bit more extended variations of jQuery's popular [offset](http://api.jquery.com/category/offset/) and [dimension](http://api.jquery.com/category/dimension/) methods. Bonus features include collision detection and positioning elements relative to other elements in the style of jQuery UI's [position](https://jqueryui.com/position/) method. The library is well tested and documented, and squeezed into a relatively tiny space.
+Mezr is a lightweight JavaScript utility library for measuring and comparing the dimensions and positions of HTML DOM elements in modern browsers (IE9+). For starters Mezr provides a bit more extended variations of jQuery's popular [offset](http://api.jquery.com/category/offset/) and [dimension](http://api.jquery.com/category/dimension/) methods. Bonus features include collision detection and positioning elements relative to other elements in the style of jQuery UI's [position](https://jqueryui.com/position/) method.
 
 **Features**
 
@@ -155,14 +155,14 @@ mezr.width(elem, "padding");
 Element's width with paddings and vertical scollbar's width (if it exists).
 
 ```javascript
-// jQuery -> $('body').innerWidth()
+// jQuery -> $(elem).innerWidth()
 mezr.width(elem, "scroll");
 ```
 
 Element's width with paddings, borders and vertical scollbar's width (if it exists).
 
 ```javascript
-// jQuery -> $('body').outerWidth()
+// jQuery -> $(elem).outerWidth()
 mezr.width(elem, "border");
 mezr.width(elem);
 ```
@@ -255,7 +255,7 @@ mezr.offset(elem, 'margin');
 
 ### .offsetParent()
 
-Returns the element's offset parent. This function works in the same manner as the native elem.offsetParent method with a few tweaks and logic changes. The function accepts the window object and the document object in addition to DOM elements. Document object is considered as the base offset point against which the element/window offsets are compared to. This in turn means that the document object does not have an offset parent and returns null if provided as the element. Document is also considered as the window's offset parent. Window is considered as the offset parent of all fixed elements. Root and body elements are treated equally with all other DOM elements. For example body's offset parent is the root element if root element is positioned, but if the root element is static the body's offset parent is the document object.
+Returns the element's offset parent. This function works in the same manner as the native [elem.offsetParent](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/offsetParent) method with a few tweaks and logic changes. The function accepts the window object and the document object in addition to DOM elements. Document object is considered as the base offset point against which the element/window offsets are compared to. This in turn means that the document object does not have an offset parent and returns null if provided as the element. Document is also considered as the window's offset parent. Window is considered as the offset parent of all fixed elements. Root and body elements are treated equally with all other DOM elements. For example body's offset parent is the root element if root element is positioned, but if the root element is static the body's offset parent is the document object.
 
 **Syntax**
 
