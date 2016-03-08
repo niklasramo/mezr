@@ -15,17 +15,16 @@ Include [mezr.js](https://raw.githubusercontent.com/niklasramo/mezr/0.4.0/mezr.j
 
 ```javascript
 // Get element content width.
-mezr.width(elem, 'core');
+mezr.width(elem, 'content');
 
 // Get element content + padding width.
 mezr.width(elem, 'padding');
 
-// Get element content + padding + scrollbar width (default).
+// Get element content + padding + scrollbar width.
 mezr.width(elem, 'scroll');
-mezr.width(elem);
 
-// Get element content + padding + scrollbar + border width.
-mezr.width(elem, 'border');
+// Get element content + padding + scrollbar + border width (default).
+mezr.width(elem, 'border') === mezr.width(elem);
 
 // Get element content + padding + scrollbar + border + margin width.
 mezr.width(elem, 'margin');
@@ -34,24 +33,21 @@ mezr.width(elem, 'margin');
 mezr.height(elem);
 
 // Calculate element's offset (distance from document's northwest corner).
-// You can define which "layer" is considered as the element's edge.
-// Defaults to "scroll".
+// The second argument defines the element's edge for the calculations.
 mezr.offset(elem); // {left: ..., top: ...}
-mezr.offset(elem, 'core');
+mezr.offset(elem, 'content');
 mezr.offset(elem, 'padding');
 mezr.offset(elem, 'scroll');
 mezr.offset(elem, 'border');
 mezr.offset(elem, 'margin');
 
-// Calculate direct distance between two elements. You can define which
-// "layer" is considered as the element's edge. Defaults to "scroll".
+// Calculate direct distance between two elements.
 mezr.distance(elemA, elemB);
-mezr.distance([elemA, 'core'], [elemB, 'margin']);
+mezr.distance([elemA, 'content'], [elemB, 'margin']);
 
-// Check if two elements overlap. You can also define which "layer"
-// is considered as the element's edge. Defaults to "scroll".
+// Check if two elements overlap.
 mezr.intersection(elemA, elemB); // boolean
-mezr.intersection([elemA, 'core'], [elemB, 'margin']);
+mezr.intersection([elemA, 'content'], [elemB, 'margin']);
 
 // Calculate what elemA's position (left and top CSS properties) should
 // be when it's left-top (northwest) corner is placed in the center of
@@ -82,25 +78,17 @@ Returns the width of an element in pixels. Accepts also the window object (for g
 
 **Syntax**
 
-`mezr.width( el [, edgeLayer ] )`
+`mezr.width( el [, edge ] )`
 
 **Parameters**
 
 * **el** &nbsp;&mdash;&nbsp; *element / window / document*
   * Accepts any DOM element, the document object or the window object.
-* **edgeLayer** &nbsp;&mdash;&nbsp; *number / string*
-  * Defines which layer (core, padding, scroll, border, margin) of the element is considered as its outer edge.
+* **edge** &nbsp;&mdash;&nbsp; *string*
+  * Defines which edge (content, padding, scroll, border, margin) of the element is considered as its outer edge.
   * Default: `"border"`
-  * The edge can be described with a number or a string, here are the possible values:
-    * `"core"` or `0`: Inner width.
-    * `"padding"` or `1`: "core" + left/right paddings.
-    * `"scroll"` or `2`: "padding" + vertical scrollbar's width (if it exists).
-    * `"border"` or `3`: "scroll" + left/right borders.
-    * `"margin"` or `4`: "border" + left/right margins (only positive margins).
-  * For `window` and `document` objects this argument behaves a bit differently since they cannot have any paddings, borders or margins.
-    * Only `"core"` (without vertical scrollbar's width) and `"scroll"` (with vertical scrollbar's width) are effective values.
-    * `"padding"` is normalized to `"core"`.
-    * `"border"` and `"margin"` are normalized to `"scroll"`.
+  * Allowed values: `"content"`, `"padding"`, `"scroll"`, `"border"`, `"margin"`.
+  * For `window` and `document` objects this argument behaves a bit differently since they cannot have any paddings, borders or margins. Only `"content"` (without vertical scrollbar's width) and `"scroll"` (with vertical scrollbar's width) are effective values. `"padding"` is normalized to `"content"` while `"border"` and `"margin"` are normalized to `"scroll"`.
 
 **Returns** &nbsp;&mdash;&nbsp; *number*
 
@@ -120,7 +108,7 @@ Document width without viewport scrollbar.
 
 ```javascript
 // jQuery -> $(document).width()
-mezr.width(document, "core");
+mezr.width(document, "content");
 ```
 
 Window width with viewport scrollbar (handy for working with media queries).
@@ -135,14 +123,14 @@ Window width without viewport scrollbar.
 
 ```javascript
 // jQuery -> $(window).width()
-mezr.width(window, "core");
+mezr.width(window, "content");
 ```
 
 Element's inner width. Note that Mezr's implementation differs slightly from jQuery's `.width()` and should not be used as a drop in replacement. If the element has vertical scrollbar Mezr never includes it in the result unlike jQuery. In other words jQuery version returns the element's *potential* inner width whereas Mezr version returns the element's *true* inner width.
 
 ```javascript
 // No jQuery alternative
-mezr.width(elem, "core");
+mezr.width(elem, "content");
 ```
 
 Element's width with paddings, but without vertical scollbar's width (if it exists). The same stuff applies to this example as the one above. jQuery's `.innerWidth()` method returns identical values as Mezr's "padding" width as long as the element does not have a vertical scrollbar.
@@ -182,25 +170,17 @@ Returns the height of an element in pixels. Accepts also the window object (for 
 
 **Syntax**
 
-`mezr.height( el [, edgeLayer ] )`
+`mezr.height( el [, edge ] )`
 
 **Parameters**
 
 * **el** &nbsp;&mdash;&nbsp; *element / window / document*
   * Accepts any DOM element, the document object or the window object.
-* **edgeLayer** &nbsp;&mdash;&nbsp; *number / string*
-  * Defines which layer (core, padding, scroll, border, margin) of the element is considered as its outer edge.
+* **edge** &nbsp;&mdash;&nbsp; *string*
+  * Defines which edge (content, padding, scroll, border, margin) of the element is considered as its outer edge.
   * Default: `"border"`
-  * The edge can be described with a number or a string, here are the possible values:
-    * `"core"` or `0`: Inner height.
-    * `"padding"` or `1`: "core" + top/bottom paddings.
-    * `"scroll"` or `2`: "padding" + horizontal scrollbar's height (if it exists).
-    * `"border"` or `3`: "scroll" + top/bottom borders.
-    * `"margin"` or `4`: "border" + top/bottom margins (only positive margins).
-  * For `window` and `document` objects this argument behaves a bit differently since they cannot have any paddings, borders or margins.
-    * Only `"core"` (without horizontal scrollbar's height) and `"scroll"` (with horizontal scrollbar's height) are effective values.
-    * `"padding"` is normalized to `"core"`.
-    * `"border"` and `"margin"` are normalized to `"scroll"`.
+  * Allowed values: `"content"`, `"padding"`, `"scroll"`, `"border"`, `"margin"`.
+  * For `window` and `document` objects this argument behaves a bit differently since they cannot have any paddings, borders or margins. Only `"content"` (without vertical scrollbar's width) and `"scroll"` (with vertical scrollbar's width) are effective values. `"padding"` is normalized to `"content"` while `"border"` and `"margin"` are normalized to `"scroll"`.
 
 **Returns** &nbsp;&mdash;&nbsp; *number*
 
@@ -214,26 +194,21 @@ Check the examples for [.width()](#width), same stuff applies to [.height()](#he
 
 ### .offset()
 
-Returns the element's "offsets", which in practice means the vertical and horizontal distance between the element's northwest corner and the document's northwest corner. The edgeLayer argument controls which layer (core, padding, scroll, border, margin) of the element is considered as the edge of the element for the calculations. For example, if the edgeLayer was set to 1 or "padding" the element's margins and borders would be added to the offsets.
+Returns the element's "offsets", which in practice means the vertical and horizontal distance between the element's northwest corner and the document's northwest corner. The edge argument controls which layer (content, padding, scroll, border, margin) of the element is considered as the edge of the element for the calculations. For example, if the edge was set to 1 or "padding" the element's margins and borders would be added to the offsets.
 
 **Syntax**
 
-`mezr.offset( el [, edgeLayer ] )`
+`mezr.offset( el [, edge ] )`
 
 **Parameters**
 
 * **el** &nbsp;&mdash;&nbsp; *element / window / document*
   * Accepts any DOM element, the document object or the window object.
-* **edgeLayer** &nbsp;&mdash;&nbsp; *boolean*
-  * Defines which layer (core, padding, scroll, border, margin) of the element is considered as its outer edge.
+* **edge** &nbsp;&mdash;&nbsp; *boolean*
+  * Defines which edge (content, padding, scroll, border, margin) of the element is considered as its outer edge.
   * Default: `"border"`
+  * Allowed values: `"content"`, `"padding"`, `"scroll"`, `"border"`, `"margin"`.
   * This argument has no effect for `window` and `document`.
-  * The edge can be described with a number or a string, here are the possible values:
-    * `"core"` or `0`: Inner height.
-    * `"padding"` or `1`: "core" + top/bottom paddings.
-    * `"scroll"` or `2`: "padding" + horizontal scrollbar's height (if it exists).
-    * `"border"` or `3`: "scroll" + top/bottom borders.
-    * `"margin"` or `4`: "border" + top/bottom margins (only positive margins).
   * Note that `"padding"` and `"scroll"` values produce identical results. The `"scroll"` value is only allowed here in order to make this method work in sync with [`.width()`](#width) and [`.height()`](#height) methods.
 
 **Returns** &nbsp;&mdash;&nbsp; *object*
@@ -255,7 +230,7 @@ mezr.offset(elem, 'margin');
 
 ### .offsetParent()
 
-Returns the element's offset parent. This function works in the same manner as the native [elem.offsetParent](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/offsetParent) method with a few tweaks and logic changes. The function accepts the window object and the document object in addition to DOM elements. Document object is considered as the base offset point against which the element/window offsets are compared to. This in turn means that the document object does not have an offset parent and returns null if provided as the element. Document is also considered as the window's offset parent. Window is considered as the offset parent of all fixed elements. Root and body elements are treated equally with all other DOM elements. For example body's offset parent is the root element if root element is positioned, but if the root element is static the body's offset parent is the document object.
+Returns the element's offset parent. This function works in the same manner as the native elem.offsetParent method with a few tweaks and logic changes. Additionally this function recognizes transformed elements and is aware of their local coordinate system. The function accepts the window object and the document object in addition to DOM elements. Document object is considered as the base offset point against which the element/window offsets are compared to. This in turn means that the document object does not have an offset parent and the the function returns null if document is provided as the argument. Document is also considered as the window's offset parent. Window is considered as the root offset parent of all fixed elements. Root and body elements are treated equally with all other DOM elements. For example body's offset parent is the root element if root element is positioned, but if the root element is static the body's offset parent is the document object.
 
 **Syntax**
 
@@ -290,8 +265,8 @@ Returns the distance between two elements (in pixels) or `-1` if the elements ov
 **Parameters**
 
 * **elemA** &nbsp;&mdash;&nbsp; *element / array / object*
-  * Element: the element's edge layer is considered to be "border".
-  * Array: allows one to control which layer (core, padding, scroll, border, margin) is considered as the element's edge layer, e.g. `[someElem, 'core']`.
+  * Element: the element's edge is considered to be "border".
+  * Array: allows one to control which layer (content, padding, scroll, border, margin) is considered as the element's edge, e.g. `[someElem, 'content']`.
   * Object: must have width, height, left and top properties with numeric values (e.g. `{width: 10, height: 10, left: 10, top: -10}`).
 * **elemB** &nbsp;&mdash;&nbsp; *element / array / object*
   * Same specs as with elemA.
@@ -320,8 +295,8 @@ Detect if two elements overlap and calculate the possible intersection area's di
 **Parameters**
 
 * **a** &nbsp;&mdash;&nbsp; *array / element / object*
-  * Element: the element's edge layer is considered to be "border".
-  * Array: allows one to control which layer (core, padding, scroll, border, margin) is considered as the element's edge layer, e.g. `[someElem, 'core']`.
+  * Element: the element's edge is considered to be "border".
+  * Array: allows one to control which layer (content, padding, scroll, border, margin) is considered as the element's edge, e.g. `[someElem, 'content']`.
   * Object: must have width, height, left and top properties with numeric values (e.g. `{width: 10, height: 20, left: 15, top: -10}`).
 * **b** &nbsp;&mdash;&nbsp; *array / element / object*
   * Same specs as for a.
@@ -346,7 +321,7 @@ If *returnData* argument is set to `false` a boolean is returned which indicates
 
 ```javascript
 // Check if two elements have an intersection.
-mezr.intersection(elemA, [elemB, 'core']); // boolean
+mezr.intersection(elemA, [elemB, 'content']); // boolean
 
 // Check if two rectangles have an intersection.
 var rectA = {width: 10, height: 10, left: 10, top: 10};
@@ -372,8 +347,8 @@ Calculate an element's position (left/top CSS properties) when positioned relati
 
 * **el** &nbsp;&mdash;&nbsp; *element / window / document / array*
   * The element which is to be positioned (target).
-  * Element: the element's edge layer is considered to be "border".
-  * Array: allows one to control which layer (core, padding, scroll, border, margin) is considered as the element's edge layer, e.g. `[someElem, 'core']`.
+  * Element: the element's edge is considered to be "border".
+  * Array: allows one to control which layer (content, padding, scroll, border, margin) is considered as the element's edge, e.g. `[someElem, 'content']`.
 * **options** &nbsp;&mdash;&nbsp; *object*
   * A set of options that defines how the target element is positioned against the relative element.
 * **options.my** &nbsp;&mdash;&nbsp; *string*
@@ -391,14 +366,14 @@ Calculate an element's position (left/top CSS properties) when positioned relati
 * **options.of** &nbsp;&mdash;&nbsp; *element / window / document / array / object*
   * Defines which element the target element is positioned against (anchor).
   * Default: `window`
-  * Element: the element's edge layer is considered to be "border".
-  * Array: allows one to control which layer (core, padding, scroll, border, margin) is considered as the element's edge layer, e.g. `[someElem, 'core']`.
+  * Element: the element's edge is considered to be "border".
+  * Array: allows one to control which layer (content, padding, scroll, border, margin) is considered as the element's edge, e.g. `[someElem, 'content']`.
   * Object: must have width, height, left and top properties with numeric values (e.g. `{width: 10, height: 20, left: 15, top: -10}`).
 * **options.within** &nbsp;&mdash;&nbsp; *element / window / document / array / object*
   * Defines an optional element/area that is used for collision detection (container). Basically this element/area defines the boundaries for the positioning while the `options.collision` defines what to do if the target element is about to be positioned over the boundaries.
   * Default: `null`
-  * Element: the element's edge layer is considered to be "border".
-  * Array: allows one to control which layer (core, padding, scroll, border, margin) is considered as the element's edge layer, e.g. `[someElem, 'core']`.
+  * Element: the element's edge is considered to be "border".
+  * Array: allows one to control which layer (content, padding, scroll, border, margin) is considered as the element's edge, e.g. `[someElem, 'content']`.
   * Object: must have width, height, left and top properties with numeric values (e.g. `{width: 10, height: 20, left: 15, top: -10}`).
 * **options.offsetX** &nbsp;&mdash;&nbsp; *number*
   * An optional horizontal offset in pixels.
@@ -406,8 +381,8 @@ Calculate an element's position (left/top CSS properties) when positioned relati
 * **options.offsetY** &nbsp;&mdash;&nbsp; *number*
   * An optional vertical offset in pixels.
   * Default: `0`
-* **options.collision** &nbsp;&mdash;&nbsp; *object / null*
-  * Defines how the collisions are handled per each side when a container element/area (`options.within`) is defined. The option expects an object that has left, right, top and bottom properties set, representing the sides of the target element.
+* **options.collision** &nbsp;&mdash;&nbsp; *string / object / null*
+  * Defines how the collisions are handled per each side when a container element/area (`options.within`) is defined. The option expects an object that has left, right, top and bottom properties set, representing the sides of the target element. Alternatively you can provide a string value which will be normalized to an object automatically. For example, `"push"` will become `{left: 'push', right: 'push', top: 'push', bottom: 'push'}` and `"push none"` will become `{left: 'push', right: 'push', top: 'none', bottom: 'none'}`.
   * Default: `{left: 'push', right: 'push', top: 'push', bottom: 'push'}`
   * Acceptable values for each side are `"none"`, `"push"` and `"forcePush"`.
     * `"none"` will ignore containment for the specific side.
@@ -430,7 +405,7 @@ Calculate an element's position (left/top CSS properties) when positioned relati
 // within the boundaries elemC. The collision option determines
 // what to do when/if a specific edge of elemC is "breached" by
 // elemA.
-mezr.place([elemA, 'core'], {
+mezr.place([elemA, 'content'], {
   my: 'left top',
   at: 'center center',
   of: [elemB, 'margin'],

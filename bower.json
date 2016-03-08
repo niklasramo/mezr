@@ -1,9 +1,18 @@
 {
   "name": "mezr",
-  "version": "0.4.0",
+  "version": "0.5.0-dev",
   "description": "Measure and compare the dimensions and distances of DOM elements.",
   "keywords": [
-    "width, height, offset, position, dimension, element, overlap, collision, intersection"
+    "dom",
+    "width",
+    "height",
+    "offset",
+    "position",
+    "dimension",
+    "element",
+    "overlap",
+    "collision",
+    "intersection"
   ],
   "homepage": "https://github.com/niklasramo/mezr",
   "license": "MIT",
