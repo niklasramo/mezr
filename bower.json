@@ -1,6 +1,6 @@
 {
   "name": "mezr",
-  "version": "0.5.0-dev",
+  "version": "1.0.0-alpha",
   "description": "Measure and compare the dimensions and distances of DOM elements.",
   "keywords": [
     "dom",

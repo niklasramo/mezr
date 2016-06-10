@@ -1,6 +1,8 @@
 {
+  "disallowArrowFunctions": true,
   "disallowMixedSpacesAndTabs": true,
   "disallowMultipleLineStrings": true,
+  "disallowMultipleVarDecl": true,
   "disallowSpacesInsideParentheses": true,
   "disallowTrailingWhitespace": true,
   "disallowTrailingComma": true,
@@ -13,14 +15,10 @@
   },
   "disallowSpaceAfterObjectKeys": true,
   "disallowMultipleLineBreaks": true,
-  "requireMultipleVarDecl": true,
   "requireCapitalizedConstructors": true,
   "requireSpaceBetweenArguments": true,
   "requireSemicolons": true,
-  "requirePaddingNewLinesBeforeLineComments": true,
   "requireParenthesesAroundIIFE": true,
-  "requirePaddingNewLineAfterVariableDeclaration": true,
-  "requirePaddingNewLinesAfterUseStrict": true,
   "requireOperatorBeforeLineBreak": true,
   "requireCommaBeforeLineBreak": true,
   "requireCamelCaseOrUpperCaseIdentifiers": true,
@@ -59,14 +57,6 @@
     "try",
     "catch"
   ],
-  "requirePaddingNewlinesBeforeKeywords": [
-    "if",
-    "for",
-    "while",
-    "switch",
-    "return",
-    "try"
-  ],
   "requireSpaceBeforeBinaryOperators": [
     "=", "+=", "-=", "*=", "/=", "%=", "<<=", ">>=", ">>>=",
     "&=", "|=", "^=", "+=",
@@ -84,9 +74,6 @@
   },
   "validateParameterSeparator": ", ",
   "validateIndentation": 2,
-  "plugins": [
-    "jscs-jsdoc"
-  ],
   "jsDoc": {
     "checkAnnotations": true,
     "checkParamNames": true,

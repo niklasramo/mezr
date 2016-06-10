@@ -1,6 +1,6 @@
 {
   "name": "mezr",
-  "version": "0.5.0-dev",
+  "version": "1.0.0-alpha",
   "description": "Measure and compare the dimensions and distances of DOM elements.",
   "keywords": [
     "dom",
@@ -24,28 +24,27 @@
     "type": "git",
     "url": "git@github.com:niklasramo/mezr.git"
   },
-  "main": "./palikka.js",
+  "main": "./mezr.js",
   "scripts": {
     "test": "gulp"
   },
   "devDependencies": {
-    "dotenv": "^1.2.0",
-    "gulp": "^3.9.0",
-    "gulp-jscs": "^3.0.1",
+    "dotenv": "^2.0.0",
+    "gulp": "^3.9.1",
+    "gulp-jscs": "^3.0.0",
     "gulp-rename": "^1.2.2",
-    "gulp-size": "^2.0.0",
-    "gulp-uglify": "^1.4.1",
-    "gulp-util": "^3.0.6",
-    "jscs-jsdoc": "^1.2.0",
-    "karma": "^0.13.10",
-    "karma-chrome-launcher": "^0.2.0",
-    "karma-firefox-launcher": "^0.1.6",
-    "karma-ie-launcher": "^0.2.0",
-    "karma-qunit": "^0.1.5",
-    "karma-sauce-launcher": "^0.2.14",
+    "gulp-size": "^2.1.0",
+    "gulp-uglify": "^1.5.3",
+    "gulp-util": "^3.0.7",
+    "jsdoc-parse": "^1.2.7",
+    "karma": "^0.13.22",
+    "karma-coverage": "^0.5.5",
+    "karma-coveralls": "^1.1.2",
+    "karma-qunit": "^0.1.9",
+    "karma-sauce-launcher": "^0.3.1",
     "karma-story-reporter": "^0.3.1",
-    "node-env-file": "^0.1.7",
-    "qunitjs": "^1.19.0",
-    "yargs": "^3.27.0"
+    "qunitjs": "^1.23.1",
+    "rimraf": "^2.5.2",
+    "run-sequence": "^1.1.5"
   }
 }

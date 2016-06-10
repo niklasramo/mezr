@@ -1,22 +1,31 @@
-var
-fs = require('fs'),
-gulp = require('gulp'),
-jscs = require('gulp-jscs'),
-karma = require('karma'),
-uglify = require('gulp-uglify'),
-rename = require('gulp-rename'),
-size = require('gulp-size'),
-argv = require('yargs').argv;
+var package = require('./package.json');
+var fs = require('fs');
+var gulp = require('gulp');
+var jscs = require('gulp-jscs');
+var karma = require('karma');
+var uglify = require('gulp-uglify');
+var rename = require('gulp-rename');
+var size = require('gulp-size');
+var rimraf = require('rimraf');
+var runSequence = require('run-sequence');
+var jsdocParse = require('jsdoc-parse');
+var fileExists = function (filePath) {
+  try {
+    return fs.statSync(filePath).isFile();
+  } catch (err) {
+    return false;
+  }
+};
 
 // Load environment variables if .env file exists
-if (fs.existsSync('./.env')) {
+if (fileExists('./.env')) {
   require('dotenv').load();
 }
 
 gulp.task('validate', function () {
 
   return gulp
-  .src('./mezr.js')
+  .src(package.main)
   .pipe(jscs())
   .pipe(jscs.reporter());
 
@@ -24,55 +33,54 @@ gulp.task('validate', function () {
 
 gulp.task('compress', function() {
 
+  var mainMinified = package.main.replace('./', '').replace('.js', '.min.js');
+
   return gulp
-  .src('./mezr.js')
+  .src(package.main)
   .pipe(size({title: 'development'}))
   .pipe(uglify({
     preserveComments: 'some'
   }))
   .pipe(size({title: 'minified'}))
   .pipe(size({title: 'gzipped', gzip: true}))
-  .pipe(rename('mezr.min.js'))
+  .pipe(rename(mainMinified))
   .pipe(gulp.dest('./'));
 
 });
 
-gulp.task('test-local', function (done) {
+gulp.task('docs', function (cb) {
+
+  jsdocParse({src: package.main}).pipe(process.stdout);
+  cb();
+
+});
+
+gulp.task('test', function (done) {
 
   (new karma.Server({
-    configFile: __dirname + '/karma.local-conf.js',
+    configFile: __dirname + '/karma.conf.js',
     action: 'run'
-  }, done)).start();
+  }, function (exitCode) {
+    done(exitCode);
+  })).start();
 
 });
 
-gulp.task('test-sauce', function (done) {
+gulp.task('clean', function (cb) {
 
-  var
-  opts = {
-    configFile: __dirname + '/karma.sauce-conf.js',
-    action: 'run'
-  };
+  rimraf('./*.log', function () {
+    rimraf('./coverage', cb);
+  });
 
-  if (argv.browsers) {
-    opts.browsers = require('./karma.sauce-browsers.js').getBrowsers(argv.browsers);
+});
+
+gulp.task('default', function (done) {
+
+  if (process.env.CI) {
+    runSequence('validate', 'compress', 'test', 'clean', done);
+  }
+  else {
+    runSequence('validate', 'compress', 'test', done);
   }
 
-  (new karma.Server(opts, done)).start();
-
 });
-
-gulp.task('test-sauce-ci', function (done) {
-
-  var
-  opts = {
-    configFile: __dirname + '/karma.sauce-conf.js',
-    browsers: require('./karma.sauce-browsers.js').getSupportedBrowsers(),
-    action: 'run'
-  };
-
-  (new karma.Server(opts, done)).start();
-
-});
-
-gulp.task('default', ['validate', 'test-sauce-ci']);
