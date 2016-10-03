@@ -58,6 +58,10 @@ window.onload = function() {
     element.offsetHeight;
     element.style.display = display;
 
+    // Needed for iOS emulator
+    docElem.clientWidth;
+    window.innerWidth;
+
   }
 
   function resetElements() {
@@ -117,6 +121,7 @@ window.onload = function() {
     var expectedWidth = 10000 + window.innerWidth - docElem.clientWidth;
     var expectedHeight = 10000 + window.innerHeight - docElem.clientHeight;
 
+    // THese fail on iOS -> check out why...
     assert.strictEqual(mezr.width(document), expectedWidth, 'width - undefined');
     assert.strictEqual(mezr.width(document, 'scroll'), expectedWidth, 'width - "scroll"');
     assert.strictEqual(mezr.width(document, 'border'), expectedWidth, 'width - "border"');
@@ -374,6 +379,84 @@ window.onload = function() {
 
     assert.strictEqual(mezr.offset(window).left, window.pageXOffset, 'left');
     assert.strictEqual(mezr.offset(window).top, window.pageYOffset, 'top');
+
+  });
+
+  QUnit.module('intersection');
+
+  QUnit.test('mezr.intersection(objA, objB) should return the intersection area data', function (assert) {
+
+    assert.expect(2);
+
+    var rectA = {width: 5, height: 5, left: 0, top: 0};
+    var rectB = {width: 5, height: 5, left: 4, top: 4};
+    var rectC = {width: 5, height: 5, left: 5, top: 5};
+
+    assert.deepEqual(mezr.intersection(rectA, rectB), {left: 4, top: 4, height: 1, width: 1}, 'intersection area exists');
+    assert.strictEqual(mezr.intersection(rectA, rectC), null, 'intersection area does not exist');
+
+  });
+
+  QUnit.module('distance');
+
+  QUnit.test('mezr.distance(objA, objB) should return the direct distance between the two objects', function (assert) {
+
+    assert.expect(8);
+
+    var rectA = {width: 5, height: 5, left: 10, top: 10};
+    var rectB = {width: 5, height: 5};
+    var setA = {
+      'right top corner': {
+        left: 20,
+        top: 0
+      },
+      'right bottom corner': {
+        left: 20,
+        top: 20
+      },
+      'left bottom corner': {
+        left: 0,
+        top: 20
+      },
+      'left top corner': {
+        left: 0,
+        top: 0
+      }
+    };
+    var setB = {
+      'top edge': {
+        left: 10,
+        top: 0
+      },
+      'bottom edge': {
+        left: 10,
+        top: 20
+      },
+      'left edge': {
+        left: 0,
+        top: 10
+      },
+      'right edge': {
+        left: 20,
+        top: 10
+      }
+    };
+
+    for (var name in setA) {
+      var pos = setA[name];
+      var expected = Math.sqrt(Math.pow(5, 2) + Math.pow(5, 2));
+      rectB.left = pos.left;
+      rectB.top = pos.top;
+      assert.strictEqual(mezr.distance(rectA, rectB), expected, name);
+    }
+
+    for (var name in setB) {
+      var pos = setB[name];
+      var expected = 5;
+      rectB.left = pos.left;
+      rectB.top = pos.top;
+      assert.strictEqual(mezr.distance(rectA, rectB), expected, name);
+    }
 
   });
 

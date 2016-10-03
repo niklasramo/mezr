@@ -1,74 +1,43 @@
 /*!
- * mezr v1.0.0-alpha
+ * mezr v0.5.0-dev
  * https://github.com/niklasramo/mezr
  * Copyright (c) 2016 Niklas Rämö <inramo@gmail.com>
  * Released under the MIT license
  */
 
-/*
-
-Ideas
-*****
-- .scrollbarWidth( el )
-- .scrollbarHeight( el )
-- .w3cTelcs()
-- .scrollParent( el ) and/or .scrollParents( el )
-
-Todo for v1.0.0-beta
-********************
-- [ ] Finalize API.
-- [ ] Better docs.
-- [ ] Auto-generate docs.
-- [ ] Updated unit tests.
-- [ ] Contribution guidelines and process.
-- [ ] Bug report guidelines and process.
-
-*/
-
 (function (global, factory) {
 
   if (typeof define === 'function' && define.amd) {
-
-    define('mezr', [], function () {
-
-      return factory(global);
-
+    define([], function () {
+      return factory();
     });
-
   }
   else if (typeof module === 'object' && module.exports) {
-
-    module.exports = global.document ?
-      factory(global) :
-      function (win) {
-
-        if (!win.document) {
-          throw new Error('Mezr requires a window with a document');
-        }
-
-        return factory(win);
-
-      };
-
+    module.exports = factory();
   }
   else {
-
-    global.mezr = factory(global);
-
+    global.mezr = factory();
   }
 
-}(typeof window === 'object' && window.window || this, function (win, undefined) {
+}(this, function (undefined) {
 
   'use strict';
 
-  // Cache window document and root element.
+  // Cache window, document, root and body elements.
+  var win = window;
   var doc = win.document;
   var root = doc.documentElement;
+  var body = doc.body;
+
+  // Throw error if body is not available
+  if (!body) {
+    throw Error('Mezr needs access to body element.');
+  }
 
   // Cache some often used native functions.
-  var ABS = Math.abs;
-  var MAX = Math.max;
-  var MIN = Math.min;
+  var abs = Math.abs;
+  var max = Math.max;
+  var min = Math.min;
 
   // String to number mappings for element edges.
   var edges = {
@@ -82,8 +51,14 @@ Todo for v1.0.0-beta
   // Place method's option names.
   var placeOptionsNames = ['my', 'at', 'of', 'within', 'collision', 'offsetX', 'offsetY'];
 
-  // Define default options for place method.
-  var placeDefaultOptions = {
+  // Temporary bounding client rect data.
+  var tempElemGBCR;
+
+  // Mezr settings.
+  var settings = {};
+
+  // Default options for place method.
+  settings.placeDefaultOptions = {
     my: 'left top',
     at: 'left top',
     of: win,
@@ -99,11 +74,10 @@ Todo for v1.0.0-beta
   };
 
   // Get the primary supported transform property.
-  var supportedTransform = getSupportedTransform();
+  settings.transform = getSupportedTransform();
 
-  // Does the browser support transformed element's local coordinate system as per W3C spec. This is
-  // checked in the init section (in the bottom of this file).
-  var supportsW3CTELCS = false;
+  // Does the browser support transformed element's local coordinate system as per W3C spec.
+  settings.telcs = testW3CTELCS();
 
   /**
    * Public methods
@@ -118,8 +92,8 @@ Todo for v1.0.0-beta
    * @param {Document|Element|Window} el
    * @param {Edge} [edge='border']
    * @returns {Number}
-   *  - The return value may be fractional when calculating the width of an element. For window and
-   *    document objects the value is always an integer though.
+   *   - The return value may be fractional when calculating the width of an element. For window and
+   *     document objects the value is always an integer though.
    */
   function getWidth(el, edge) {
 
@@ -137,8 +111,8 @@ Todo for v1.0.0-beta
    * @param {Document|Element|Window} el
    * @param {Edge} [edge='border']
    * @returns {Number}
-   *  - The return value may be fractional when calculating the width of an element. For window and
-   *    document objects the value is always an integer though.
+   *   - The return value may be fractional when calculating the width of an element. For window and
+   *     document objects the value is always an integer though.
    */
   function getHeight(el, edge) {
 
@@ -185,7 +159,7 @@ Todo for v1.0.0-beta
     // Sanitize edge.
     edge = edge && edges[edge] || 4;
 
-    var gbcr = el.getBoundingClientRect();
+    var gbcr = tempElemGBCR || el.getBoundingClientRect();
     var offsetLeft = gbcr.left + viewportScrollLeft;
     var offsetTop = gbcr.top + viewportScrollTop;
 
@@ -239,12 +213,18 @@ Todo for v1.0.0-beta
     // Sanitize edge.
     edge = edge || 'border';
 
-    var rect = getOffset(el, edge);
+    // Cache element's bounding client rect.
+    tempElemGBCR = el.getBoundingClientRect();
 
+    // Get element's data.
+    var rect = getOffset(el, edge);
     rect.width = getWidth(el, edge);
     rect.height = getHeight(el, edge);
     rect.bottom = rect.top + rect.height;
     rect.right = rect.left + rect.width;
+
+    // Nullify element's bounding client rect cache.
+    tempElemGBCR = null;
 
     return rect;
 
@@ -271,7 +251,7 @@ Todo for v1.0.0-beta
 
     var isFixed = getStyle(el, 'position') === 'fixed';
 
-    if (isFixed && !supportsW3CTELCS) {
+    if (isFixed && !settings.telcs) {
 
       return global;
 
@@ -316,8 +296,8 @@ Todo for v1.0.0-beta
    */
   function getDistance(a, b) {
 
-    var aRect = getSafeRect(a);
-    var bRect = getSafeRect(b);
+    var aRect = getRectInternal(a);
+    var bRect = getRectInternal(b);
 
     return getIntersection(aRect, bRect) ? -1 : getRectDistance(aRect, bRect);
 
@@ -335,18 +315,18 @@ Todo for v1.0.0-beta
    */
   function getIntersection(a, b) {
 
-    var aRect = getSafeRect(a);
-    var bRect = getSafeRect(b);
+    var aRect = getRectInternal(a);
+    var bRect = getRectInternal(b);
     var overlap = getOverlap(aRect, bRect);
-    var intWidth = MAX(aRect.width + MIN(overlap.left, 0) + MIN(overlap.right, 0), 0);
-    var intHeight = MAX(aRect.height + MIN(overlap.top, 0) + MIN(overlap.bottom, 0), 0);
+    var intWidth = max(aRect.width + min(overlap.left, 0) + min(overlap.right, 0), 0);
+    var intHeight = max(aRect.height + min(overlap.top, 0) + min(overlap.bottom, 0), 0);
     var hasIntersection = intWidth > 0 && intHeight > 0;
 
     return !hasIntersection ? null : {
       width: intWidth,
       height: intHeight,
-      left: aRect.left + ABS(MIN(overlap.left, 0)),
-      top: aRect.top + ABS(MIN(overlap.top, 0))
+      left: aRect.left + abs(min(overlap.left, 0)),
+      top: aRect.top + abs(min(overlap.top, 0))
     };
 
   }
@@ -369,7 +349,7 @@ Todo for v1.0.0-beta
     options = getPlaceOptions(el, options);
 
     var ret = {};
-    var anchor = getSafeRect(options.of);
+    var anchor = getRectInternal(options.of);
     var target = getNorthwestOffset(el[0], el[1]);
     var offsetX = options.offsetX;
     var offsetY = options.offsetY;
@@ -379,8 +359,8 @@ Todo for v1.0.0-beta
     target.height = getHeight(el[0], el[1]);
 
     // Sanitize offsets and check for percentage values.
-    offsetX = typeof offsetX === 'string' && offsetX.indexOf('%') > -1 ? toFloat(offsetX) / 100 * targe.width : toFloat(offsetX);
-    offsetY = typeof offsetY === 'string' && offsetY.indexOf('%') > -1 ? toFloat(offsetY) / 100 * targe.height : toFloat(offsetY);
+    offsetX = typeof offsetX === 'string' && offsetX.indexOf('%') > -1 ? toFloat(offsetX) / 100 * target.width : toFloat(offsetX);
+    offsetY = typeof offsetY === 'string' && offsetY.indexOf('%') > -1 ? toFloat(offsetY) / 100 * target.height : toFloat(offsetY);
 
     // Calculate element's new position (left/top coordinates).
     ret.left = getPlacePosition(options.my[0] + options.at[0], anchor.width, anchor.left, target.width, target.left, offsetX);
@@ -425,21 +405,28 @@ Todo for v1.0.0-beta
   }
 
   /**
-   * Returns the transform property name that the browser supports or null if transforms are not
-   * supported.
+   * Returns the supported transform property's prefix, property name and style name or null if
+   * transforms are not supported.
    *
    * @private
-   * @returns {?String}
+   * @returns {?Object}
    */
   function getSupportedTransform() {
 
-    var all = ['transform', 'WebkitTransform', 'MozTransform', 'OTransform', 'msTransform'];
+    var transforms = ['transform', 'WebkitTransform', 'MozTransform', 'OTransform', 'msTransform'];
 
-    for (var i = 0; i < all.length; i++) {
+    for (var i = 0; i < transforms.length; i++) {
 
-      if (root.style[all[i]] !== undefined) {
+      if (root.style[transforms[i]] !== undefined) {
 
-        return all[i];
+        var prop = transforms[i];
+        var prefix = prop.toLowerCase().split('transform')[0];
+
+        return {
+          prefix: prefix,
+          propName: prop,
+          styleName: prefix ? '-' + prefix + '-transform' : prop
+        };
 
       }
 
@@ -463,11 +450,12 @@ Todo for v1.0.0-beta
    */
   function testW3CTELCS() {
 
-    if (!supportedTransform) {
+    if (!settings.transform) {
+
       return false;
+
     }
 
-    var body = doc.body;
     var outer = doc.createElement('div');
     var inner = doc.createElement('div');
     var leftUntransformed;
@@ -497,7 +485,7 @@ Todo for v1.0.0-beta
     outer.appendChild(inner);
     body.appendChild(outer);
     leftUntransformed = inner.getBoundingClientRect().left;
-    outer.style[supportedTransform] = 'translateZ(0)';
+    outer.style[settings.transform.propName] = 'translateZ(0)';
     leftTransformed = inner.getBoundingClientRect().left;
     body.removeChild(outer);
 
@@ -516,7 +504,7 @@ Todo for v1.0.0-beta
    */
   function isTransformed(el) {
 
-    var transform = getStyle(el, supportedTransform);
+    var transform = getStyle(el, settings.transform.styleName);
     var display = getStyle(el, 'display');
 
     return transform !== 'none' && display !== 'inline' && display !== 'none';
@@ -611,8 +599,8 @@ Todo for v1.0.0-beta
    */
   function getOverlap(a, b) {
 
-    a = getSafeRect(a);
-    b = getSafeRect(b);
+    a = getRectInternal(a);
+    b = getRectInternal(b);
 
     return {
       left: a.left - b.left,
@@ -708,8 +696,8 @@ Todo for v1.0.0-beta
    * @param {Boolean} [includeBorder=false]
    * @param {Boolean} [includeMargin=false]
    * @returns {Number}
-   *  - The return value may be fractional when calculating the width of an element. For window and
-   *    document objects the value is always an integer though.
+   *   - The return value may be fractional when calculating the width of an element. For window and
+   *     document objects the value is always an integer though.
    */
   function getDimension(dimension, el, includePadding, includeScrollbar, includeBorder, includeMargin) {
 
@@ -731,11 +719,11 @@ Todo for v1.0.0-beta
 
         var sbSize = win[innerDimension] - root[clientDimension];
 
-        ret = MAX(root[scrollDimension] + sbSize, doc.body[scrollDimension] + sbSize, win[innerDimension]);
+        ret = max(root[scrollDimension] + sbSize, body[scrollDimension] + sbSize, win[innerDimension]);
 
       } else {
 
-        ret = MAX(root[scrollDimension], doc.body[scrollDimension], root[clientDimension]);
+        ret = max(root[scrollDimension], body[scrollDimension], root[clientDimension]);
 
       }
 
@@ -747,7 +735,7 @@ Todo for v1.0.0-beta
       var borderA;
       var borderB;
 
-      ret = el.getBoundingClientRect()[dimension];
+      ret = (tempElemGBCR || el.getBoundingClientRect())[dimension];
 
       if (!includeScrollbar) {
 
@@ -805,14 +793,18 @@ Todo for v1.0.0-beta
    * @param {Array|Document|Element|Window|Rectangle} el
    * @returns {?Rectangle}
    */
-  function getSafeRect(el) {
+  function getRectInternal(el) {
 
     if (!el) {
+
       return null;
+
     }
 
     if (isPlainObject(el)) {
+
       return el;
+
     }
 
     el = [].concat(el);
@@ -826,7 +818,7 @@ Todo for v1.0.0-beta
    * where the element's left and top CSS properties are set to 0.
    *
    * @private
-   * @param {Array|Document|Element|Window} el
+   * @param {Document|Element|Window} el
    * @param {Edge} edge
    * @returns {Offset}
    */
@@ -847,20 +839,20 @@ Todo for v1.0.0-beta
 
       offset = getOffset(el, edge);
 
-      var autoLeft = getStyle(el, 'left') === 'auto';
-      var autoRight = getStyle(el, 'right') === 'auto';
-      var autoTop = getStyle(el, 'top') === 'auto';
-      var autoBottom = getStyle(el, 'bottom') === 'auto';
+      var left = getStyle(el, 'left');
+      var right = getStyle(el, 'right');
+      var top = getStyle(el, 'top');
+      var bottom = getStyle(el, 'bottom');
 
-      if (!autoLeft || !autoRight) {
+      if (left !== 'auto' || right !== 'auto') {
 
-        offset.left -= autoLeft ? -toFloat(right) : toFloat(left);
+        offset.left -= left === 'auto' ? -toFloat(right) : toFloat(left);
 
       }
 
-      if (!autoTop || !autoBottom) {
+      if (top !== 'auto' || bottom !== 'auto') {
 
-        offset.top -= autoTop ? -toFloat(bottom) : toFloat(top);
+        offset.top -= top === 'auto' ? -toFloat(bottom) : toFloat(top);
 
       }
 
@@ -877,8 +869,8 @@ Todo for v1.0.0-beta
       // effect on position.
       if (edge === 5) {
 
-        offset.left -= ABS(MIN(marginLeft, 0));
-        offset.top -= ABS(MIN(marginTop, 0));
+        offset.left -= abs(min(marginLeft, 0));
+        offset.top -= abs(min(marginTop, 0));
 
       }
 
@@ -926,7 +918,7 @@ Todo for v1.0.0-beta
   function getPlaceOptions(el, options) {
 
     // Merge user options with default options.
-    options = mergeObjects(options ? [placeDefaultOptions, options] : [defaults]);
+    options = mergeObjects(options ? [settings.placeDefaultOptions, options] : [defaults]);
 
     var name;
     var val;
@@ -1038,14 +1030,14 @@ Todo for v1.0.0-beta
       // Do push correction from opposite sides with equal force.
       if (sideAOverlap < sideBOverlap) {
 
-        ret -= sizeDifference < 0 ? sideAOverlap + ABS(sizeDifference / 2) : sideAOverlap;
+        ret -= sizeDifference < 0 ? sideAOverlap + abs(sizeDifference / 2) : sideAOverlap;
 
       }
 
       // Do push correction from opposite sides with equal force.
       if (sideBOverlap < sideAOverlap) {
 
-        ret += sizeDifference < 0 ? sideBOverlap + ABS(sizeDifference / 2) : sideBOverlap;
+        ret += sizeDifference < 0 ? sideBOverlap + abs(sizeDifference / 2) : sideBOverlap;
 
       }
 
@@ -1126,22 +1118,30 @@ Todo for v1.0.0-beta
 
   /**
    * @typedef {Object} Rectangle
-   * @property {Number} left - Element's horizontal distance from the left edge of the document.
-   * @property {Number} top - Element's vertical distance from the top edge of the document.
-   * @property {Number} height - Element's height.
-   * @property {Number} width - Element's width.
+   * @property {Number} left
+   *   - Element's horizontal distance from the left edge of the document.
+   * @property {Number} top
+   *   - Element's vertical distance from the top edge of the document.
+   * @property {Number} height
+   *   - Element's height.
+   * @property {Number} width
+   *   - Element's width.
    */
 
   /**
    * @typedef {Object} Offset
-   * @property {Number} left - Element's horizontal distance from the left edge of the document.
-   * @property {Number} top - Element's vertical distance from the top edge of the document.
+   * @property {Number} left
+   *   - Element's horizontal distance from the left edge of the document.
+   * @property {Number} top
+   *   - Element's vertical distance from the top edge of the document.
    */
 
   /**
    * @typedef {Object} Position
-   * @property {Number} left - Element's horizontal distance from the left edge of another element.
-   * @property {Number} top - Element's vertical distance from the top edge of another element.
+   * @property {Number} left
+   *   - Element's horizontal distance from the left edge of another element.
+   * @property {Number} top
+   *   - Element's vertical distance from the top edge of another element.
    */
 
   /**
@@ -1175,8 +1175,10 @@ Todo for v1.0.0-beta
 
   /**
    * @typedef {Object} PlaceData
-   * @property {Number} left - Target element's new left position.
-   * @property {Number} top - Target element's new top position.
+   * @property {Number} left
+   *   - Target element's new left position.
+   * @property {Number} top
+   *   - Target element's new top position.
    */
 
   /**
@@ -1192,22 +1194,6 @@ Todo for v1.0.0-beta
     * @typedef {String} Placement
     */
 
-  /**
-   * Initialize
-   * **********
-   */
-
-  // The TELCS test needs to have body ready, so we need to make sure we have it available before
-  // doing the test.
-  if (doc.body) {
-    supportsW3CTELCS = testW3CTELCS();
-  }
-  else {
-    doc.addEventListener('DOMContentLoaded', function () {
-      supportsW3CTELCS = testW3CTELCS();
-    }, false);
-  }
-
   // Name and return the public methods.
   return {
     width: getWidth,
@@ -1217,7 +1203,8 @@ Todo for v1.0.0-beta
     offsetParent: getOffsetParent,
     distance: getDistance,
     intersection: getIntersection,
-    place: getPlace
+    place: getPlace,
+    _settings: settings
   };
 
 }));

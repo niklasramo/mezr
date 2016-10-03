@@ -11,40 +11,17 @@ Mezr is a lightweight JavaScript utility library for measuring and comparing the
 
 **Getting started**
 
-1. Include [mezr.js](https://raw.githubusercontent.com/niklasramo/mezr/0.4.0/mezr.js) somewhere on your site.
+1. Include [mezr.js](https://raw.githubusercontent.com/niklasramo/mezr/0.4.0/mezr.js) within the `body` element on your site.
 
   ```html
   <html>
-    <head>
-      <!-- You can place the script in the head... -->
-      <script src="mezr.js"></script>>
-    </head>
     <body>
-      <!-- ... or in the body, it's up to you -->
       <script src="mezr.js"></script>>
     </body>
   </html>
   ```
 
-2. Make sure that document is ready.
-
-  You need to make sure that you do not call Mezr's methods before the document is ready because Mezr needs to do some browser feature checking.
-
-  ```javascript
-  // Vanilla JavaScript
-  document.addEventListener('DOMContentLoaded', function () {
-    // Your code here...
-    mezr.width(window);
-  }, false);
-
-  // jQuery
-  $(function () {
-    // Your code here...
-    mezr.height(window);
-  });
-  ```
-
-3. Then just start measuring the DOM. Here are some simple examples to get you started.
+2. Then just start measuring the DOM. Here are some simple examples to get you started.
 
   ```javascript
   // Get element content width.
@@ -93,38 +70,7 @@ Mezr is a lightweight JavaScript utility library for measuring and comparing the
   });
   ```
 
-## API v1.0.0-alpha
-
-* [.width( el, [ edge ] )](#width-el--edge--)
-* [.height( el, [ edge ] )](#height-el--edge--)
-* [.offset( el, [ edge ] )](#offset-el--edge--)
-* [.rect( el, [ edge ] )](#rect-el--edge--)
-* [.offsetParent( el )](#offsetparent-el-)
-* [.distance( elemA, elemB )](#distance-elema-elemb-)
-* [.intersection( a, b)](#intersection-a-b-)
-* [.place(el, [ options ] )](#place-el--options--)
-
-&nbsp;
-
-### `.width( el, [ edge ] )`
-
-Returns the width of an element in pixels. Accepts also the window object (for getting the viewport width) and the document object (for getting the width of the whole document).
-
-**Parameters**
-
-* **el** &nbsp;&mdash;&nbsp; *element / window / document*
-  * Accepts any DOM element, the document object or the window object.
-* **edge** &nbsp;&mdash;&nbsp; *string*
-  * Defines which edge (content, padding, scroll, border, margin) of the element is considered as its outer edge.
-  * Default: `"border"`
-  * Allowed values: `"content"`, `"padding"`, `"scroll"`, `"border"`, `"margin"`.
-  * For `window` and `document` objects this argument behaves a bit differently since they cannot have any paddings, borders or margins. Only `"content"` (without vertical scrollbar's width) and `"scroll"` (with vertical scrollbar's width) are effective values. `"padding"` is normalized to `"content"` while `"border"` and `"margin"` are normalized to `"scroll"`.
-
-**Returns** &nbsp;&mdash;&nbsp; *number*
-
-The return value may be fractional when calculating the width of an element. For `window` and `document` objects the value is always an integer though.
-
-**Examples**
+**Comparison to jQuery's dimension methods**
 
 Document width with viewport scrollbar.
 
@@ -192,6 +138,68 @@ Element's width with paddings, borders margins and vertical scollbar's width (if
 mezr.width(elem, "margin");
 ```
 
+## API v0.5.0
+
+* [.width( el, [ edge ] )](#width-el--edge--)
+* [.height( el, [ edge ] )](#height-el--edge--)
+* [.offset( el, [ edge ] )](#offset-el--edge--)
+* [.rect( el, [ edge ] )](#rect-el--edge--)
+* [.offsetParent( el )](#offsetparent-el-)
+* [.distance( elemA, elemB )](#distance-elema-elemb-)
+* [.intersection( a, b)](#intersection-a-b-)
+* [.place(el, [ options ] )](#place-el--options--)
+
+&nbsp;
+
+### `.width( el, [ edge ] )`
+
+Returns the width of an element in pixels. Accepts also the window object (for getting the viewport width) and the document object (for getting the width of the whole document).
+
+**Parameters**
+
+* **el** &nbsp;&mdash;&nbsp; *element / window / document*
+  * Accepts any DOM element, the document object or the window object.
+* **edge** &nbsp;&mdash;&nbsp; *string*
+  * Defines which edge (content, padding, scroll, border, margin) of the element is considered as its outer edge.
+  * Default: `"border"`
+  * Allowed values: `"content"`, `"padding"`, `"scroll"`, `"border"`, `"margin"`.
+  * For `window` and `document` objects this argument behaves a bit differently since they cannot have any paddings, borders or margins. Only `"content"` (without vertical scrollbar's width) and `"scroll"` (with vertical scrollbar's width) are effective values. `"padding"` is normalized to `"content"` while `"border"` and `"margin"` are normalized to `"scroll"`.
+
+**Returns** &nbsp;&mdash;&nbsp; *number*
+
+The return value may be fractional when calculating the width of an element. For `window` and `document` objects the value is always an integer though.
+
+**Examples**
+
+```javascript
+// Document width (with viewport scrollbar).
+mezr.width(document. "scroll"); // or just -> mezr.width(document);
+
+// Document width (without viewport scrollbar).
+mezr.width(document, "content");
+
+// Window width (with scrollbar).
+mezr.width(window, 'scroll'); // or just -> mezr.width(window);
+
+// Window width (without scrollbar).
+mezr.width(window, "content");
+
+// Element content width.
+mezr.width(elem, 'content');
+
+// Element content width + left/right padding.
+mezr.width(elem, 'padding');
+
+// Element content width + left/right padding + vertical scrollbar width.
+mezr.width(elem, 'scroll');
+
+// Element content width + left/right padding + vertical scrollbar width + left/right border.
+mezr.width(elem, 'border'); // or just -> mezr.width(elem);
+
+// Element content width + left/right padding + vertical scrollbar width + left/right border + left/right (positive) margin.
+mezr.width(elem, 'margin');
+```
+
 &nbsp;
 
 ### `.height( el, [ edge ] )`
@@ -214,7 +222,34 @@ The return value may be fractional when calculating the height of an element. Fo
 
 **Examples**
 
-Check the examples for [.width()](#width), same stuff applies to [.height()](#height).
+```javascript
+// Document height (with viewport scrollbar).
+mezr.height(document. "scroll"); // or just -> mezr.height(document);
+
+// Document height (without viewport scrollbar).
+mezr.height(document, "content");
+
+// Window height (with scrollbar).
+mezr.height(window, 'scroll'); // or just -> mezr.height(window);
+
+// Window height (without scrollbar).
+mezr.height(window, "content");
+
+// Element content height.
+mezr.height(elem, 'content');
+
+// Element content height + top/bottom padding.
+mezr.height(elem, 'padding');
+
+// Element content height + top/bottom padding + horizontal scrollbar height.
+mezr.height(elem, 'scroll');
+
+// Element content height + top/bottom padding + horizontal scrollbar height + top/bottom border.
+mezr.height(elem, 'border'); // or just -> mezr.height(elem);
+
+// Element content height + top/bottom padding + horizontal scrollbar height + top/bottom border + top/bottom (positive) margin.
+mezr.height(elem, 'margin');
+```
 
 &nbsp;
 
@@ -243,8 +278,10 @@ Returns the element's "offsets", which in practice means the vertical and horizo
 **Examples**
 
 ```javascript
-// Get element's offset.
-mezr.offset(elem); // {left: ..., top: ...}
+mezr.offset(elem, 'content');
+mezr.offset(elem, 'padding');
+mezr.offset(elem, 'scroll');
+mezr.offset(elem, 'border'); // or just -> mezr.offset(elem);
 mezr.offset(elem, 'margin');
 ```
 
@@ -283,8 +320,10 @@ Returns an object containing the provided element's dimensions and offsets. This
 **Examples**
 
 ```javascript
-// Get element's rect.
-mezr.rect(elem); // {left: ..., top: ...}
+mezr.rect(elem, 'content');
+mezr.rect(elem, 'padding');
+mezr.rect(elem, 'scroll');
+mezr.rect(elem, 'border'); // or just -> mezr.rect(elem);
 mezr.rect(elem, 'margin');
 ```
 
@@ -306,7 +345,6 @@ The return value is `null` if document object is provided as the element.
 **Examples**
 
 ```javascript
-// Get element's offset parent.
 mezr.offsetParent(elem);
 ```
 
@@ -327,13 +365,27 @@ Returns the distance between two elements (in pixels) or `-1` if the elements ov
 
 **Returns** &nbsp;&mdash;&nbsp; *number*
 
-If elements overlap returns `-1`. Otherwise returns the distance between the elements.
+If elements/objects overlap the method returns `-1`. Otherwise the method returns the distance between the elements/objects.
 
 **Examples**
 
 ```javascript
+var elemA = document.getElementById('a');
+var elemB = document.getElementById('b');
+var rectA = {left: 0, top: 0, width: 5, height: 5};
+var rectB = {left: 20, top: 20, width: 5, height: 5};
+
 // Calculate the distance between two elements.
 mezr.distance(elemA, elemB);
+
+// Calculate the distance between two objects.
+mezr.distance(rectA, rectB);
+
+// Calculate the distance between an object and element.
+mezr.distance(elemA, rectB);
+
+// Define which edge to use for element calculations
+mezr.distance([elemA, 'content'], [elemB, 'scroll']);
 ```
 
 &nbsp;
@@ -353,7 +405,7 @@ Detect if two elements overlap and calculate the possible intersection area's di
 
 **Returns** &nbsp;&mdash;&nbsp; *null / object*
 
-If the intersection area exists an object is returned with the following properties:
+In case no the provided elements/objects do not overlap the method returns `null`. Otherwise the intersection area's data (object) is returned with the following properties:
 
 * **obj.width** &nbsp;&mdash;&nbsp; *number*
   * The width of the intersection area in pixels (fractional).
@@ -371,8 +423,22 @@ If the intersection area exists an object is returned with the following propert
 **Examples**
 
 ```javascript
-// Check if two elements have an intersection.
-mezr.intersection(elemA, [elemB, 'content']);
+var elemA = document.getElementById('a');
+var elemB = document.getElementById('b');
+var rectA = {left: 0, top: 0, width: 5, height: 5};
+var rectB = {left: 20, top: 20, width: 5, height: 5};
+
+// Calculate the intersection area between two elements.
+mezr.intersection(elemA, elemB);
+
+// Calculate the intersection area between two objects.
+mezr.intersection(rectA, rectB);
+
+// Calculate the intersection area between an object and an element.
+mezr.intersection(elemA, rectB);
+
+// Define which edge to use for element calculations
+mezr.intersection([elemA, 'content'], [elemB, 'scroll']);
 ```
 
 &nbsp;
@@ -413,11 +479,11 @@ Calculate an element's position (left/top CSS properties) when positioned relati
   * Element: the element's edge is considered to be "border".
   * Array: allows one to control which layer (content, padding, scroll, border, margin) is considered as the element's edge, e.g. `[someElem, 'content']`.
   * Object: must have width, height, left and top properties with numeric values (e.g. `{width: 10, height: 20, left: 15, top: -10}`).
-* **options.offsetX** &nbsp;&mdash;&nbsp; *number*
-  * An optional horizontal offset in pixels.
+* **options.offsetX** &nbsp;&mdash;&nbsp; *number / string*
+  * An optional horizontal offset in pixels or in percentages. A number is always considered as a pixel value. A string is considered as a percentage value when it contains '%', e.g. `"50%"`. The percentage values are relative to the target element's width. For example if the target element's width is 50 pixels a value of `"100%"` would push the element 50 pixels to the right.
   * Default: `0`
-* **options.offsetY** &nbsp;&mdash;&nbsp; *number*
-  * An optional vertical offset in pixels.
+* **options.offsetY** &nbsp;&mdash;&nbsp; *number / string*
+  * An optional vertical offset in pixels or in percentages. A number is always considered as a pixel value. A string is considered as a percentage value when it contains '%', e.g. `"50%"`. The percentage values are relative to the target element's height. For example if the target element's height is 50 pixels a value of `"100%"` would push down the element 50 pixels.
   * Default: `0`
 * **options.collision** &nbsp;&mdash;&nbsp; *string / object / null*
   * Defines how the collisions are handled per each side when a container element/area (`options.within`) is defined. The option expects an object that has left, right, top and bottom properties set, representing the sides of the target element. Alternatively you can provide a string value which will be normalized to an object automatically. For example, `"push"` will become `{left: 'push', right: 'push', top: 'push', bottom: 'push'}` and `"push none"` will become `{left: 'push', right: 'push', top: 'none', bottom: 'none'}`.
@@ -448,7 +514,7 @@ mezr.place([elemA, 'content'], {
   at: 'center center',
   of: [elemB, 'margin'],
   offsetX: -5,
-  offsetY: 10,
+  offsetY: '50%',
   within: [elemC, 'padding'],
   collision: {
     left: 'forcePush',
