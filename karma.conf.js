@@ -7,31 +7,23 @@ module.exports = function (config) {
   //
 
   var browsers = [
-    // Desktop - IE
+    // IE
     ['Windows 7', 'internet explorer', '9.0'],
     ['Windows 8', 'internet explorer', '10.0'],
     ['Windows 8.1', 'internet explorer', '11.0'],
-    // Desktop - Edge
-    ['Windows 10', 'microsoftedge', '20.10240'],
-    // Desktop - Firefox
-    ['Linux', 'firefox', '41.0'],
-    ['Windows 10', 'firefox', '41.0'],
-    ['OS X 10.11', 'firefox', '41.0'],
-    // Desktop - Chrome
-    ['Linux', 'chrome', '45.0'],
-    ['Windows 10', 'chrome', '45.0'],
-    ['OS X 10.11', 'chrome', '45.0'],
-    // Desktop - Safari
+    // Edge
+    ['Windows 10', 'MicrosoftEdge', '13.10586'],
+    // Firefox
+    ['Windows 10', 'firefox', '48.0'],
+    ['OS X 10.11', 'firefox', '48.0'],
+    // Chrome
+    ['Windows 10', 'chrome', '53.0'],
+    ['OS X 10.11', 'chrome', '53.0'],
+    // Safari
     ['OS X 10.8', 'safari', '6.0'],
     ['OS X 10.9', 'safari', '7.0'],
     ['OS X 10.10', 'safari', '8.0'],
-    // Mobile - iOS
-    ['OS X 10.10', 'iphone', '7.1'],
-    ['OS X 10.10', 'iphone', '8.4'],
-    ['OS X 10.10', 'iphone', '9.0'],
-    // Mobile - Android
-    ['Linux', 'android', '4.4'],
-    ['Linux', 'android', '5.1']
+    ['OS X 10.11', 'safari', '9.0']
   ];
 
   //

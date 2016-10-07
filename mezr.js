@@ -9,22 +9,24 @@
 
   if (typeof define === 'function' && define.amd) {
     define([], function () {
-      return factory();
+      return factory(global);
     });
   }
   else if (typeof module === 'object' && module.exports) {
-    module.exports = factory();
+    module.exports = factory(global);
   }
   else {
-    global.mezr = factory();
+    global.mezr = factory(global);
   }
 
-}(this, function (undefined) {
+}(this, function (win, undefined) {
 
   'use strict';
 
-  // Cache window, document, root and body elements.
-  var win = window;
+  // Make sure we received a valid window object from the factory arguments.
+  var win = win.document && win.self === win.document.defaultView ? win : window;
+
+  // Cache document, root and body elements.
   var doc = win.document;
   var root = doc.documentElement;
   var body = doc.body;
@@ -52,7 +54,7 @@
   var placeOptionsNames = ['my', 'at', 'of', 'within', 'collision', 'offsetX', 'offsetY'];
 
   // Temporary bounding client rect data.
-  var tempElemGBCR;
+  var tempBCR;
 
   // Mezr settings.
   var settings = {};
@@ -77,7 +79,7 @@
   settings.transform = getSupportedTransform();
 
   // Does the browser support transformed element's local coordinate system as per W3C spec.
-  settings.telcs = testW3CTELCS();
+  settings.hasTELCS = testTELCS();
 
   /**
    * Public methods
@@ -133,67 +135,68 @@
    */
   function getOffset(el, edge) {
 
+    var ret = {
+      left: 0,
+      top: 0
+    };
+
+    // Document's offsets are always 0.
     if (el === doc) {
 
-      return {
-        left: 0,
-        top: 0
-      };
+      return ret;
 
     }
 
-    // Get viewport scroll left/top.
-    var viewportScrollLeft = win.pageXOffset || 0;
-    var viewportScrollTop = win.pageYOffset || 0;
+    // Add viewport's scroll left/top to the respective offsets.
+    ret.left = win.pageXOffset || 0;
+    ret.top = win.pageYOffset || 0;
 
-    // For window we just need to get viewport's scroll distance.
+    // Window's offsets are the viewport's scroll left/top values.
     if (el.self === win.self) {
 
-      return {
-        left: viewportScrollLeft,
-        top: viewportScrollLeft
-      };
+      return ret;
 
     }
+
+    // Now we know we are calculating an element's offsets so let's first get the element's
+    // bounding client rect. If it is not cached, then just fetch it.
+    var gbcr = tempBCR || el.getBoundingClientRect();
+
+    // Add bounding client rect's left/top values to the offsets.
+    ret.left += gbcr.left;
+    ret.top += gbcr.top;
 
     // Sanitize edge.
     edge = edge && edges[edge] || 4;
 
-    var gbcr = tempElemGBCR || el.getBoundingClientRect();
-    var offsetLeft = gbcr.left + viewportScrollLeft;
-    var offsetTop = gbcr.top + viewportScrollTop;
-
-    // Exclude element's positive margin size from the offset.
+    // Exclude element's positive margin size from the offset if needed.
     if (edge === 5) {
 
-      var marginLeft = toFloat(getStyle(el, 'margin-left'));
-      var marginTop = toFloat(getStyle(el, 'margin-top'));
+      var marginLeft = getStyleAsFloat(el, 'margin-left');
+      var marginTop = getStyleAsFloat(el, 'margin-top');
 
-      offsetLeft -=  marginLeft > 0 ? marginLeft : 0;
-      offsetTop -= marginTop > 0 ? marginTop : 0;
+      ret.left -=  marginLeft > 0 ? marginLeft : 0;
+      ret.top -= marginTop > 0 ? marginTop : 0;
 
     }
 
-    // Include element's border size to the offset.
+    // Include element's border size to the offset if needed.
     if (edge < 4) {
 
-      offsetLeft += toFloat(getStyle(el, 'border-left-width'));
-      offsetTop += toFloat(getStyle(el, 'border-top-width'));
+      ret.left += getStyleAsFloat(el, 'border-left-width');
+      ret.top += getStyleAsFloat(el, 'border-top-width');
 
     }
 
-    // Include element's padding size to the offset.
+    // Include element's padding size to the offset if needed.
     if (edge === 1) {
 
-      offsetLeft += toFloat(getStyle(el, 'padding-left'));
-      offsetTop += toFloat(getStyle(el, 'padding-top'));
+      ret.left += getStyleAsFloat(el, 'padding-left');
+      ret.top += getStyleAsFloat(el, 'padding-top');
 
     }
 
-    return {
-      left: offsetLeft,
-      top: offsetTop
-    };
+    return ret;
 
   }
 
@@ -210,11 +213,15 @@
    */
   function getRect(el, edge) {
 
+    var isElem = el !== doc && el.self !== win.self;
+
     // Sanitize edge.
     edge = edge || 'border';
 
     // Cache element's bounding client rect.
-    tempElemGBCR = el.getBoundingClientRect();
+    if (isElem) {
+      tempBCR = el.getBoundingClientRect();
+    }
 
     // Get element's data.
     var rect = getOffset(el, edge);
@@ -223,8 +230,10 @@
     rect.bottom = rect.top + rect.height;
     rect.right = rect.left + rect.width;
 
-    // Nullify element's bounding client rect cache.
-    tempElemGBCR = null;
+    // Nullify temporary bounding client rect cache.
+    if (isElem) {
+      tempBCR = null;
+    }
 
     return rect;
 
@@ -251,7 +260,7 @@
 
     var isFixed = getStyle(el, 'position') === 'fixed';
 
-    if (isFixed && !settings.telcs) {
+    if (isFixed && !settings.hasTELCS) {
 
       return global;
 
@@ -350,7 +359,7 @@
 
     var ret = {};
     var anchor = getRectInternal(options.of);
-    var target = getNorthwestOffset(el[0], el[1]);
+    var target = getStaticOffset(el[0], el[1]);
     var offsetX = options.offsetX;
     var offsetY = options.offsetY;
 
@@ -448,7 +457,7 @@
    * @private
    * @returns {Boolean}
    */
-  function testW3CTELCS() {
+  function testTELCS() {
 
     if (!settings.transform) {
 
@@ -569,6 +578,20 @@
   function getStyle(el, style) {
 
     return win.getComputedStyle(el, null).getPropertyValue(style);
+
+  }
+
+  /**
+   * Returns the computed value of an element's style property transformed into a float value.
+   *
+   * @private
+   * @param {Element} el
+   * @param {String} style
+   * @returns {Number}
+   */
+  function getStyleAsFloat(el, style) {
+
+    return toFloat(getStyle(el, style));
 
   }
 
@@ -735,7 +758,7 @@
       var borderA;
       var borderB;
 
-      ret = (tempElemGBCR || el.getBoundingClientRect())[dimension];
+      ret = (tempBCR || el.getBoundingClientRect())[dimension];
 
       if (!includeScrollbar) {
 
@@ -746,8 +769,8 @@
         }
         else {
 
-          borderA = toFloat(getStyle(el, 'border-' + edgeA + '-width'));
-          borderB = toFloat(getStyle(el, 'border-' + edgeB + '-width'));
+          borderA = getStyleAsFloat(el, 'border-' + edgeA + '-width');
+          borderB = getStyleAsFloat(el, 'border-' + edgeB + '-width');
           ret -= Math.round(ret) - el[clientDimension] - borderA - borderB;
 
         }
@@ -756,22 +779,22 @@
 
       if (!includePadding) {
 
-        ret -= toFloat(getStyle(el, 'padding-' + edgeA));
-        ret -= toFloat(getStyle(el, 'padding-' + edgeB));
+        ret -= getStyleAsFloat(el, 'padding-' + edgeA);
+        ret -= getStyleAsFloat(el, 'padding-' + edgeB);
 
       }
 
       if (!includeBorder) {
 
-        ret -= borderA !== undefined ? borderA : toFloat(getStyle(el, 'border-' + edgeA + '-width'));
-        ret -= borderB !== undefined ? borderB : toFloat(getStyle(el, 'border-' + edgeB + '-width'));
+        ret -= borderA !== undefined ? borderA : getStyleAsFloat(el, 'border-' + edgeA + '-width');
+        ret -= borderB !== undefined ? borderB : getStyleAsFloat(el, 'border-' + edgeB + '-width');
 
       }
 
       if (includeMargin) {
 
-        var marginA = toFloat(getStyle(el, 'margin-' + edgeA));
-        var marginB = toFloat(getStyle(el, 'margin-' + edgeB));
+        var marginA = getStyleAsFloat(el, 'margin-' + edgeA);
+        var marginB = getStyleAsFloat(el, 'margin-' + edgeB);
 
         ret += marginA > 0 ? marginA : 0;
         ret += marginB > 0 ? marginB : 0;
@@ -814,7 +837,7 @@
   }
 
   /**
-   * Returns an element's northwest offset which in this case means the element's offset in a state
+   * Returns an element's static offset which in this case means the element's offset in a state
    * where the element's left and top CSS properties are set to 0.
    *
    * @private
@@ -822,22 +845,21 @@
    * @param {Edge} edge
    * @returns {Offset}
    */
-  function getNorthwestOffset(el, edge) {
+  function getStaticOffset(el, edge) {
 
     // Sanitize edge.
     edge = edge || 'border';
 
     var position = getStyle(el, 'position');
-    var offset;
+    var offset = position === 'static' || position === 'relative' ? getOffset(el, edge) : getOffset(getOffsetParent(el) || doc, 'padding');
 
     if (position === 'static') {
 
-      offset = getOffset(el, edge);
+      return offset;
 
     }
-    else if (position === 'relative') {
 
-      offset = getOffset(el, edge);
+    if (position === 'relative') {
 
       var left = getStyle(el, 'left');
       var right = getStyle(el, 'right');
@@ -856,50 +878,50 @@
 
       }
 
+      return offset;
+
     }
-    else {
 
-      offset = getOffset(getOffsetParent(el) || doc, 'padding');
-      edge = edges[edge];
+    // Get edge number.
+    edge = edges[edge];
 
-      var marginLeft = toFloat(getStyle(el, 'margin-left'));
-      var marginTop = toFloat(getStyle(el, 'margin-top'));
+    // Get left and top margins.
+    var marginLeft = getStyleAsFloat(el, 'margin-left');
+    var marginTop = getStyleAsFloat(el, 'margin-top');
 
-      // If edge is "margin" remove negative left/top margins from offset to account for their
-      // effect on position.
-      if (edge === 5) {
+    // If edge is "margin" remove negative left/top margins from offset to account for their
+    // effect on position.
+    if (edge === 5) {
 
-        offset.left -= abs(min(marginLeft, 0));
-        offset.top -= abs(min(marginTop, 0));
+      offset.left -= abs(min(marginLeft, 0));
+      offset.top -= abs(min(marginTop, 0));
 
-      }
+    }
 
-      // If edge is "border" or smaller add positive left/top margins and remove negative left/top
-      // margins from offset to account for their effect on position.
-      if (edge < 5) {
+    // If edge is "border" or smaller add positive left/top margins and remove negative left/top
+    // margins from offset to account for their effect on position.
+    if (edge < 5) {
 
-        offset.left += marginLeft;
-        offset.top += marginTop;
+      offset.left += marginLeft;
+      offset.top += marginTop;
 
-      }
+    }
 
-      // If edge is "scroll" or smaller add left/top borders to offset to account for their effect
-      // on position.
-      if (edge < 4) {
+    // If edge is "scroll" or smaller add left/top borders to offset to account for their effect
+    // on position.
+    if (edge < 4) {
 
-        offset.left += toFloat(getStyle(el, 'border-left-width'));
-        offset.top += toFloat(getStyle(el, 'border-top-width'));
+      offset.left += getStyleAsFloat(el, 'border-left-width');
+      offset.top += getStyleAsFloat(el, 'border-top-width');
 
-      }
+    }
 
-      // If edge is "content" add left/top paddings to offset to account for their effect on
-      // position.
-      if (edge === 1) {
+    // If edge is "content" add left/top paddings to offset to account for their effect on
+    // position.
+    if (edge === 1) {
 
-        offset.left += toFloat(getStyle(el, 'padding-left'));
-        offset.top += toFloat(getStyle(el, 'padding-top'));
-
-      }
+      offset.left += getStyleAsFloat(el, 'padding-left');
+      offset.top += getStyleAsFloat(el, 'padding-top');
 
     }
 
