@@ -258,29 +258,54 @@
    */
   function getOffsetParent(el) {
 
-    var isFixed = getStyle(el, 'position') === 'fixed';
+    // If we have document return null right away.
+    if (el === doc) {
 
-    if (isFixed && !settings.hasTELCS) {
-
-      return global;
+      return null;
 
     }
 
-    var offsetParent = el === root || el === global ? doc : el.parentElement || null;
+    // If we have window return document right away.
+    if (el === win) {
 
+      return doc;
+
+    }
+
+    // At this point we know we have an element in our hands, so let's start by checking if it's
+    // fixed.
+    var isFixed = getStyle(el, 'position') === 'fixed';
+
+    // If the element is fixed and the TELCS test has failed, just return window.
+    if (isFixed && !settings.hasTELCS) {
+
+      return win;
+
+    }
+
+    // Alrighty, so now fetch the element's parent (which is document for the root) and set it as
+    // the initial offset parent. Fallback to null if everything else fails.
+    var offsetParent = el === root ? doc : el.parentElement || null;
+
+    // If element is fixed.
     if (isFixed) {
 
+      // As long as the offset parent is an element and is not transformed, try to get the element's
+      // parent element and fallback to document.
       while (offsetParent && offsetParent !== doc && !isTransformed(offsetParent)) {
 
         offsetParent = offsetParent.parentElement || doc;
 
       }
 
-      return offsetParent === doc ? global : offsetParent;
+      return offsetParent === doc ? win : offsetParent;
 
     }
+    // If the element is anything but fixed.
     else {
 
+      // As long as the offset parent is an element, is static and is not transformed, try to get
+      // the element's parent element and fallback to document.
       while (offsetParent && offsetParent !== doc && getStyle(offsetParent, 'position') === 'static' && !isTransformed(offsetParent)) {
 
         offsetParent = offsetParent.parentElement || doc;
