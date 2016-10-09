@@ -10,12 +10,14 @@ window.onload = function() {
   var fixture = document.createElement('div');
   var element = document.createElement('div');
   var elementInner = document.createElement('div');
-  var elementOf = document.createElement('div');
+  var anchor = document.createElement('div');
+  var container = document.createElement('div');
 
   // Set up elements.
   element.appendChild(elementInner);
   fixture.appendChild(element);
-  fixture.appendChild(elementOf);
+  fixture.appendChild(anchor);
+  fixture.appendChild(container);
   body.appendChild(fixture);
 
   // Setup QUnit.
@@ -74,7 +76,8 @@ window.onload = function() {
     fixture.removeAttribute('style');
     element.removeAttribute('style');
     elementInner.removeAttribute('style');
-    elementOf.removeAttribute('style');
+    anchor.removeAttribute('style');
+    container.removeAttribute('style');
 
     // Reset body margins.
     body.style.margin = '0px';
@@ -795,239 +798,224 @@ window.onload = function() {
 
   QUnit.module('place');
 
-  QUnit.test('basic scenarios', function (assert) {
+  QUnit.test('mezr.place(elem) should return an object with two properties - "left" and "top"', function (assert) {
 
-    assert.expect(486);
+    assert.expect(1);
+    assert.deepEqual(Object.keys(mezr.place(element)).sort(), ['left', 'top']);
 
-    var cssPositions = {
-      a: 'relative',
-      b: 'absolute',
-      c: 'fixed'
+  });
+
+  QUnit.test('mezr.place([elem, edgeLayer], {my: position, at: anchorPosition, of: [anchorElem, edgeLayer]}) should return the element\'s css position in a state where the element is moved into a new position relative to the anchor element as described in the "my" and "at" properties', function (assert) {
+
+    var done = assert.async();
+    var edgeLayers = ['content', 'padding', 'scroll', 'border', 'margin'];
+    var cssPositions = ['relative', 'absolute', 'fixed'];
+    var yPositions = ['top', 'center', 'bottom'];
+    var xPositions = ['left', 'center', 'right'];
+    var positionCombos = (function () {
+      var ret = [];
+      xPositions.forEach(function (xPos) {
+        yPositions.forEach(function (yPos) {
+          ret.push([xPos, yPos]);
+        });
+      });
+      return ret;
+    })();
+    var totalAssertions = cssPositions.length * cssPositions.length * positionCombos.length * positionCombos.length * edgeLayers.length * edgeLayers.length;
+    var assertionCount = 0;
+
+    assert.expect(totalAssertions);
+
+    var elemData = {
+      left: -17,
+      top: -80,
+      width: 10,
+      height: 10,
+      padding: {
+        left: 10,
+        right: 10,
+        top: 10,
+        bottom: 10
+      },
+      border: {
+        left: 10,
+        right: 10,
+        top: 10,
+        bottom: 10
+      },
+      margin: {
+        left: 3,
+        right: 3,
+        top: 3,
+        bottom: 3
+      }
     };
-    var placePositions = {
-      'left top left top': {left: 10, top: 10},
-      'center top left top': {left: 5, top: 10},
-      'right top left top': {left: 0, top: 10},
-      'left center left top': {left: 10, top: 5},
-      'center center left top': {left: 5, top: 5},
-      'right center left top': {left: 0, top: 5},
-      'left bottom left top': {left: 10, top: 0},
-      'center bottom left top': {left: 5, top: 0},
-      'right bottom left top': {left: 0, top: 0},
-      'left top center top': {left: 15, top: 10},
-      'center top center top': {left: 10, top: 10},
-      'right top center top': {left: 5, top: 10},
-      'left center center top': {left: 15, top: 5},
-      'center center center top': {left: 10, top: 5},
-      'right center center top': {left: 5, top: 5},
-      'left bottom center top': {left: 15, top: 0},
-      'center bottom center top': {left: 10, top: 0},
-      'right bottom center top': {left: 5, top: 0},
-      'left top right top': {left: 20, top: 10},
-      'center top right top': {left: 15, top: 10},
-      'right top right top': {left: 10, top: 10},
-      'left center right top': {left: 20, top: 5},
-      'center center right top': {left: 15, top: 5},
-      'right center right top': {left: 10, top: 5},
-      'left bottom right top': {left: 20, top: 0},
-      'center bottom right top': {left: 15, top: 0},
-      'right bottom right top': {left: 10, top: 0},
-      'left top left center': {left: 10, top: 15},
-      'center top left center': {left: 5, top: 15},
-      'right top left center': {left: 0, top: 15},
-      'left center left center': {left: 10, top: 10},
-      'center center left center': {left: 5, top: 10},
-      'right center left center': {left: 0, top: 10},
-      'left bottom left center': {left: 10, top: 5},
-      'center bottom left center': {left: 5, top: 5},
-      'right bottom left center': {left: 0, top: 5},
-      'left top center center': {left: 15, top: 15},
-      'center top center center': {left: 10, top: 15},
-      'right top center center': {left: 5, top: 15},
-      'left center center center': {left: 15, top: 10},
-      'center center center center': {left: 10, top: 10},
-      'right center center center': {left: 5, top: 10},
-      'left bottom center center': {left: 15, top: 5},
-      'center bottom center center': {left: 10, top: 5},
-      'right bottom center center': {left: 5, top: 5},
-      'left top right center': {left: 20, top: 15},
-      'center top right center': {left: 15, top: 15},
-      'right top right center': {left: 10, top: 15},
-      'left center right center': {left: 20, top: 10},
-      'center center right center': {left: 15, top: 10},
-      'right center right center': {left: 10, top: 10},
-      'left bottom right center': {left: 20, top: 5},
-      'center bottom right center': {left: 15, top: 5},
-      'right bottom right center': {left: 10, top: 5},
-      'left top left bottom': {left: 10, top: 20},
-      'center top left bottom': {left: 5, top: 20},
-      'right top left bottom': {left: 0, top: 20},
-      'left center left bottom': {left: 10, top: 15},
-      'center center left bottom': {left: 5, top: 15},
-      'right center left bottom': {left: 0, top: 15},
-      'left bottom left bottom': {left: 10, top: 10},
-      'center bottom left bottom': {left: 5, top: 10},
-      'right bottom left bottom': {left: 0, top: 10},
-      'left top center bottom': {left: 15, top: 20},
-      'center top center bottom': {left: 10, top: 20},
-      'right top center bottom': {left: 5, top: 20},
-      'left center center bottom': {left: 15, top: 15},
-      'center center center bottom': {left: 10, top: 15},
-      'right center center bottom': {left: 5, top: 15},
-      'left bottom center bottom': {left: 15, top: 10},
-      'center bottom center bottom': {left: 10, top: 10},
-      'right bottom center bottom': {left: 5, top: 10},
-      'left top right bottom': {left: 20, top: 20},
-      'center top right bottom': {left: 15, top: 20},
-      'right top right bottom': {left: 10, top: 20},
-      'left center right bottom': {left: 20, top: 15},
-      'center center right bottom': {left: 15, top: 15},
-      'right center right bottom': {left: 10, top: 15},
-      'left bottom right bottom': {left: 20, top: 10},
-      'center bottom right bottom': {left: 15, top: 10},
-      'right bottom right bottom': {left: 10, top: 10}
+
+    var anchorData = {
+      left: 10,
+      top: 10,
+      width: 10,
+      height: 10,
+      padding: {
+        left: 10,
+        right: 10,
+        top: 10,
+        bottom: 10
+      },
+      border: {
+        left: 10,
+        right: 10,
+        top: 10,
+        bottom: 10
+      },
+      margin: {
+        left: 3,
+        right: 3,
+        top: 3,
+        bottom: 3
+      }
     };
 
     setStyles(fixture, {
       position: 'absolute',
-      width: '100px',
-      height: '100px',
+      width: '300px',
+      height: '300px',
       left: '0px',
-      top: '0px'
+      top: '0px',
+      overflow: 'hidden'
     });
 
     setStyles(element, {
       position: 'absolute',
-      left: '0px',
-      top: '0px',
-      width: '10px',
-      height: '10px'
+      left: elemData.left + 'px',
+      top: elemData.top + 'px',
+      borderStyle: 'solid',
+      borderColor: '#ffffff',
+      width: elemData.width + 'px',
+      height: elemData.height + 'px',
+      paddingLeft: elemData.padding.left + 'px',
+      paddingRight: elemData.padding.right + 'px',
+      paddingTop: elemData.padding.top + 'px',
+      paddingBottom: elemData.padding.bottom + 'px',
+      borderLeftWidth: elemData.border.left + 'px',
+      borderRightWidth: elemData.border.right + 'px',
+      borderTopWidth: elemData.border.top + 'px',
+      borderBottomWidth: elemData.border.bottom + 'px',
+      marginLeft: elemData.margin.left + 'px',
+      marginRight: elemData.margin.right + 'px',
+      marginTop: elemData.margin.top + 'px',
+      marginBottom: elemData.margin.bottom + 'px',
+      mozBoxSizing: 'content-box',
+      webkitBoxSizing: 'content-box',
+      boxSizing: 'content-box'
     });
 
-    setStyles(elementOf, {
+    setStyles(anchor, {
       position: 'absolute',
-      left: '10px',
-      top: '10px',
-      width: '10px',
-      height: '10px'
+      left: anchorData.left + 'px',
+      top: anchorData.top + 'px',
+      borderStyle: 'solid',
+      borderColor: '#ffffff',
+      width: anchorData.width + 'px',
+      height: anchorData.height + 'px',
+      paddingLeft: anchorData.padding.left + 'px',
+      paddingRight: anchorData.padding.right + 'px',
+      paddingTop: anchorData.padding.top + 'px',
+      paddingBottom: anchorData.padding.bottom + 'px',
+      borderLeftWidth: anchorData.border.left + 'px',
+      borderRightWidth: anchorData.border.right + 'px',
+      borderTopWidth: anchorData.border.top + 'px',
+      borderBottomWidth: anchorData.border.bottom + 'px',
+      marginLeft: anchorData.margin.left + 'px',
+      marginRight: anchorData.margin.right + 'px',
+      marginTop: anchorData.margin.top + 'px',
+      marginBottom: anchorData.margin.bottom + 'px',
+      mozBoxSizing: 'content-box',
+      webkitBoxSizing: 'content-box',
+      boxSizing: 'content-box'
     });
 
-    forIn(cssPositions, function (cssPosition) {
-
-      forIn(placePositions, function (pos, posName) {
-
-        var posNameSplit = posName.split(' ');
-        var my = posNameSplit[0] + ' ' + posNameSplit[1];
-        var at = posNameSplit[2] + ' ' + posNameSplit[3];
-        var result = mezr.place(element, {
-          my: my,
-          at: at,
-          of: elementOf
+    cssPositions.forEach(function (elemCssPos) {
+      cssPositions.forEach(function (anchorCssPos) {
+        positionCombos.forEach(function (elemPos) {
+          positionCombos.forEach(function (anchorPos) {
+            edgeLayers.forEach(function (elemEdge) {
+              edgeLayers.forEach(function (anchorEdge) {
+                window.setTimeout(function() {
+                  checkPlacement(elemCssPos, anchorCssPos, elemPos, anchorPos, elemEdge, anchorEdge);
+                  if ((++assertionCount) === totalAssertions) {
+                    done();
+                  }
+                }, 0);
+              });
+            });
+          });
         });
+      });
+    });
 
-        assert.strictEqual(result.left, pos.left, cssPosition + '- mezr.place(element, {my: ' + my + ' , at: ' + at + ' }).left');
-        assert.strictEqual(result.top, pos.top, cssPosition + '- mezr.place(element, {my: ' + my + ' , at: ' + at + ' }).top');
+    function checkPlacement(elementCssPosition, anchorCssPosition, elementPosition, anchorPosition, elementEdge, anchorEdge) {
 
+      // Set CSS positions.
+      setStyles(element, {position: elementCssPosition});
+      setStyles(anchor, {position: anchorCssPosition});
+
+      var my = elementPosition[0] + ' ' +  elementPosition[1];
+      var at = anchorPosition[0] + ' ' +  anchorPosition[1];
+
+      // Get element and anchor rects.
+      var elemRect = mezr.rect(element, elementEdge);
+      var anchorRect = mezr.rect(anchor, anchorEdge);
+
+      // Get the result.
+      var result = mezr.place([element, elementEdge], {
+        my: my,
+        at: at,
+        of: [anchor, anchorEdge]
       });
 
-    });
+      // Get the expected result.
+      var expected = {
+        left: getPlacePosition(elementPosition[0][0] + anchorPosition[0][0], elemRect.width, elemRect.left, elemData.left, anchorRect.width, anchorRect.left),
+        top: getPlacePosition(elementPosition[1][0] + anchorPosition[1][0], elemRect.height, elemRect.top, elemData.top, anchorRect.height, anchorRect.top)
+      };
+
+      // Do the assertion.
+      assert.deepEqual(
+        result,
+        expected,
+        'element position: ' + elementCssPosition + ', ' +
+        'anchor position: ' + anchorCssPosition + ', ' +
+        'element edge: ' + elementEdge + ', ' +
+        'anchor edge: ' + anchorEdge + ', ' +
+        'my: ' + my + ', ' +
+        'at: ' + at
+      );
+
+    }
+
+    function getPlacePosition(placement, elemSize, elemOffset, elemCurrentPosition, anchorSize, anchorOffset) {
+
+      var zeroPoint = anchorOffset - elemOffset + elemCurrentPosition;
+      return placement === 'll' || placement === 'tt' ? zeroPoint :
+             placement === 'lc' || placement === 'tc' ? zeroPoint + (anchorSize / 2) :
+             placement === 'lr' || placement === 'tb' ? zeroPoint + anchorSize :
+             placement === 'cl' || placement === 'ct' ? zeroPoint - (elemSize / 2) :
+             placement === 'cr' || placement === 'cb' ? zeroPoint + anchorSize - (elemSize / 2) :
+             placement === 'rl' || placement === 'bt' ? zeroPoint - elemSize :
+             placement === 'rc' || placement === 'bc' ? zeroPoint - elemSize + (anchorSize / 2) :
+             placement === 'rr' || placement === 'bb' ? zeroPoint - elemSize + anchorSize :
+                                                        zeroPoint + (anchorSize / 2) - (elemSize / 2);
+
+    }
 
   });
 
-  QUnit.test('special scenarios', function (assert) {
-
-    assert.expect(8);
-
-    setStyles(fixture, {
-      position: 'absolute',
-      width: '100px',
-      height: '100px',
-      left: '0px',
-      top: '0px'
-    });
-
-    setStyles(element, {
-      position: 'absolute',
-      left: '0px',
-      top: '0px',
-      width: '10px',
-      height: '10px'
-    });
-
-    setStyles(elementOf, {
-      position: 'absolute',
-      left: '0px',
-      top: '0px',
-      width: '10px',
-      height: '10px'
-    });
-
-    // Case #1
-
-    setStyles(element, {
-      marginTop: '-10px',
-      marginLeft: '-10px'
-    });
-
-    var result = mezr.place([element, 'margin'], {
-      my: 'left top',
-      at: 'left top',
-      of: elementOf
-    });
-
-    assert.strictEqual(result.left, 10, 'mezr.place([element, "margin"]).left - negative left margin on absolute element');
-    assert.strictEqual(result.top, 10, 'mezr.place([element, "margin"]).top - negative top margin on absolute element');
-
-    // Case #2
-
-    setStyles(element, {
-      marginTop: '10px',
-      marginLeft: '10px'
-    });
-
-    var result = mezr.place([element, 'margin'], {
-      my: 'left top',
-      at: 'left top',
-      of: elementOf
-    });
-
-    assert.strictEqual(result.left, 0, 'mezr.place([element, "margin"]).left - positive left margin on absolute element');
-    assert.strictEqual(result.top, 0, 'mezr.place([element, "margin"]).top - positive top margin on absolute element');
-
-    // Case #3
-
-    setStyles(element, {
-      marginTop: '10px',
-      marginLeft: '10px'
-    });
-
-    var result = mezr.place([element, 'border'], {
-      my: 'left top',
-      at: 'left top',
-      of: elementOf
-    });
-
-    assert.strictEqual(result.left, -10, 'mezr.place([element, "border"]).left - positive left margin on absolute element');
-    assert.strictEqual(result.top, -10, 'mezr.place([element, "border"]).top - positive top margin on absolute element');
-
-    // Case #4
-
-    setStyles(element, {
-      position: 'relative',
-      height: '100%',
-      width: '100%',
-      margin: '0 0 100% 0'
-    });
-
-    var result = mezr.place([element, 'margin'], {
-      my: 'left bottom',
-      at: 'left bottom',
-      of: elementOf
-    });
-
-    assert.strictEqual(result.left, 0, 'mezr.place([element, "margin"]).left - 100% bottom margin on relative element');
-    assert.strictEqual(result.top, -190, 'mezr.place([element, "margin"]).top - 100% bottom margin on relative element');
-
-  });
+  // TODO - Test the following:
+  // * TELCS difference
+  // * Defaul settings
+  // * Offset test (also percentages)
+  // * Within tests
+  // * Collision tests
 
 };

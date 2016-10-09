@@ -965,7 +965,7 @@
   function getPlaceOptions(el, options) {
 
     // Merge user options with default options.
-    options = mergeObjects(options ? [settings.placeDefaultOptions, options] : [defaults]);
+    options = mergeObjects(options ? [settings.placeDefaultOptions, options] : [settings.placeDefaultOptions]);
 
     var name;
     var val;
