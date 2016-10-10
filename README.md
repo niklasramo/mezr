@@ -278,6 +278,15 @@ Returns the element's "offsets", which in practice means the vertical and horizo
 **Examples**
 
 ```javascript
+// Document offset.
+mezr.offset(document);
+// Returns always {left: 0, top: 0}
+
+// Window offset.
+mezr.offset(window);
+// Returns always {left: window.pageXOffset, top: window.pageYOffset}
+
+// Element offset.
 mezr.offset(elem, 'content');
 mezr.offset(elem, 'padding');
 mezr.offset(elem, 'scroll');

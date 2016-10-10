@@ -1,4 +1,6 @@
-window.onload = function() {
+// TODO: Modularize tests. Study best practices.
+
+function testSuite(targetTests) {
 
   //
   // Setup
@@ -41,9 +43,28 @@ window.onload = function() {
 
   });
 
+  // Filter tests if needed.
+  if (targetTests) {
+    QUnit.config.filter = targetTests;
+  }
+
   //
   // Helpers
   //
+
+  function test(description, assertions, cb) {
+
+    QUnit.test(description, function (assert) {
+      var done = assert.async();
+      assert.expect(assertions);
+      cb(function (method, config) {
+        window.setTimeout(function () {
+          assert[method](config.r || config.result, config.e || config.expected, config.d || config.description || undefined);
+        }, 0);
+      }, done);
+    });
+
+  }
 
   function setStyles(elem, styles) {
 
@@ -102,7 +123,7 @@ window.onload = function() {
 
   QUnit.module('width & height');
 
-  QUnit.test('mezr.width(document) and mezr.height(document) should return the document\'s width and height', function (assert) {
+  QUnit.test('#critical: Should return the document\'s width and height.', function (assert) {
 
     assert.expect(12);
 
@@ -136,7 +157,7 @@ window.onload = function() {
 
   });
 
-  QUnit.test('mezr.width(window) and mezr.height(window) should return the window\'s width and height', function (assert) {
+  QUnit.test('#critical: Should return the window\'s width and height.', function (assert) {
 
     assert.expect(12);
 
@@ -166,7 +187,7 @@ window.onload = function() {
 
   });
 
-  QUnit.test('mezr.width(element) and mezr.height(element) should return the element\'s width and height', function (assert) {
+  QUnit.test('#critical: Should return the element\'s width and height.', function (assert) {
 
     assert.expect(48);
 
@@ -307,7 +328,7 @@ window.onload = function() {
 
   });
 
-  QUnit.test('mezr.width(element) and mezr.height(element) should return the width and height correctly if the padding is defined in percentages', function (assert) {
+  QUnit.test('#critical: Should return the element\'s width and height correctly if the padding is defined in percentages.', function (assert) {
 
     assert.expect(4);
 
@@ -345,7 +366,7 @@ window.onload = function() {
 
   });
 
-  QUnit.test('mezr.width(element) and mezr.height(element) should return the width and height correctly if the margin is defined in percentages', function (assert) {
+  QUnit.test('#critical: Should return the element\'s width and height correctly if the margin is defined in percentages.', function (assert) {
 
     assert.expect(4);
 
@@ -389,7 +410,7 @@ window.onload = function() {
 
   QUnit.module('offset');
 
-  QUnit.test('mezr.offset(document) should return the document\'s offset', function (assert) {
+  QUnit.test('#critical: Should return the document\'s offset.', function (assert) {
 
     assert.expect(2);
 
@@ -411,7 +432,7 @@ window.onload = function() {
 
   });
 
-  QUnit.test('mezr.offset(window) should return the window\'s offset', function (assert) {
+  QUnit.test('#critical: Should return the window\'s offset.', function (assert) {
 
     assert.expect(2);
 
@@ -433,7 +454,7 @@ window.onload = function() {
 
   });
 
-  QUnit.test('mezr.offset(element) should return the element\'s offset', function (assert) {
+  QUnit.test('#critical: Should return the element\'s offset.', function (assert) {
 
     assert.expect(40);
 
@@ -501,7 +522,7 @@ window.onload = function() {
 
   });
 
-  QUnit.test('absolute element - scroll test', function (assert) {
+  QUnit.test('#critical: Absolute element - scroll test.', function (assert) {
 
     assert.expect(2);
 
@@ -527,7 +548,7 @@ window.onload = function() {
 
   });
 
-  QUnit.test('fixed element - scroll test', function (assert) {
+  QUnit.test('#critical: Fixed element - scroll test.', function (assert) {
 
     assert.expect(2);
 
@@ -557,7 +578,7 @@ window.onload = function() {
 
   QUnit.module('rect');
 
-  QUnit.test('mezr.rect() should match the results of mezr.width(), mezr.height and mezr.offset()', function (assert) {
+  QUnit.test('#critical: Should match the results of mezr.width(), mezr.height and mezr.offset().', function (assert) {
 
     assert.expect(36);
 
@@ -606,7 +627,7 @@ window.onload = function() {
 
   QUnit.module('offsetParent');
 
-  QUnit.test('basic scenarios', function (assert) {
+  QUnit.test('#critical: Should return the provided element\'s offset parent.', function (assert) {
 
     assert.expect(16);
 
@@ -661,7 +682,7 @@ window.onload = function() {
 
   });
 
-  QUnit.test('special scenarios', function (assert) {
+  QUnit.test('#critical: Special scenarios.', function (assert) {
 
     assert.expect(8);
 
@@ -712,7 +733,7 @@ window.onload = function() {
 
   QUnit.module('intersection');
 
-  QUnit.test('mezr.intersection(objA, objB) should return the intersection area data', function (assert) {
+  QUnit.test('#critical: Should return the intersection area data', function (assert) {
 
     assert.expect(2);
 
@@ -731,7 +752,7 @@ window.onload = function() {
 
   QUnit.module('distance');
 
-  QUnit.test('mezr.distance(objA, objB) should return the direct distance between the two objects', function (assert) {
+  QUnit.test('#critical: Should return the direct distance between the two objects', function (assert) {
 
     assert.expect(8);
 
@@ -798,14 +819,177 @@ window.onload = function() {
 
   QUnit.module('place');
 
-  QUnit.test('mezr.place(elem) should return an object with two properties - "left" and "top"', function (assert) {
+  QUnit.test('#critical: Should always return an object with two properties: "left" and "top".', function (assert) {
 
     assert.expect(1);
     assert.deepEqual(Object.keys(mezr.place(element)).sort(), ['left', 'top']);
 
   });
 
-  QUnit.test('mezr.place([elem, edgeLayer], {my: position, at: anchorPosition, of: [anchorElem, edgeLayer]}) should return the element\'s css position in a state where the element is moved into a new position relative to the anchor element as described in the "my" and "at" properties', function (assert) {
+  QUnit.test('#critical: Make sure we have correct default options.', function (assert) {
+
+    assert.expect(2);
+
+    setStyles(fixture, {
+      position: 'absolute',
+      width: '10000px',
+      height: '10000px',
+      left: '0px',
+      top: '0px'
+    });
+
+    setStyles(element, {
+      position: 'absolute',
+      left: '0px',
+      top: '0px',
+      width: '10px',
+      height: '10px',
+      padding: '10px',
+      border: '10px solid',
+      margin: '0px'
+    });
+
+    window.scrollTo(100, 100);
+
+    assert.deepEqual(mezr.place(element), {left: window.pageXOffset, top: window.pageYOffset}, 'The default options work as expected.');
+    assert.deepEqual(mezr._settings.placeDefaultOptions, {
+      my: 'left top',
+      at: 'left top',
+      of: window,
+      offsetX: 0,
+      offsetY: 0,
+      within: null,
+      collision: {
+        left: 'push',
+        right: 'push',
+        top: 'push',
+        bottom: 'push'
+      }
+    }, 'The default options data is correct.');
+
+  });
+
+  QUnit.test('#critical: Negative or positive "offset" option values should affect the positioning.', function (assert) {
+
+    assert.expect(4);
+
+    setStyles(fixture, {
+      position: 'absolute',
+      width: '10000px',
+      height: '10000px',
+      left: '0px',
+      top: '0px'
+    });
+
+    setStyles(element, {
+      position: 'absolute',
+      left: '0px',
+      top: '0px',
+      width: '10px',
+      height: '10px',
+      padding: '10px',
+      border: '10px solid',
+      margin: '0px'
+    });
+
+    window.scrollTo(0, 0);
+
+    assert.deepEqual(
+      mezr.place(element, {offsetX: -10, offsetY: 10 }),
+      {
+        left: window.pageXOffset - 10,
+        top: window.pageYOffset + 10
+      },
+      'Using negative and positive floats work.'
+    );
+    assert.deepEqual(
+      mezr.place(element, {offsetX: '-10', offsetY: '10' }),
+      {
+        left: window.pageXOffset - 10,
+        top: window.pageYOffset + 10
+      },
+      'Using negative and positive strings work.'
+    );
+    assert.deepEqual(
+      mezr.place(element, {offsetX: '-10px', offsetY: '10px' }),
+      {
+        left: window.pageXOffset - 10,
+        top: window.pageYOffset + 10
+      },
+      'Using negative and positive strings with "px" appendix work.'
+    );
+    assert.deepEqual(
+      mezr.place(element, {offsetX: '-30%', offsetY: '60%' }),
+      {
+        left: window.pageXOffset - (element.getBoundingClientRect().width * 0.3),
+        top: window.pageYOffset + (element.getBoundingClientRect().height * 0.6)
+      },
+      'Using negative and positive strings with "%" appendix work.'
+    );
+
+  });
+
+  QUnit.test('#critical: "within" option value should affect the positioning.', function (assert) {
+
+    assert.expect(4);
+
+    setStyles(fixture, {
+      position: 'absolute',
+      width: '10000px',
+      height: '10000px',
+      left: '0px',
+      top: '0px'
+    });
+
+    setStyles(element, {
+      position: 'absolute',
+      left: '0px',
+      top: '0px',
+      width: '10px',
+      height: '10px',
+      padding: '10px',
+      border: '10px solid',
+      margin: '0px'
+    });
+
+    window.scrollTo(0, 0);
+
+    assert.deepEqual(
+      mezr.place(element, {offsetX: -10, offsetY: 10 }),
+      {
+        left: window.pageXOffset - 10,
+        top: window.pageYOffset + 10
+      },
+      'Using negative and positive floats work.'
+    );
+    assert.deepEqual(
+      mezr.place(element, {offsetX: '-10', offsetY: '10' }),
+      {
+        left: window.pageXOffset - 10,
+        top: window.pageYOffset + 10
+      },
+      'Using negative and positive strings work.'
+    );
+    assert.deepEqual(
+      mezr.place(element, {offsetX: '-10px', offsetY: '10px' }),
+      {
+        left: window.pageXOffset - 10,
+        top: window.pageYOffset + 10
+      },
+      'Using negative and positive strings with "px" appendix work.'
+    );
+    assert.deepEqual(
+      mezr.place(element, {offsetX: '-30%', offsetY: '60%' }),
+      {
+        left: window.pageXOffset - (element.getBoundingClientRect().width * 0.3),
+        top: window.pageYOffset + (element.getBoundingClientRect().height * 0.6)
+      },
+      'Using negative and positive strings with "%" appendix work.'
+    );
+
+  });
+
+  QUnit.test('#extended: An extensive test with all possible positioining variations with all possible css positions and edge layers.', function (assert) {
 
     var done = assert.async();
     var edgeLayers = ['content', 'padding', 'scroll', 'border', 'margin'];
@@ -1013,9 +1197,7 @@ window.onload = function() {
 
   // TODO - Test the following:
   // * TELCS difference
-  // * Defaul settings
-  // * Offset test (also percentages)
   // * Within tests
   // * Collision tests
 
-};
+}
