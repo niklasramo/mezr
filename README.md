@@ -63,10 +63,11 @@ Mezr is a lightweight JavaScript utility library for measuring and comparing the
   // be when it's left-top (northwest) corner is placed in the center of
   // elemB. Works only for for positioned elements (CSS position attribute
   // must be something else than static).
-  mezr.place(elemA, {
-    my: 'left top',
-    at: 'center center',
-    of: elemB
+  mezr.place({
+    element: elemA,
+    target: elemB,
+    elementJoint: 'left top',
+    targetJoint: 'center center'
   });
   ```
 
@@ -147,7 +148,7 @@ mezr.width(elem, "margin");
 * [.offsetParent( el )](#offsetparent-el-)
 * [.distance( elemA, elemB )](#distance-elema-elemb-)
 * [.intersection( a, b)](#intersection-a-b-)
-* [.place(el, [ options ] )](#place-el--options--)
+* [.place( options )](#place-options-)
 
 &nbsp;
 
@@ -452,55 +453,56 @@ mezr.intersection([elemA, 'content'], [elemB, 'scroll']);
 
 &nbsp;
 
-### `.place( el, [ options ] )`
+### `.place( options )`
 
 Calculate an element's position (left/top CSS properties) when positioned relative to another element, window or the document.
 
-**Parameters**
+**Options**
 
-* **el** &nbsp;&mdash;&nbsp; *element / window / document / array*
-  * The element which is to be positioned (target).
-  * Element: the element's edge is considered to be "border".
+The *options* argument should be an object. You may configure it with the following properties.
+
+* **element** &nbsp;&mdash;&nbsp; *element / window / document / array*
+  * The element which is to be positioned.
+  * Default: `null`
+  * Element: the element’s edge is considered to be “border”.
   * Array: allows one to control which layer (content, padding, scroll, border, margin) is considered as the element's edge, e.g. `[someElem, 'content']`.
-* **options** &nbsp;&mdash;&nbsp; *object*
-  * A set of options that defines how the target element is positioned against the relative element.
-* **options.my** &nbsp;&mdash;&nbsp; *string*
-  * The position of the target element that will be aligned against the relative element's position.
-  * Default: `"left top"`
-  * The syntax is "horizontal vertical" .
-    * Describe horizontal position with `"left"`, `"center"` and `"right"`.
-    * Describe vertical position with `"top"`, `"center"` and `"bottom"`.
-* **options.at** &nbsp;&mdash;&nbsp; *string*
-  * The position of the relative element that will be aligned against the target element's position.
-  * Default: `"left top"`
-  * The syntax is "horizontal vertical" .
-    * Describe horizontal position with `"left"`, `"center"` and `"right"`.
-    * Describe vertical position with `"top"`, `"center"` and `"bottom"`.
-* **options.of** &nbsp;&mdash;&nbsp; *element / window / document / array / object*
-  * Defines which element the target element is positioned against (anchor).
-  * Default: `window`
-  * Element: the element's edge is considered to be "border".
-  * Array: allows one to control which layer (content, padding, scroll, border, margin) is considered as the element's edge, e.g. `[someElem, 'content']`.
-  * Object: must have width, height, left and top properties with numeric values (e.g. `{width: 10, height: 20, left: 15, top: -10}`).
-* **options.within** &nbsp;&mdash;&nbsp; *element / window / document / array / object*
-  * Defines an optional element/area that is used for collision detection (container). Basically this element/area defines the boundaries for the positioning while the `options.collision` defines what to do if the target element is about to be positioned over the boundaries.
+* **target** &nbsp;&mdash;&nbsp; *element / window / document / array / object*
+  * Defines which element the element is positioned relative to.
   * Default: `null`
   * Element: the element's edge is considered to be "border".
   * Array: allows one to control which layer (content, padding, scroll, border, margin) is considered as the element's edge, e.g. `[someElem, 'content']`.
   * Object: must have width, height, left and top properties with numeric values (e.g. `{width: 10, height: 20, left: 15, top: -10}`).
-* **options.offsetX** &nbsp;&mdash;&nbsp; *number / string*
-  * An optional horizontal offset in pixels or in percentages. A number is always considered as a pixel value. A string is considered as a percentage value when it contains '%', e.g. `"50%"`. The percentage values are relative to the target element's width. For example if the target element's width is 50 pixels a value of `"100%"` would push the element 50 pixels to the right.
-  * Default: `0`
-* **options.offsetY** &nbsp;&mdash;&nbsp; *number / string*
-  * An optional vertical offset in pixels or in percentages. A number is always considered as a pixel value. A string is considered as a percentage value when it contains '%', e.g. `"50%"`. The percentage values are relative to the target element's height. For example if the target element's height is 50 pixels a value of `"100%"` would push down the element 50 pixels.
-  * Default: `0`
-* **options.collision** &nbsp;&mdash;&nbsp; *string / object / null*
+* **elementJoint** &nbsp;&mdash;&nbsp; *string*
+  * The joint of the element that should be connected to the target's joint.
+  * Default: `"left top"`
+  * The syntax is "horizontal vertical" .
+    * Describe horizontal position with `"left"`, `"center"` and `"right"`.
+    * Describe vertical position with `"top"`, `"center"` and `"bottom"`.
+* **targetJoint** &nbsp;&mdash;&nbsp; *string*
+  * The joint of the target that should be connected to the element's joint.
+  * Default: `"left top"`
+  * The syntax is "horizontal vertical" .
+    * Describe horizontal position with `"left"`, `"center"` and `"right"`.
+    * Describe vertical position with `"top"`, `"center"` and `"bottom"`.
+* **container** &nbsp;&mdash;&nbsp; *element / window / document / array / object*
+  * Defines an optional container element/area that is used for collision detection. Basically this element/area defines the boundaries for the positioning while the `options.onCollision` defines what to do if the element is about to be positioned past the boundaries.
+  * Default: `null`
+  * Element: the element's edge is considered to be "border".
+  * Array: allows one to control which layer (content, padding, scroll, border, margin) is considered as the element's edge, e.g. `[someElem, 'content']`.
+  * Object: must have width, height, left and top properties with numeric values (e.g. `{width: 10, height: 20, left: 15, top: -10}`).
+* **onCollision** &nbsp;&mdash;&nbsp; *string / object / null*
   * Defines how the collisions are handled per each side when a container element/area (`options.within`) is defined. The option expects an object that has left, right, top and bottom properties set, representing the sides of the target element. Alternatively you can provide a string value which will be normalized to an object automatically. For example, `"push"` will become `{left: 'push', right: 'push', top: 'push', bottom: 'push'}` and `"push none"` will become `{left: 'push', right: 'push', top: 'none', bottom: 'none'}`.
   * Default: `{left: 'push', right: 'push', top: 'push', bottom: 'push'}`
   * Acceptable values for each side are `"none"`, `"push"` and `"forcePush"`.
     * `"none"` will ignore containment for the specific side.
     * `"push"` tries to keep the targeted side of the target element within the container element's boundaries.
     * If the container element is smaller than the target element and you want to make sure that a specific side will always be pushed fully inside the container element's area you can use `"forcePush"`.
+* **offsetX** &nbsp;&mdash;&nbsp; *number / string*
+  * An optional horizontal offset in pixels or in percentages. A number is always considered as a pixel value. A string is considered as a percentage value when it contains '%', e.g. `"50%"`. The percentage values are relative to the target element's width. For example if the target element's width is 50 pixels a value of `"100%"` would push the element 50 pixels to the right.
+  * Default: `0`
+* **offsetY** &nbsp;&mdash;&nbsp; *number / string*
+  * An optional vertical offset in pixels or in percentages. A number is always considered as a pixel value. A string is considered as a percentage value when it contains '%', e.g. `"50%"`. The percentage values are relative to the target element's height. For example if the target element's height is 50 pixels a value of `"100%"` would push down the element 50 pixels.
+  * Default: `0`
 
 **Returns** &nbsp;&mdash;&nbsp; *object*
 
@@ -518,14 +520,15 @@ Calculate an element's position (left/top CSS properties) when positioned relati
 // within the boundaries elemC. The collision option determines
 // what to do when/if a specific edge of elemC is "breached" by
 // elemA.
-mezr.place([elemA, 'content'], {
-  my: 'left top',
-  at: 'center center',
-  of: [elemB, 'margin'],
+mezr.place({
+  element: [elemA, 'content'],
+  target: [elemB, 'margin'],
+  elementJoint: 'left top',
+  targetJoint: 'center center',
   offsetX: -5,
   offsetY: '50%',
-  within: [elemC, 'padding'],
-  collision: {
+  container: [elemC, 'padding'],
+  onCollision: {
     left: 'forcePush',
     right: 'push',
     top: 'none',

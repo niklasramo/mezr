@@ -822,50 +822,29 @@ function testSuite(targetTests) {
   QUnit.test('#critical: Should always return an object with two properties: "left" and "top".', function (assert) {
 
     assert.expect(1);
-    assert.deepEqual(Object.keys(mezr.place(element)).sort(), ['left', 'top']);
+    assert.deepEqual(Object.keys(mezr.place({element: element, target: element})).sort(), ['left', 'top']);
 
   });
 
   QUnit.test('#critical: Make sure we have correct default options.', function (assert) {
 
-    assert.expect(2);
+    assert.expect(1);
 
-    setStyles(fixture, {
-      position: 'absolute',
-      width: '10000px',
-      height: '10000px',
-      left: '0px',
-      top: '0px'
-    });
-
-    setStyles(element, {
-      position: 'absolute',
-      left: '0px',
-      top: '0px',
-      width: '10px',
-      height: '10px',
-      padding: '10px',
-      border: '10px solid',
-      margin: '0px'
-    });
-
-    window.scrollTo(100, 100);
-
-    assert.deepEqual(mezr.place(element), {left: window.pageXOffset, top: window.pageYOffset}, 'The default options work as expected.');
     assert.deepEqual(mezr._settings.placeDefaultOptions, {
-      my: 'left top',
-      at: 'left top',
-      of: window,
+      element: null,
+      target: null,
+      elementJoint: 'left top',
+      targetJoint: 'left top',
       offsetX: 0,
       offsetY: 0,
-      within: null,
-      collision: {
+      container: null,
+      onCollision: {
         left: 'push',
         right: 'push',
         top: 'push',
         bottom: 'push'
       }
-    }, 'The default options data is correct.');
+    });
 
   });
 
@@ -895,7 +874,12 @@ function testSuite(targetTests) {
     window.scrollTo(0, 0);
 
     assert.deepEqual(
-      mezr.place(element, {offsetX: -10, offsetY: 10 }),
+      mezr.place({
+        element: element,
+        target: window,
+        offsetX: -10,
+        offsetY: 10
+      }),
       {
         left: window.pageXOffset - 10,
         top: window.pageYOffset + 10
@@ -903,7 +887,12 @@ function testSuite(targetTests) {
       'Using negative and positive floats work.'
     );
     assert.deepEqual(
-      mezr.place(element, {offsetX: '-10', offsetY: '10' }),
+      mezr.place({
+        element: element,
+        target: window,
+        offsetX: '-10',
+        offsetY: '10'
+      }),
       {
         left: window.pageXOffset - 10,
         top: window.pageYOffset + 10
@@ -911,7 +900,12 @@ function testSuite(targetTests) {
       'Using negative and positive strings work.'
     );
     assert.deepEqual(
-      mezr.place(element, {offsetX: '-10px', offsetY: '10px' }),
+      mezr.place({
+        element: element,
+        target: window,
+        offsetX: '-10px',
+        offsetY: '10px'
+      }),
       {
         left: window.pageXOffset - 10,
         top: window.pageYOffset + 10
@@ -919,7 +913,12 @@ function testSuite(targetTests) {
       'Using negative and positive strings with "px" appendix work.'
     );
     assert.deepEqual(
-      mezr.place(element, {offsetX: '-30%', offsetY: '60%' }),
+      mezr.place({
+        element: element,
+        target: window,
+        offsetX: '-30%',
+        offsetY: '60%'
+      }),
       {
         left: window.pageXOffset - (element.getBoundingClientRect().width * 0.3),
         top: window.pageYOffset + (element.getBoundingClientRect().height * 0.6)
@@ -929,67 +928,7 @@ function testSuite(targetTests) {
 
   });
 
-  QUnit.test('#critical: "within" option value should affect the positioning.', function (assert) {
-
-    assert.expect(4);
-
-    setStyles(fixture, {
-      position: 'absolute',
-      width: '10000px',
-      height: '10000px',
-      left: '0px',
-      top: '0px'
-    });
-
-    setStyles(element, {
-      position: 'absolute',
-      left: '0px',
-      top: '0px',
-      width: '10px',
-      height: '10px',
-      padding: '10px',
-      border: '10px solid',
-      margin: '0px'
-    });
-
-    window.scrollTo(0, 0);
-
-    assert.deepEqual(
-      mezr.place(element, {offsetX: -10, offsetY: 10 }),
-      {
-        left: window.pageXOffset - 10,
-        top: window.pageYOffset + 10
-      },
-      'Using negative and positive floats work.'
-    );
-    assert.deepEqual(
-      mezr.place(element, {offsetX: '-10', offsetY: '10' }),
-      {
-        left: window.pageXOffset - 10,
-        top: window.pageYOffset + 10
-      },
-      'Using negative and positive strings work.'
-    );
-    assert.deepEqual(
-      mezr.place(element, {offsetX: '-10px', offsetY: '10px' }),
-      {
-        left: window.pageXOffset - 10,
-        top: window.pageYOffset + 10
-      },
-      'Using negative and positive strings with "px" appendix work.'
-    );
-    assert.deepEqual(
-      mezr.place(element, {offsetX: '-30%', offsetY: '60%' }),
-      {
-        left: window.pageXOffset - (element.getBoundingClientRect().width * 0.3),
-        top: window.pageYOffset + (element.getBoundingClientRect().height * 0.6)
-      },
-      'Using negative and positive strings with "%" appendix work.'
-    );
-
-  });
-
-  QUnit.test('#extended: An extensive test with all possible positioining variations with all possible css positions and edge layers.', function (assert) {
+  QUnit.test('#extended: An extensive test with all possible positioining variations, css positions and edge layers.', function (assert) {
 
     var done = assert.async();
     var edgeLayers = ['content', 'padding', 'scroll', 'border', 'margin'];
@@ -1152,10 +1091,11 @@ function testSuite(targetTests) {
       var anchorRect = mezr.rect(anchor, anchorEdge);
 
       // Get the result.
-      var result = mezr.place([element, elementEdge], {
-        my: my,
-        at: at,
-        of: [anchor, anchorEdge]
+      var result = mezr.place({
+        element: [element, elementEdge],
+        target: [anchor, anchorEdge],
+        elementJoint: my,
+        targetJoint: at
       });
 
       // Get the expected result.
@@ -1194,10 +1134,5 @@ function testSuite(targetTests) {
     }
 
   });
-
-  // TODO - Test the following:
-  // * TELCS difference
-  // * Within tests
-  // * Collision tests
 
 }

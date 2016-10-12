@@ -50,9 +50,6 @@
     margin: 5
   };
 
-  // Place method's option names.
-  var placeOptionsNames = ['my', 'at', 'of', 'within', 'collision', 'offsetX', 'offsetY'];
-
   // Temporary bounding client rect data.
   var tempBCR;
 
@@ -61,13 +58,14 @@
 
   // Default options for place method.
   settings.placeDefaultOptions = {
-    my: 'left top',
-    at: 'left top',
-    of: win,
+    element: null,
+    target: null,
+    elementJoint: 'left top',
+    targetJoint: 'left top',
     offsetX: 0,
     offsetY: 0,
-    within: null,
-    collision: {
+    container: null,
+    onCollision: {
       left: 'push',
       right: 'push',
       top: 'push',
@@ -370,49 +368,46 @@
    * element, window or the document.
    *
    * @public
-   * @param {Array|Document|Element|Window} el
    * @param {PlaceOptions} [options]
    * @returns {PlaceData}
    */
-  function getPlace(el, options) {
-
-    // Sanitize element (to dissect the possible edge info).
-    el = [].concat(el);
+  function getPlace(options) {
 
     // Sanitize options.
-    options = getPlaceOptions(el, options);
+    options = getPlaceOptions(options);
 
     var ret = {};
-    var anchor = getRectInternal(options.of);
-    var target = getStaticOffset(el[0], el[1]);
+    var el = [].concat(options.element);
+    var eRect = getStaticOffset(el[0], el[1]);
+    var tRect = getRectInternal(options.target);
     var offsetX = options.offsetX;
     var offsetY = options.offsetY;
 
-    // Get target width and height.
-    target.width = getWidth(el[0], el[1]);
-    target.height = getHeight(el[0], el[1]);
+    // Get element width and height.
+    eRect.width = getWidth(el[0], el[1]);
+    eRect.height = getHeight(el[0], el[1]);
 
     // Sanitize offsets and check for percentage values.
-    offsetX = typeof offsetX === 'string' && offsetX.indexOf('%') > -1 ? toFloat(offsetX) / 100 * target.width : toFloat(offsetX);
-    offsetY = typeof offsetY === 'string' && offsetY.indexOf('%') > -1 ? toFloat(offsetY) / 100 * target.height : toFloat(offsetY);
+    offsetX = typeof offsetX === 'string' && offsetX.indexOf('%') > -1 ? toFloat(offsetX) / 100 * eRect.width : toFloat(offsetX);
+    offsetY = typeof offsetY === 'string' && offsetY.indexOf('%') > -1 ? toFloat(offsetY) / 100 * eRect.height : toFloat(offsetY);
 
     // Calculate element's new position (left/top coordinates).
-    ret.left = getPlacePosition(options.my[0] + options.at[0], anchor.width, anchor.left, target.width, target.left, offsetX);
-    ret.top = getPlacePosition(options.my[1] + options.at[1], anchor.height, anchor.top, target.height, target.top, offsetY);
+    ret.left = getPlacePosition(options.elementJoint[0] + options.targetJoint[0], tRect.width, tRect.left, eRect.width, eRect.left, offsetX);
+    ret.top = getPlacePosition(options.elementJoint[1] + options.targetJoint[1], tRect.height, tRect.top, eRect.height, eRect.top, offsetY);
 
     // If container is defined, let's add overlap data and handle collisions.
-    if (options.within && options.collision) {
+    if (options.container && options.onCollision) {
 
       // Update element offset data to match the newly calculated position.
-      target.left += ret.left;
-      target.top += ret.top;
+      eRect.left += ret.left;
+      eRect.top += ret.top;
 
       // Get container overlap data.
-      var containerOverlap = getOverlap(target, options.within);
+      var containerOverlap = getOverlap(eRect, options.container);
 
       // Get adjusted data after collision handling.
-      ret.left += getPlaceCollision(options.collision, containerOverlap);
-      ret.top += getPlaceCollision(options.collision, containerOverlap, 1);
+      ret.left += getPlaceCollision(options.onCollision, containerOverlap);
+      ret.top += getPlaceCollision(options.onCollision, containerOverlap, 1);
 
     }
 
@@ -958,22 +953,22 @@
    * Merges default options with the instance options and sanitizes the new options.
    *
    * @private
-   * @param {Document|Element|Window} el
    * @param {PlaceOptions} [options]
    * @returns {Object}
    */
-  function getPlaceOptions(el, options) {
+  function getPlaceOptions(options) {
 
     // Merge user options with default options.
     options = mergeObjects(options ? [settings.placeDefaultOptions, options] : [settings.placeDefaultOptions]);
 
+    var optionNames = ['element', 'target', 'elementJoint', 'targetJoint', 'offsetX', 'offsetY', 'container', 'onCollision'];
     var name;
     var val;
 
     // Loop through all the options.
     for (var i = 0; i < 7; i++) {
 
-      name = placeOptionsNames[i];
+      name = optionNames[i];
       val = options[name];
 
       // If option is declared as a function let's execute it and continue processing.
@@ -984,7 +979,7 @@
       }
 
       // Sanitize positions.
-      if (i < 2) {
+      if (name === 'elementJoint' || name === 'targetJoint') {
 
         val = typeof val === 'string' ? val.split(' ') : val;
         val[0] = val[0].charAt(0);
@@ -995,12 +990,12 @@
 
     }
 
-    // If collision option is a string value map it into an object.
-    if (typeof options.collision === 'string') {
+    // If onCollision option is a string value map it into an object.
+    if (typeof options.onCollision === 'string') {
 
-      val = options.collision.split(' ');
+      val = options.onCollision.split(' ');
       val[1] = val[1] || val[0];
-      options.collision = {
+      options.onCollision = {
         left: val[0],
         right: val[0],
         top: val[1],
@@ -1014,43 +1009,43 @@
   }
 
   /**
-   * Returns the horizontal or vertical base position of a target element relative to an anchor
-   * element. In other words, this function returns the value which should set as the target
-   * element's left/top CSS value in order to position it according to the placement argument.
+   * Returns the horizontal or vertical base position of an element relative to the target element.
+   * In other words, this function returns the left and top CSS values which should be set as to the
+   * target element in order to position it according to the joint arguments.
    *
    * @private
    * @param {Placement} placement
-   * @param {Number} anchorSize
-   *   - Target's width/height in pixels.
-   * @param {Number} anchorOffset
-   *   - Target's left/top offset in pixels.
    * @param {Number} targetSize
    *   - Target's width/height in pixels.
-   * @param {Number} targetNwOffset
-   *   - Target's left/top northwest offset in pixels.
+   * @param {Number} targetOffset
+   *   - Target's left/top offset in pixels.
+   * @param {Number} elementSize
+   *   - Element's width/height in pixels.
+   * @param {Number} elementNwOffset
+   *   - Element's left/top northwest offset in pixels.
    * @param {Number} extraOffset
    *   - Additional left/top offset in pixels.
    * @returns {Number}
    */
-  function getPlacePosition(placement, anchorSize, anchorOffset, targetSize, targetNwOffset, extraOffset) {
+  function getPlacePosition(placement, targetSize, targetOffset, elementSize, elementNwOffset, extraOffset) {
 
-    var northwestPoint = anchorOffset + extraOffset - targetNwOffset;
+    var northwestPoint = targetOffset + extraOffset - elementNwOffset;
 
     return placement === 'll' || placement === 'tt' ? northwestPoint :
-           placement === 'lc' || placement === 'tc' ? northwestPoint + (anchorSize / 2) :
-           placement === 'lr' || placement === 'tb' ? northwestPoint + anchorSize :
-           placement === 'cl' || placement === 'ct' ? northwestPoint - (targetSize / 2) :
-           placement === 'cr' || placement === 'cb' ? northwestPoint + anchorSize - (targetSize / 2) :
-           placement === 'rl' || placement === 'bt' ? northwestPoint - targetSize :
-           placement === 'rc' || placement === 'bc' ? northwestPoint - targetSize + (anchorSize / 2) :
-           placement === 'rr' || placement === 'bb' ? northwestPoint - targetSize + anchorSize :
-                                                      northwestPoint + (anchorSize / 2) - (targetSize / 2);
+           placement === 'lc' || placement === 'tc' ? northwestPoint + (targetSize / 2) :
+           placement === 'lr' || placement === 'tb' ? northwestPoint + targetSize :
+           placement === 'cl' || placement === 'ct' ? northwestPoint - (elementSize / 2) :
+           placement === 'cr' || placement === 'cb' ? northwestPoint + targetSize - (elementSize / 2) :
+           placement === 'rl' || placement === 'bt' ? northwestPoint - elementSize :
+           placement === 'rc' || placement === 'bc' ? northwestPoint - elementSize + (targetSize / 2) :
+           placement === 'rr' || placement === 'bb' ? northwestPoint - elementSize + targetSize :
+                                                      northwestPoint + (targetSize / 2) - (elementSize / 2);
 
   }
 
   /**
-   * Calculates the distance in pixels that the target element needs to be moved in order to be
-   * aligned correctly if the target element overlaps with the container.
+   * Calculates the distance in pixels that the element needs to be moved in order to be aligned
+   * correctly if the target element overlaps the container.
    *
    * @private
    * @param {Collision} collision
@@ -1211,13 +1206,14 @@
 
   /**
    * @typedef {Object} PlaceOptions
-   * @property {String} [my='left top']
-   * @property {String} [at='left top']
-   * @property {Array|Document|Element|Window|Rectangle} [of=window]
-   * @property {?Array|Document|Element|Window|Rectangle} [within=null]
+   * @param {Array|Document|Element|Window} element
+   * @property {Array|Document|Element|Window|Rectangle} target
+   * @property {String} [elementJoint='left top']
+   * @property {String} [targetJoint='left top']
    * @property {Number} [offsetX=0]
    * @property {Number} [offsetY=0]
-   * @property {?Collision} [collision]
+   * @property {?Array|Document|Element|Window|Rectangle} [container=null]
+   * @property {?Collision} [onCollision]
    */
 
   /**
@@ -1230,7 +1226,7 @@
 
   /**
     * Describe an element's vertical or horizontal placement relative to another element. For
-    * example, if we wanted to place target's left side to the anchor's right side we would write:
+    * example, if we wanted to place element's left side to the target's right side we would write:
     * "lr", which is short from  "left" and "right".
     * left   -> "l"
     * right  -> "r"
