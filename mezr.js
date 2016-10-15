@@ -5,6 +5,17 @@
  * Released under the MIT license
  */
 
+// TODO:
+// -----
+// * Check how tables behave with offsetParent method and how they should behave.
+// * Provide data about the intersection points in intersection method.
+// * Consider renaming the offsetParent method to something more fitting. Maybe offsetContainer is
+//   a bit misleading.
+// * Consider renaming the TELCS to something more appropriate since actually the test is only for
+//   fixed elment's behaviour.
+// * "flip" argument for onCollision.
+// * Perf and size optimizations.
+
 (function (global, factory) {
 
   if (typeof define === 'function' && define.amd) {
@@ -360,6 +371,40 @@
       left: aRect.left + abs(min(overlap.left, 0)),
       top: aRect.top + abs(min(overlap.top, 0))
     };
+
+  }
+
+  /**
+   * Detect if all of the provided elements overlap and calculate the possible intersection area's
+   * dimensions and offsets. If the intersection area exists the function returns an object
+   * containing the intersection area's dimensions and offsets. Otherwise null is returned.
+   *
+   * @public
+   * @param {...Array|Document|Element|Window|Rectangle} el
+   * @returns {?Rectangle}
+   */
+  function getIntersectionMultiple() {
+
+    // Get the initial intersection of the first two items.
+    var intersection = getIntersection(arguments[0], arguments[1]);
+
+    // If there are more than two items.
+    if (arguments.length > 2) {
+
+      // Loop the arguments until the end or until the intersection is non-existent.
+      for (var i = 2; i < arguments.length; ++i) {
+
+        intersection = getIntersection(intersection, arguments[i]);
+
+        if (!intersection) {
+          break;
+        }
+
+      }
+
+    }
+
+    return intersection;
 
   }
 
@@ -750,6 +795,13 @@
     var innerDimension = 'inner' + dimensionCapitalized;
     var clientDimension = 'client' + dimensionCapitalized;
     var scrollDimension = 'scroll' + dimensionCapitalized;
+    var edgeA;
+    var edgeB;
+    var borderA;
+    var borderB;
+    var marginA;
+    var marginB;
+    var sbSize;
 
     if (el.self === win.self) {
 
@@ -760,8 +812,7 @@
 
       if (includeScrollbar) {
 
-        var sbSize = win[innerDimension] - root[clientDimension];
-
+        sbSize = win[innerDimension] - root[clientDimension];
         ret = max(root[scrollDimension] + sbSize, body[scrollDimension] + sbSize, win[innerDimension]);
 
       } else {
@@ -773,27 +824,26 @@
     }
     else {
 
-      var edgeA = isHeight ? 'top' : 'left';
-      var edgeB = isHeight ? 'bottom' : 'right';
-      var borderA;
-      var borderB;
-
+      edgeA = isHeight ? 'top' : 'left';
+      edgeB = isHeight ? 'bottom' : 'right';
       ret = (tempBCR || el.getBoundingClientRect())[dimension];
 
       if (!includeScrollbar) {
 
         if (el === root) {
 
-          ret -= win[innerDimension] - root[clientDimension];
+          sbSize = win[innerDimension] - root[clientDimension];
 
         }
         else {
 
           borderA = getStyleAsFloat(el, 'border-' + edgeA + '-width');
           borderB = getStyleAsFloat(el, 'border-' + edgeB + '-width');
-          ret -= Math.round(ret) - el[clientDimension] - borderA - borderB;
+          sbSize = Math.round(ret) - (el[clientDimension] + borderA + borderB);
 
         }
+
+        ret -= sbSize > 0 ? sbSize : 0;
 
       }
 
@@ -813,9 +863,8 @@
 
       if (includeMargin) {
 
-        var marginA = getStyleAsFloat(el, 'margin-' + edgeA);
-        var marginB = getStyleAsFloat(el, 'margin-' + edgeB);
-
+        marginA = getStyleAsFloat(el, 'margin-' + edgeA);
+        marginB = getStyleAsFloat(el, 'margin-' + edgeB);
         ret += marginA > 0 ? marginA : 0;
         ret += marginB > 0 ? marginB : 0;
 
@@ -1245,7 +1294,7 @@
     rect: getRect,
     offsetParent: getOffsetParent,
     distance: getDistance,
-    intersection: getIntersection,
+    intersection: getIntersectionMultiple,
     place: getPlace,
     _settings: settings
   };

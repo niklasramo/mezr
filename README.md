@@ -1,17 +1,66 @@
 # Mezr
 
-Mezr is a lightweight JavaScript utility library for measuring and comparing the dimensions and positions of HTML DOM elements in modern browsers (IE9+). For starters Mezr provides a bit more extended variations of jQuery's popular [offset](http://api.jquery.com/category/offset/) and [dimension](http://api.jquery.com/category/dimension/) methods. Bonus features include collision detection and positioning elements relative to other elements in the style of jQuery UI's [position](https://jqueryui.com/position/) method.
+Mezr is a lightweight JavaScript utility library for measuring and comparing the dimensions and positions of HTML DOM elements in modern browsers (IE9+). For starters Mezr provides a bit more extended variations of jQuery's [offset](http://api.jquery.com/category/offset/) and [dimension](http://api.jquery.com/category/dimension/) methods. Bonus features include collision detection and positioning elements relative to other elements in the style of jQuery UI's [position](https://jqueryui.com/position/) method.
 
-**Features**
+**In a nutshell**
 
-* No dependencies.
+* Calculate the document's, the window's or an element's width, height, offsets and [DOMCLientRect](https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XPCOM/Reference/Interface/nsIDOMClientRect) consistently while specifying which parts (paddings, borders, margins, scrollbars) should be included in the calculations.
+* Determine an element's *true* offset parent.
+* Calculate the intersection area of multiple elements.
+* Position elements relative to other elements.
+* Lightweight (2.97kb gzipped).
 * Cross-browser (IE9+).
-* Advanced element positioning.
-* Collision detection.
+* No dependencies.
 
-**Getting started**
+## Why another library?
 
-1. Include [mezr.js](https://raw.githubusercontent.com/niklasramo/mezr/0.4.0/mezr.js) within the `body` element on your site.
+Simply put, for conveniency and consistency. Mezr abstracts a part of the DOM API into a more convenient and consistent form. For example, let's imagine a scneario where you would want to calculate an element's [DOMCLientRect](https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XPCOM/Reference/Interface/nsIDOMClientRect) data but without the element's potential borders, paddings and scrollbars — just the content.
+
+With Mezr.
+
+```javascript
+var rect = mezr.rect(elem, 'content');
+```
+
+With vanilla JS.
+
+```javascript
+var getStyle = function (elem, style) {
+  return parseFloat(getComputedStyle(elem, null).getPropertyValue(style)) || 0;
+};
+var gbcr = elem.getBoundingClientRect();
+var borders = {
+  left: getStyle(elem, 'border-left-width'),
+  right: getStyle(elem, 'border-right-width'),
+  top: getStyle(elem, 'border-top-width'),
+  bottom: getStyle(elem, 'border-bottom-width')
+};
+var paddings = {
+  left: getStyle(elem, 'padding-left'),
+  right: getStyle(elem, 'padding-right'),
+  top: getStyle(elem, 'padding-top'),
+  bottom: getStyle(elem, 'padding-bottom')
+};
+var sb = {
+  y: Math.round(gbcr.width) - elem.clientWidth - border.left - border.right
+  x: Math.round(gbcr.height) - elem.clientHeight - border.top - border.bottom
+};
+var rect = {};
+rect.left = gbcr.left + border.left + padding.left;
+rect.top = gbcr.top + border.top + padding.top;
+rect.width = gbcr.width - sb.y - border.left - border.right - padding.left - padding.right;
+rect.height = gbcr.height - sb.x - border.top - border.bottom - padding.top - padding.bottom;
+rect.right = rect.left + rect.width;
+rect.bottom = rect.top + rect.height;
+```
+
+Getting the width, height and offsets of elements, document and window consistently in modern browsers (IE9+) is not an easy job. Although [`elem.getBoundingClientRect()`](https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect) gets you pretty far it sometimes is not enough. Mezr provides a simple and cohesive API that allows you to fetch the dimensions, offsets and offset parent (among other things) of any element, window and the document.
+
+A [good](http://meyerweb.com/eric/thoughts/2011/09/12/un-fixing-fixed-elements-with-css-transforms/) [example](https://bugs.chromium.org/p/chromium/issues/detail?id=20574) of browser differences is the way fixed elements are treated when transforms are applied to the element's parent(s). According to W3C [transform rendering model](https://www.w3.org/TR/css3-2d-transforms/#transform-rendering) specification a transformed element creates a new local coordinate system, which has a possibly little surprising effect on descendant fixed-positioned elements — they are no longer fixed to the window but instead to the closest transformed ancestor element. However, not all browsers (any IE and older Firefox for example) respect this specification, which causes problems for developers. Additionally, [elem.offsetParent](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/offsetParent) does not consider an unpositioned (static) transformed element as an offset parent. As of version 0.5.0 Mezr automatically detects browsers behavior related to these issue and adjusts the internal algorithms to provide correct results for [.offsetParent()](#offsetparent-el-) and  [.place()](#place-options-) methods.
+
+## Getting started
+
+1. Include [mezr.js](https://raw.githubusercontent.com/niklasramo/mezr/0.5.0/mezr.js) within the `body` element on your site. Mezr needs to access the body element, because it does some browser behaviour checking on initialization and will throw an error if `document.body` is not available.
 
   ```html
   <html>
@@ -71,7 +120,7 @@ Mezr is a lightweight JavaScript utility library for measuring and comparing the
   });
   ```
 
-**Comparison to jQuery's dimension methods**
+## Comparison to jQuery's dimension methods
 
 Document width with viewport scrollbar.
 
@@ -147,7 +196,7 @@ mezr.width(elem, "margin");
 * [.rect( el, [ edge ] )](#rect-el--edge--)
 * [.offsetParent( el )](#offsetparent-el-)
 * [.distance( elemA, elemB )](#distance-elema-elemb-)
-* [.intersection( a, b)](#intersection-a-b-)
+* [.intersection( ...el )](#intersection-el-)
 * [.place( options )](#place-options-)
 
 &nbsp;
@@ -174,10 +223,10 @@ The return value may be fractional when calculating the width of an element. For
 
 ```javascript
 // Document width (with viewport scrollbar).
-mezr.width(document. "scroll"); // or just -> mezr.width(document);
+mezr.width(document. 'scroll'); // or just -> mezr.width(document);
 
 // Document width (without viewport scrollbar).
-mezr.width(document, "content");
+mezr.width(document, 'content');
 
 // Window width (with scrollbar).
 mezr.width(window, 'scroll'); // or just -> mezr.width(window);
@@ -225,16 +274,16 @@ The return value may be fractional when calculating the height of an element. Fo
 
 ```javascript
 // Document height (with viewport scrollbar).
-mezr.height(document. "scroll"); // or just -> mezr.height(document);
+mezr.height(document. 'scroll'); // or just -> mezr.height(document);
 
 // Document height (without viewport scrollbar).
-mezr.height(document, "content");
+mezr.height(document, 'content');
 
 // Window height (with scrollbar).
 mezr.height(window, 'scroll'); // or just -> mezr.height(window);
 
 // Window height (without scrollbar).
-mezr.height(window, "content");
+mezr.height(window, 'content');
 
 // Element content height.
 mezr.height(elem, 'content');
@@ -400,18 +449,16 @@ mezr.distance([elemA, 'content'], [elemB, 'scroll']);
 
 &nbsp;
 
-### `.intersection( a, b )`
+### `.intersection( ...el )`
 
-Detect if two elements overlap and calculate the possible intersection area's dimensions and offsets. If the intersection area exists the function returns an object containing the intersection area's dimensions and offsets. Otherwise `null` is returned.
+Detect if two or more elements overlap and calculate the possible intersection area's dimensions and offsets. If the intersection area exists the function returns an object containing the intersection area's dimensions and offsets. Otherwise `null` is returned.
 
 **Parameters**
 
-* **a** &nbsp;&mdash;&nbsp; *array / element / object*
+* **el** &nbsp;&mdash;&nbsp; *array / element / object*
   * Element: the element's edge is considered to be "border".
   * Array: allows one to control which layer (content, padding, scroll, border, margin) is considered as the element's edge, e.g. `[someElem, 'content']`.
   * Object: must have width, height, left and top properties with numeric values (e.g. `{width: 10, height: 20, left: 15, top: -10}`).
-* **b** &nbsp;&mdash;&nbsp; *array / element / object*
-  * Same specs as for a.
 
 **Returns** &nbsp;&mdash;&nbsp; *null / object*
 
@@ -449,6 +496,9 @@ mezr.intersection(elemA, rectB);
 
 // Define which edge to use for element calculations
 mezr.intersection([elemA, 'content'], [elemB, 'scroll']);
+
+// Calculate the intersection area between two elements and two objects.
+mezr.intersection(elemA, [elemB, 'margin'], rectA, rectB);
 ```
 
 &nbsp;
@@ -491,7 +541,7 @@ The *options* argument should be an object. You may configure it with the follow
   * Array: allows one to control which layer (content, padding, scroll, border, margin) is considered as the element's edge, e.g. `[someElem, 'content']`.
   * Object: must have width, height, left and top properties with numeric values (e.g. `{width: 10, height: 20, left: 15, top: -10}`).
 * **onCollision** &nbsp;&mdash;&nbsp; *string / object / null*
-  * Defines how the collisions are handled per each side when a container element/area (`options.within`) is defined. The option expects an object that has left, right, top and bottom properties set, representing the sides of the target element. Alternatively you can provide a string value which will be normalized to an object automatically. For example, `"push"` will become `{left: 'push', right: 'push', top: 'push', bottom: 'push'}` and `"push none"` will become `{left: 'push', right: 'push', top: 'none', bottom: 'none'}`.
+  * Defines how the collisions are handled per each side when a container element/area (`options.container`) is defined. The option expects an object that has left, right, top and bottom properties set, representing the sides of the target element. Alternatively you can provide a string value which will be normalized to an object automatically. For example, `"push"` will become `{left: 'push', right: 'push', top: 'push', bottom: 'push'}` and `"push none"` will become `{left: 'push', right: 'push', top: 'none', bottom: 'none'}`.
   * Default: `{left: 'push', right: 'push', top: 'push', bottom: 'push'}`
   * Acceptable values for each side are `"none"`, `"push"` and `"forcePush"`.
     * `"none"` will ignore containment for the specific side.
@@ -517,8 +567,8 @@ The *options* argument should be an object. You may configure it with the follow
 // Calculate elemA's new position (left and top CSS properties)
 // when it's northwest corner is positioned in the center of elemB.
 // Also add some static offsets and make sure that elemA stays
-// within the boundaries elemC. The collision option determines
-// what to do when/if a specific edge of elemC is "breached" by
+// within the boundaries elemC. The onCollision option determines
+// what to do when a specific edge of elemC is "breached" by
 // elemA.
 mezr.place({
   element: [elemA, 'content'],
