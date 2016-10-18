@@ -7,14 +7,13 @@
 
 // TODO:
 // -----
-// * Check how tables behave with offsetParent method and how they should behave.
-// * Provide data about the intersection points in intersection method.
-// * Consider renaming the offsetParent method to something more fitting. Maybe offsetContainer is
-//   a bit misleading.
-// * Consider renaming the TELCS to something more appropriate since actually the test is only for
-//   fixed elment's behaviour.
-// * "flip" argument for onCollision.
+// * onCollision updates
+//   -> Allow using a function for maximum extendibility.
+//   -> New collision value: "flip".
+//   -> New collision value: "elemX elemY targetX targetY".
+// * Finish up tests.
 // * Perf and size optimizations.
+// * Review code and comments, review readme.
 
 (function (global, factory) {
 
@@ -71,24 +70,19 @@
   settings.placeDefaultOptions = {
     element: null,
     target: null,
-    elementJoint: 'left top',
-    targetJoint: 'left top',
+    position: 'left top left top',
     offsetX: 0,
     offsetY: 0,
-    container: null,
-    onCollision: {
-      left: 'push',
-      right: 'push',
-      top: 'push',
-      bottom: 'push'
-    }
+    contain: null
   };
 
   // Get the primary supported transform property.
   settings.transform = getSupportedTransform();
 
-  // Does the browser support transformed element's local coordinate system as per W3C spec.
-  settings.hasTELCS = testTELCS();
+  // Do transformed elements leak fixed elements? According W3C specification about transform
+  // rendering a transformed element should contain even fixed elements, but not every browser
+  // follows the spec. So we need to test it.
+  settings.transformLeaksFixed = doesTransformLeakFixed();
 
   /**
    * Public methods
@@ -249,23 +243,41 @@
   }
 
   /**
-   * Returns the element's offset parent. This function works in the same manner as the native
-   * elem.offsetParent method with a few tweaks and logic changes. Additionally this function
-   * recognizes transformed elements and is aware of their local coordinate system. The function
-   * accepts the window object and the document object in addition to DOM elements. Document object
-   * is considered as the base offset point against which the element/window offsets are compared
-   * to. This in turn means that the document object does not have an offset parent and the
-   * the function returns null if document is provided as the argument. Document is also considered
-   * as the window's offset parent. Window is considered as the root offset parent of all fixed
-   * elements. Root and body elements are treated equally with all other DOM elements. For example
-   * body's offset parent is the root element if root element is positioned, but if the root element
-   * is static the body's offset parent is the document object.
+   * Returns the element's containing block, which is considered to be the closest ancestor
+   * element (or window, or document, or the target element itself) that the target element's
+   * positioning is relative to. In other words, containing block is the element the target
+   * element's CSS properties "left", "right", "top" and "bottom" are relative to. This function
+   * is quite similar to the native elem.offsetParent read-only property, but there are enough
+   * differences to justify the existence of this function.
+   *
+   * The logic:
+   * - Document is considered to be the root containing block of all elements and the window.
+   *   Getting the document's containing block will return null.
+   * - Static element does not have a containing block since setting values to the "left", "right",
+   *   "top" and "bottom" CSS properties does not have any effect on it. Thus, getting the position
+   *   container of a static element will return null.
+   * - Relative element's containing block is always the element itself.
+   * - Fixed element's containing block is always the closest transformed ancestor or window if
+   *   the element does not have any transformed ancestors. An exception is made for browsers which
+   *   allow fixed elements to bypass the W3C specification of transform rendering. In those
+   *   browsers fixed element's containing block is always the window.
+   * - Absolute element's containing block is the closest ancestor element that is transformed or
+   *   positioned (any element which is not static), or document if no positioned or transformed
+   *   ancestor is not found.
+   * - Root element and body element are considered as equals with all other elements and are
+   *   treated equally with all other elements.
    *
    * @public
    * @param {Document|Element|Window} el
+   * @param {String} [fakePosition]
+   *   - An optional argument which allows you to get the element's containing block as if the
+   *     element had the position set to the value provided with this argument. Using this argument
+   *     does not modify the element's true position in any way, it's just used as fake value for
+   *     function. By default (when this argument is empty) the function will automatically get the
+   *     element's current position.
    * @returns {?Document|Element|Window}
    */
-  function getOffsetParent(el) {
+  function getContainingBlock(el, fakePosition) {
 
     // If we have document return null right away.
     if (el === doc) {
@@ -281,47 +293,61 @@
 
     }
 
-    // At this point we know we have an element in our hands, so let's start by checking if it's
-    // fixed.
-    var isFixed = getStyle(el, 'position') === 'fixed';
+    // Now that we know we have an element in our hands, let's get it's position. Get element's
+    // current position value if a specific position is not provided.
+    var position = fakePosition || getStyle(el, 'position');
 
-    // If the element is fixed and the TELCS test has failed, just return window.
-    if (isFixed && !settings.hasTELCS) {
+    // Relative element's container is always the element itself.
+    if (position === 'relative') {
+
+      return el;
+
+    }
+
+    // If element is not positioned (static or an invalid position value), always return null.
+    if (position !== 'fixed' && position !== 'absolute') {
+
+      return null;
+
+    }
+
+    // If the element is fixed and transforms leak fixed elements, always return window.
+    if (position === 'fixed' && settings.transformLeaksFixed) {
 
       return win;
 
     }
 
     // Alrighty, so now fetch the element's parent (which is document for the root) and set it as
-    // the initial offset parent. Fallback to null if everything else fails.
-    var offsetParent = el === root ? doc : el.parentElement || null;
+    // the initial containing block. Fallback to null if everything else fails.
+    var ret = el === root ? doc : el.parentElement || null;
 
-    // If element is fixed.
-    if (isFixed) {
+    // If element is fixed positioned.
+    if (position === 'fixed') {
 
-      // As long as the offset parent is an element and is not transformed, try to get the element's
-      // parent element and fallback to document.
-      while (offsetParent && offsetParent !== doc && !isTransformed(offsetParent)) {
+      // As long as the containing block is an element and is not transformed, try to get the
+      // element's parent element and fallback to document.
+      while (ret && ret !== doc && !isTransformed(ret)) {
 
-        offsetParent = offsetParent.parentElement || doc;
+        ret = ret.parentElement || doc;
 
       }
 
-      return offsetParent === doc ? win : offsetParent;
+      return ret === doc ? win : ret;
 
     }
-    // If the element is anything but fixed.
+    // If the element is absolute positioned.
     else {
 
-      // As long as the offset parent is an element, is static and is not transformed, try to get
-      // the element's parent element and fallback to document.
-      while (offsetParent && offsetParent !== doc && getStyle(offsetParent, 'position') === 'static' && !isTransformed(offsetParent)) {
+      // As long as the containing block is an element, is static and is not transformed, try to
+      // get the element's parent element and fallback to document.
+      while (ret && ret !== doc && getStyle(ret, 'position') === 'static' && !isTransformed(ret)) {
 
-        offsetParent = offsetParent.parentElement || doc;
+        ret = ret.parentElement || doc;
 
       }
 
-      return offsetParent;
+      return ret;
 
     }
 
@@ -437,22 +463,22 @@
     offsetY = typeof offsetY === 'string' && offsetY.indexOf('%') > -1 ? toFloat(offsetY) / 100 * eRect.height : toFloat(offsetY);
 
     // Calculate element's new position (left/top coordinates).
-    ret.left = getPlacePosition(options.elementJoint[0] + options.targetJoint[0], tRect.width, tRect.left, eRect.width, eRect.left, offsetX);
-    ret.top = getPlacePosition(options.elementJoint[1] + options.targetJoint[1], tRect.height, tRect.top, eRect.height, eRect.top, offsetY);
+    ret.left = getPlacePosition(options.position[0] + options.position[2], tRect.width, tRect.left, eRect.width, eRect.left, offsetX);
+    ret.top = getPlacePosition(options.position[1] + options.position[3], tRect.height, tRect.top, eRect.height, eRect.top, offsetY);
 
-    // If container is defined, let's add overlap data and handle collisions.
-    if (options.container && options.onCollision) {
+    // If contain is defined, let's add overlap data and handle collisions.
+    if (options.contain) {
 
       // Update element offset data to match the newly calculated position.
       eRect.left += ret.left;
       eRect.top += ret.top;
 
       // Get container overlap data.
-      var containerOverlap = getOverlap(eRect, options.container);
+      var containerOverlap = getOverlap(eRect, options.contain.within);
 
       // Get adjusted data after collision handling.
-      ret.left += getPlaceCollision(options.onCollision, containerOverlap);
-      ret.top += getPlaceCollision(options.onCollision, containerOverlap, 1);
+      ret.left += getPlaceCollision(options.contain.onCollision, containerOverlap);
+      ret.top += getPlaceCollision(options.contain.onCollision, containerOverlap, 1);
 
     }
 
@@ -511,28 +537,27 @@
   }
 
   /**
-   * Detect if the browser supports the W3C specification of the transform rendering model where a
-   * transformed element creates a local coordinate system. All modern browsers follow the spec
-   * mostly, but there is one specific case where IE (9-11) strays from the spec: IE allows fixed
-   * elements to bypass the local coordinate system of transformed parent elements. This actually
-   * makes a lot of sense and feels more intuitive to use than spec compliant implementations.
-   * However, opinions aside, this needs to be tested in order for this library to provide correct
-   * results. https://www.w3.org/TR/css3-2d-transforms/#transform-rendering
+   * Detects if transformed elements leak fixed elements. According W3C transform rendering spec a
+   * transformed element should contain even fixed elements. Meaning that fixed elements are
+   * positioned relative to the closest transformed ancestor element instead of window. However, not
+   * every ot browser follows the spec (IE and older Firefox). So we need to test it.
+   * https://www.w3.org/TR/css3-2d-transforms/#transform-rendering
    *
    * @private
    * @returns {Boolean}
+   *   - Returns true if transformed elements leak fixed elements, false otherwise.
    */
-  function testTELCS() {
+  function doesTransformLeakFixed() {
 
     if (!settings.transform) {
 
-      return false;
+      return true;
 
     }
 
     var outer = doc.createElement('div');
     var inner = doc.createElement('div');
-    var leftUntransformed;
+    var leftNotTransformed;
     var leftTransformed;
 
     setStyles(outer, {
@@ -558,12 +583,12 @@
 
     outer.appendChild(inner);
     body.appendChild(outer);
-    leftUntransformed = inner.getBoundingClientRect().left;
+    leftNotTransformed = inner.getBoundingClientRect().left;
     outer.style[settings.transform.propName] = 'translateZ(0)';
     leftTransformed = inner.getBoundingClientRect().left;
     body.removeChild(outer);
 
-    return leftTransformed !== leftUntransformed;
+    return leftTransformed === leftNotTransformed;
 
   }
 
@@ -920,7 +945,7 @@
     edge = edge || 'border';
 
     var position = getStyle(el, 'position');
-    var offset = position === 'static' || position === 'relative' ? getOffset(el, edge) : getOffset(getOffsetParent(el) || doc, 'padding');
+    var offset = position === 'static' || position === 'relative' ? getOffset(el, edge) : getOffset(getContainingBlock(el) || doc, 'padding');
 
     if (position === 'static') {
 
@@ -1008,59 +1033,79 @@
   function getPlaceOptions(options) {
 
     // Merge user options with default options.
-    options = mergeObjects(options ? [settings.placeDefaultOptions, options] : [settings.placeDefaultOptions]);
+    var opts = mergeObjects(options ? [settings.placeDefaultOptions, options] : [settings.placeDefaultOptions]);
 
-    var optionNames = ['element', 'target', 'elementJoint', 'targetJoint', 'offsetX', 'offsetY', 'container', 'onCollision'];
-    var name;
-    var val;
+    // Sanitize position option. Transform to array with shortened string values.
+    var position = opts.position;
+    opts.position = position = typeof position === 'string' ? position.split(' ') : position;
+    for (var i = 0; i < position.length; i++) {
+      position[i] = position[i].charAt(0);
+    }
 
-    // Loop through all the options.
-    for (var i = 0; i < 7; i++) {
+    // Sanitize contain option. First of all make sure that the contain option and contain.within
+    // option are both objects and not null.
+    var contain = opts.contain;
+    if (contain && typeof contain === 'object' && contain.within && typeof contain.within === 'object') {
 
-      name = optionNames[i];
-      val = options[name];
+      var collision = contain.onCollision;
+      var collisionType = typeof collision;
+      var left = 'none';
+      var right = 'none';
+      var top = 'none';
+      var bottom = 'none';
 
-      // If option is declared as a function let's execute it and continue processing.
-      if (typeof val === 'function') {
+      // onCollision string value is always used for all sides.
+      if (collisionType === 'string') {
 
-        val = options[name] = val();
+        left = right = top = bottom = collision;
+
+      }
+      // onCollision object value can have properties that present a side (left/right/top/bottom) or
+      // an axis (x/y). Always try to use the side value first and then fallback to axis value. If
+      // all else fails fallback to "none".
+      else if (collisionType === 'object') {
+
+        left = collision.left || collision.x || left;
+        right = collision.right || collision.x || right;
+        top = collision.top || collision.y || top;
+        bottom = collision.bottom || collision.y || bottom;
 
       }
 
-      // Sanitize positions.
-      if (name === 'elementJoint' || name === 'targetJoint') {
+      // If one side (or more) has a value other than "none" we know that the collision option might
+      // have an effect on the positioning. So let's update the options object with the new data.
+      if (left !== 'none' || right !== 'none' || top !== 'none' || bottom !== 'none') {
 
-        val = typeof val === 'string' ? val.split(' ') : val;
-        val[0] = val[0].charAt(0);
-        val[1] = val[1].charAt(0);
-        options[name] = val;
+        opts.contain.onCollision = {
+          left: left,
+          right: right,
+          top: top,
+          bottom: bottom
+        };
+
+      }
+      // Otherwise we know that the collision will not have an effect.
+      else {
+
+        opts.contain = null;
 
       }
 
     }
+    else {
 
-    // If onCollision option is a string value map it into an object.
-    if (typeof options.onCollision === 'string') {
-
-      val = options.onCollision.split(' ');
-      val[1] = val[1] || val[0];
-      options.onCollision = {
-        left: val[0],
-        right: val[0],
-        top: val[1],
-        bottom: val[1]
-      };
+      opts.contain = null;
 
     }
 
-    return options;
+    return opts;
 
   }
 
   /**
    * Returns the horizontal or vertical base position of an element relative to the target element.
    * In other words, this function returns the left and top CSS values which should be set as to the
-   * target element in order to position it according to the joint arguments.
+   * target element in order to position it according to the desired position.
    *
    * @private
    * @param {Placement} placement
@@ -1106,7 +1151,7 @@
 
     var ret = 0;
     var push = 'push';
-    var forcePush = 'forcePush';
+    var forcePush = 'forcepush';
     var sideA = isVertical ? 'top' : 'left';
     var sideB = isVertical ? 'bottom' : 'right';
     var sideACollision = collision[sideA];
@@ -1244,25 +1289,38 @@
    */
 
   /**
-   * All properties accepts the following values: "push", "forcePush" and "none".
-   *
-   * @typedef {Object} Collision
-   * @property {String} [left='push']
-   * @property {String} [right='push']
-   * @property {String} [top='push']
-   * @property {String} [bottom='push']
-   */
-
-  /**
    * @typedef {Object} PlaceOptions
    * @param {Array|Document|Element|Window} element
    * @property {Array|Document|Element|Window|Rectangle} target
-   * @property {String} [elementJoint='left top']
-   * @property {String} [targetJoint='left top']
+   * @property {String} [position='left top left top']
    * @property {Number} [offsetX=0]
    * @property {Number} [offsetY=0]
-   * @property {?Array|Document|Element|Window|Rectangle} [container=null]
-   * @property {?Collision} [onCollision]
+   * @property {?Containment} [contain=null]
+   */
+
+  /**
+   * All properties accepts the following values: "push", "forcepush" and "none".
+   *
+   * @typedef {Object} Containment
+   * @property {?Array|Document|Element|Window|Rectangle} within
+   * @property {?Collision|String} onCollision
+   */
+
+  /**
+   * All properties accepts the following values: "push", "forcepush" and "none". The properties
+   * left, right, top and bottom are used to define the collision action that should be called when
+   * the positioned element overlaps the container element from the respective side. Alternatively
+   * you can also use the properties x and y to define the collision action per axis. If you mix
+   * side collision properties with axis collision properties remember that the side collision
+   * overwrites the axis collision.
+   *
+   * @typedef {Object} Collision
+   * @property {String} [left='none']
+   * @property {String} [right='none']
+   * @property {String} [top='none']
+   * @property {String} [bottom='none']
+   * @property {String} [x='none']
+   * @property {String} [y='none']
    */
 
   /**
@@ -1292,7 +1350,7 @@
     height: getHeight,
     offset: getOffset,
     rect: getRect,
-    offsetParent: getOffsetParent,
+    containingBlock: getContainingBlock,
     distance: getDistance,
     intersection: getIntersectionMultiple,
     place: getPlace,

@@ -622,108 +622,86 @@ function testSuite(targetTests) {
   });
 
   //
-  // Tests - offset parent
+  // Tests - containing block
   //
 
-  QUnit.module('offsetParent');
+  QUnit.module('containingBlock');
 
-  QUnit.test('#critical: Should return the provided element\'s offset parent.', function (assert) {
+  QUnit.test('#critical: Document\'s containing block should be null.', function (assert) {
 
-    assert.expect(16);
+    assert.expect(1);
 
-    setStyles(fixture, {
-      position: 'absolute',
-      width: '100px',
-      height: '100px',
-      left: '0px',
-      top: '0px'
-    });
-
-    setStyles(element, {
-      position: 'absolute',
-      width: '10px',
-      height: '10px',
-      left: '0px',
-      top: '0px'
-    });
-
-    setStyles(document.body, {
-      position: 'relative'
-    });
-
-    var positions = {
-      a: 'static',
-      b: 'relative',
-      c: 'absolute',
-      d: 'fixed'
-    };
-
-    forIn(positions, function (elementPosition) {
-
-      setStyles(element, {
-        position: elementPosition
-      });
-
-      forIn(positions, function (fixturePosition) {
-
-        setStyles(fixture, {
-          position: fixturePosition
-        });
-
-        assert.strictEqual(
-          mezr.offsetParent(element),
-          elementPosition === 'fixed' ? window : fixturePosition === 'static' ? document.body : fixture,
-          elementPosition + ' element with ' + fixturePosition + ' parent'
-        );
-
-      });
-
-    });
+    assert.strictEqual(mezr.containingBlock(document), null);
 
   });
 
-  QUnit.test('#critical: Special scenarios.', function (assert) {
+  QUnit.test('#critical: Window\'s containing block should be document.', function (assert) {
 
-    assert.expect(8);
+    assert.expect(1);
 
-    setStyles(fixture, {
-      position: 'absolute',
-      width: '100px',
-      height: '100px',
-      left: '0px',
-      top: '0px'
-    });
+    assert.strictEqual(mezr.containingBlock(window), document);
+
+  });
+
+  QUnit.test('#critical: Static element\'s containing block should be null.', function (assert) {
+
+    assert.expect(1);
 
     setStyles(element, {
-      position: 'absolute',
-      width: '10px',
-      height: '10px',
-      left: '0px',
-      top: '0px'
+      position: 'static'
     });
 
-    assert.strictEqual(mezr.offsetParent(document), null, 'mezr.offsetParent(document) -> null');
-    assert.strictEqual(mezr.offsetParent(window), document, 'mezr.offsetParent(window) -> document');
-    assert.strictEqual(mezr.offsetParent(document.documentElement), document, 'mezr.offsetParent(document.documentElement) -> document');
+    assert.strictEqual(mezr.containingBlock(element), null);
 
-    setStyles(document.documentElement, {position: 'static'});
-    assert.strictEqual(mezr.offsetParent(document.body), document, 'mezr.offsetParent(document.body) -> document (when documentElement is static)');
+  });
 
-    setStyles(document.documentElement, {position: 'relative'});
-    assert.strictEqual(mezr.offsetParent(document.body), document.documentElement, 'mezr.offsetParent(document.body) -> documentElement (when documentElement is relative)');
+  QUnit.test('#critical: Relative element\'s containing block should be the element itself.', function (assert) {
 
-    setStyles(document.documentElement, {position: 'absolute'});
-    assert.strictEqual(mezr.offsetParent(document.body), document.documentElement, 'mezr.offsetParent(document.body) -> documentElement (when documentElement is absolute)');
+    assert.expect(1);
+
+    setStyles(element, {
+      position: 'relative'
+    });
+
+    assert.strictEqual(mezr.containingBlock(element), element);
+
+  });
+
+  QUnit.test('#critical: Absolute element\'s containing block should be the closest positioned and/or transformed ancestor, and fallback to document if all ancestors are static.', function (assert) {
+
+    assert.expect(5);
 
     setStyles(document.documentElement, {position: 'fixed'});
-    assert.strictEqual(mezr.offsetParent(document.body), document.documentElement, 'mezr.offsetParent(document.body) -> documentElement (when documentElement is fixed)');
+    setStyles(document.body, {position: 'relative'});
+    setStyles(fixture, {position: 'absolute'});
+    setStyles(element, {position: 'absolute'});
+
+    assert.strictEqual(mezr.containingBlock(element), fixture);
+
+    setStyles(fixture, {position: 'static'});
+    assert.strictEqual(mezr.containingBlock(element), document.body);
+
+    setStyles(document.body, {position: 'static'});
+    assert.strictEqual(mezr.containingBlock(element), document.documentElement);
 
     setStyles(document.documentElement, {position: 'static'});
-    setStyles(document.body, {position: 'static'});
-    setStyles(fixture, {position: 'static'});
-    setStyles(element, {position: 'static'});
-    setStyles(elementInner, {position: 'static'});
-    assert.strictEqual(mezr.offsetParent(elementInner), document, 'mezr.offsetParent(element) -> document (when all the parent elements are static)');
+    assert.strictEqual(mezr.containingBlock(element), document);
+
+    setStyles(document.documentElement, {
+      webkitTransform: 'translateX(0)',
+      mozTransform: 'translateX(0)',
+      msTransform: 'translateX(0)',
+      oTransform: 'translateX(0)',
+      transform: 'translateX(0)'
+    });
+    assert.strictEqual(mezr.containingBlock(element), document.documentElement);
+
+  });
+
+  QUnit.test('#critical: Fixed element\'s containing block should be the closest transformed ancestor or window.', function (assert) {
+
+    assert.expect(1);
+    assert.strictEqual(1,1);
 
   });
 
@@ -833,17 +811,10 @@ function testSuite(targetTests) {
     assert.deepEqual(mezr._settings.placeDefaultOptions, {
       element: null,
       target: null,
-      elementJoint: 'left top',
-      targetJoint: 'left top',
+      position: 'left top left top',
       offsetX: 0,
       offsetY: 0,
-      container: null,
-      onCollision: {
-        left: 'push',
-        right: 'push',
-        top: 'push',
-        bottom: 'push'
-      }
+      contain: null
     });
 
   });
@@ -1094,8 +1065,7 @@ function testSuite(targetTests) {
       var result = mezr.place({
         element: [element, elementEdge],
         target: [anchor, anchorEdge],
-        elementJoint: my,
-        targetJoint: at
+        position: my + ' ' + at
       });
 
       // Get the expected result.

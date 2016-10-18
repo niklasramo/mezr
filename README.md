@@ -4,10 +4,11 @@ Mezr is a lightweight JavaScript utility library for measuring and comparing the
 
 **In a nutshell**
 
-* Calculate the document's, the window's or an element's width, height, offsets and [DOMCLientRect](https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XPCOM/Reference/Interface/nsIDOMClientRect) consistently while specifying which parts (paddings, borders, margins, scrollbars) should be included in the calculations.
-* Determine an element's *true* offset parent.
-* Calculate the intersection area of multiple elements.
+* Calculate document's, window's and element's width, height and offsets consistently.
+* Get element's [containing block](https://www.w3.org/TR/CSS2/visuren.html#containing-block).
 * Position elements relative to other elements.
+* Calculate the intersection area of multiple elements.
+* Calculate distance between two elements.
 * Lightweight (2.97kb gzipped).
 * Cross-browser (IE9+).
 * No dependencies.
@@ -54,10 +55,6 @@ rect.right = rect.left + rect.width;
 rect.bottom = rect.top + rect.height;
 ```
 
-Getting the width, height and offsets of elements, document and window consistently in modern browsers (IE9+) is not an easy job. Although [`elem.getBoundingClientRect()`](https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect) gets you pretty far it sometimes is not enough. Mezr provides a simple and cohesive API that allows you to fetch the dimensions, offsets and offset parent (among other things) of any element, window and the document.
-
-A [good](http://meyerweb.com/eric/thoughts/2011/09/12/un-fixing-fixed-elements-with-css-transforms/) [example](https://bugs.chromium.org/p/chromium/issues/detail?id=20574) of browser differences is the way fixed elements are treated when transforms are applied to the element's parent(s). According to W3C [transform rendering model](https://www.w3.org/TR/css3-2d-transforms/#transform-rendering) specification a transformed element creates a new local coordinate system, which has a possibly little surprising effect on descendant fixed-positioned elements — they are no longer fixed to the window but instead to the closest transformed ancestor element. However, not all browsers (any IE and older Firefox for example) respect this specification, which causes problems for developers. Additionally, [elem.offsetParent](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/offsetParent) does not consider an unpositioned (static) transformed element as an offset parent. As of version 0.5.0 Mezr automatically detects browsers behavior related to these issue and adjusts the internal algorithms to provide correct results for [.offsetParent()](#offsetparent-el-) and  [.place()](#place-options-) methods.
-
 ## Getting started
 
 1. Include [mezr.js](https://raw.githubusercontent.com/niklasramo/mezr/0.5.0/mezr.js) within the `body` element on your site. Mezr needs to access the body element, because it does some browser behaviour checking on initialization and will throw an error if `document.body` is not available.
@@ -65,7 +62,7 @@ A [good](http://meyerweb.com/eric/thoughts/2011/09/12/un-fixing-fixed-elements-w
   ```html
   <html>
     <body>
-      <script src="mezr.js"></script>>
+      <script src="mezr.js"></script>
     </body>
   </html>
   ```
@@ -115,8 +112,7 @@ A [good](http://meyerweb.com/eric/thoughts/2011/09/12/un-fixing-fixed-elements-w
   mezr.place({
     element: elemA,
     target: elemB,
-    elementJoint: 'left top',
-    targetJoint: 'center center'
+    position: 'left top center center'
   });
   ```
 
@@ -127,14 +123,14 @@ Document width with viewport scrollbar.
 ```javascript
 // No jQuery alternative.
 mezr.width(document);
-mezr.width(document. "scroll");
+mezr.width(document. 'scroll');
 ```
 
 Document width without viewport scrollbar.
 
 ```javascript
 // jQuery -> $(document).width()
-mezr.width(document, "content");
+mezr.width(document, 'content');
 ```
 
 Window width with viewport scrollbar (handy for working with media queries).
@@ -149,43 +145,43 @@ Window width without viewport scrollbar.
 
 ```javascript
 // jQuery -> $(window).width()
-mezr.width(window, "content");
+mezr.width(window, 'content');
 ```
 
 Element's inner width. Note that Mezr's implementation differs slightly from jQuery's `.width()` and should not be used as a drop in replacement. If the element has vertical scrollbar Mezr never includes it in the result unlike jQuery. In other words jQuery version returns the element's *potential* inner width whereas Mezr version returns the element's *true* inner width.
 
 ```javascript
 // No jQuery alternative
-mezr.width(elem, "content");
+mezr.width(elem, 'content');
 ```
 
-Element's width with paddings, but without vertical scollbar's width (if it exists). The same stuff applies to this example as the one above. jQuery's `.innerWidth()` method returns identical values as Mezr's "padding" width as long as the element does not have a vertical scrollbar.
+Element's width with paddings, but without vertical scollbar's width (if it exists). The same stuff applies to this example as the one above. jQuery's `.innerWidth()` method returns identical values as Mezr's padding-width as long as the element does not have a vertical scrollbar.
 
 ```javascript
 // No jQuery alternative
-mezr.width(elem, "padding");
+mezr.width(elem, 'padding');
 ```
 
 Element's width with paddings and vertical scollbar's width (if it exists).
 
 ```javascript
 // jQuery -> $(elem).innerWidth()
-mezr.width(elem, "scroll");
+mezr.width(elem, 'scroll');
 ```
 
 Element's width with paddings, borders and vertical scollbar's width (if it exists).
 
 ```javascript
 // jQuery -> $(elem).outerWidth()
-mezr.width(elem, "border");
+mezr.width(elem, 'border');
 mezr.width(elem);
 ```
 
-Element's width with paddings, borders margins and vertical scollbar's width (if it exists). Note that negative margins are not subtracted from the width, they are just ignored. This is by design. Visually, negative margins do not reduce the element's width so it makes sense to ignore them in this scenario. jQuery's `.outerWidth(true)` method returns exactly the same results as "margin" width with the exception that it does subtract negative margins from the width.
+Element's width with paddings, borders margins and vertical scollbar's width (if it exists). Note that negative margins are not subtracted from the width, they are just ignored. This is by design. Visually, negative margins do not reduce the element's width so it makes sense to ignore them in this scenario. jQuery's `.outerWidth(true)` method returns exactly the same results as margin-width with the exception that it does subtract negative margins from the width.
 
 ```javascript
 // No jQuery alternative
-mezr.width(elem, "margin");
+mezr.width(elem, 'margin');
 ```
 
 ## API v0.5.0
@@ -194,7 +190,7 @@ mezr.width(elem, "margin");
 * [.height( el, [ edge ] )](#height-el--edge--)
 * [.offset( el, [ edge ] )](#offset-el--edge--)
 * [.rect( el, [ edge ] )](#rect-el--edge--)
-* [.offsetParent( el )](#offsetparent-el-)
+* [.containingBlock( el, [ fakePosition ] )](#containingblock-el--fakePosition--)
 * [.distance( elemA, elemB )](#distance-elema-elemb-)
 * [.intersection( ...el )](#intersection-el-)
 * [.place( options )](#place-options-)
@@ -211,11 +207,11 @@ Returns the width of an element in pixels. Accepts also the window object (for g
   * Accepts any DOM element, the document object or the window object.
 * **edge** &nbsp;&mdash;&nbsp; *string*
   * Defines which edge (content, padding, scroll, border, margin) of the element is considered as its outer edge.
-  * Default: `"border"`
-  * Allowed values: `"content"`, `"padding"`, `"scroll"`, `"border"`, `"margin"`.
-  * For `window` and `document` objects this argument behaves a bit differently since they cannot have any paddings, borders or margins. Only `"content"` (without vertical scrollbar's width) and `"scroll"` (with vertical scrollbar's width) are effective values. `"padding"` is normalized to `"content"` while `"border"` and `"margin"` are normalized to `"scroll"`.
+  * Default: `'border'`
+  * Allowed values: `'content'`, `'padding'`, `'scroll'`, `'border'`, `'margin'`.
+  * For `window` and `document` objects this argument behaves a bit differently since they cannot have any paddings, borders or margins. Only 'content' (without vertical scrollbar's width) and 'scroll' (with vertical scrollbar's width) are effective values. 'padding' is normalized to 'content' while 'border' and 'margin' are normalized to 'scroll'.
 
-**Returns** &nbsp;&mdash;&nbsp; *number*
+**Returns** &nbsp;&mdash;>&nbsp; *number*
 
 The return value may be fractional when calculating the width of an element. For `window` and `document` objects the value is always an integer though.
 
@@ -232,7 +228,7 @@ mezr.width(document, 'content');
 mezr.width(window, 'scroll'); // or just -> mezr.width(window);
 
 // Window width (without scrollbar).
-mezr.width(window, "content");
+mezr.width(window, 'content');
 
 // Element content width.
 mezr.width(elem, 'content');
@@ -262,11 +258,11 @@ Returns the height of an element in pixels. Accepts also the window object (for 
   * Accepts any DOM element, the document object or the window object.
 * **edge** &nbsp;&mdash;&nbsp; *string*
   * Defines which edge (content, padding, scroll, border, margin) of the element is considered as its outer edge.
-  * Default: `"border"`
-  * Allowed values: `"content"`, `"padding"`, `"scroll"`, `"border"`, `"margin"`.
-  * For `window` and `document` objects this argument behaves a bit differently since they cannot have any paddings, borders or margins. Only `"content"` (without vertical scrollbar's width) and `"scroll"` (with vertical scrollbar's width) are effective values. `"padding"` is normalized to `"content"` while `"border"` and `"margin"` are normalized to `"scroll"`.
+  * Default: `'border'`
+  * Allowed values: `'content'`, `'padding'`, `'scroll'`, `'border'`, `'margin'`.
+  * For `window` and `document` objects this argument behaves a bit differently since they cannot have any paddings, borders or margins. Only 'content' (without vertical scrollbar's width) and 'scroll' (with vertical scrollbar's width) are effective values. 'padding' is normalized to 'content' while 'border' and 'margin' are normalized to 'scroll'.
 
-**Returns** &nbsp;&mdash;&nbsp; *number*
+**Returns** &nbsp;&mdash;>&nbsp; *number*
 
 The return value may be fractional when calculating the height of an element. For `window` and `document` objects the value is always an integer though.
 
@@ -305,7 +301,7 @@ mezr.height(elem, 'margin');
 
 ### `.offset( el, [ edge ] )`
 
-Returns the element's "offsets", which in practice means the vertical and horizontal distance between the element's northwest corner and the document's northwest corner. The edge argument controls which layer (content, padding, scroll, border, margin) of the element is considered as the edge of the element for the calculations. For example, if the edge was set to 1 or "padding" the element's margins and borders would be added to the offsets.
+Returns the element's offsets which in practice means the vertical and horizontal distance between the element's northwest corner and the document's northwest corner. The *edge* argument controls which layer (content, padding, scroll, border, margin) of the element is considered as the edge of the element for the calculations. For example, if the edge was set to 'padding' the element's margins and borders would be added to the offsets.
 
 **Parameters**
 
@@ -313,12 +309,12 @@ Returns the element's "offsets", which in practice means the vertical and horizo
   * Accepts any DOM element, the document object or the window object.
 * **edge** &nbsp;&mdash;&nbsp; *boolean*
   * Defines which edge (content, padding, scroll, border, margin) of the element is considered as its outer edge.
-  * Default: `"border"`
-  * Allowed values: `"content"`, `"padding"`, `"scroll"`, `"border"`, `"margin"`.
+  * Default: `'border'`
+  * Allowed values: `'content'`, `'padding'`, `'scroll'`, `'border'`, `'margin'`.
   * This argument has no effect for `window` and `document`.
-  * Note that `"padding"` and `"scroll"` values produce identical results. The `"scroll"` value is only allowed here in order to make this method work in sync with [`.width()`](#width) and [`.height()`](#height) methods.
+  * Note that 'padding' and 'scroll' values produce identical results. The 'scroll' value is only allowed here in order to make this method work in sync with [`.width()`](#width) and [`.height()`](#height) methods.
 
-**Returns** &nbsp;&mdash;&nbsp; *object*
+**Returns** &nbsp;&mdash;>&nbsp; *object*
 
 * **obj.left** &nbsp;&mdash;&nbsp; *number*
   * The element's left offset in pixels (fractional).
@@ -348,7 +344,7 @@ mezr.offset(elem, 'margin');
 
 ### `.rect( el, [ edge ] )`
 
-Returns an object containing the provided element's dimensions and offsets. This is basically a helper method for calculating an element's dimensions and offsets simultaneously. Mimics the native (getBoundingClientRect[https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect] method with the added bonus of allowing to provide the "edge" of the element.
+Returns an object containing the provided element's dimensions and offsets. This is basically a helper method for calculating an element's dimensions and offsets simultaneously. Mimics the native (getBoundingClientRect[https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect] method with the added bonus of allowing to provide the *edge* of the element.
 
 **Parameters**
 
@@ -356,12 +352,12 @@ Returns an object containing the provided element's dimensions and offsets. This
   * Accepts any DOM element, the document object or the window object.
 * **edge** &nbsp;&mdash;&nbsp; *boolean*
   * Defines which edge (content, padding, scroll, border, margin) of the element is considered as its outer edge.
-  * Default: `"border"`
-  * Allowed values: `"content"`, `"padding"`, `"scroll"`, `"border"`, `"margin"`.
+  * Default: `'border'`
+  * Allowed values: `'content'`, `'padding'`, `'scroll'`, `'border'`, `'margin'`.
   * This argument has no effect for `window` and `document`.
-  * Note that `"padding"` and `"scroll"` values produce identical results. The `"scroll"` value is only allowed here in order to make this method work in sync with [`.width()`](#width) and [`.height()`](#height) methods.
+  * Note that 'padding' and 'scroll' values produce identical results. The 'scroll' value is only allowed here in order to make this method work in sync with [`.width()`](#width) and [`.height()`](#height) methods.
 
-**Returns** &nbsp;&mdash;&nbsp; *object*
+**Returns** &nbsp;&mdash;>&nbsp; *object*
 
 * **obj.width** &nbsp;&mdash;&nbsp; *number*
   * The width of the element in pixels (fractional).
@@ -388,23 +384,41 @@ mezr.rect(elem, 'margin');
 
 &nbsp;
 
-### `.offsetParent( el )`
+### `.containingBlock( el, [ fakePosition ] )`
 
-Returns the element's offset parent. This function works in the same manner as the native elem.offsetParent method with a few tweaks and logic changes. Additionally this function recognizes transformed elements and is aware of their local coordinate system. The function accepts the window object and the document object in addition to DOM elements. Document object is considered as the base offset point against which the element/window offsets are compared to. This in turn means that the document object does not have an offset parent and the the function returns null if document is provided as the argument. Document is also considered as the window's offset parent. Window is considered as the root offset parent of all fixed elements. Root and body elements are treated equally with all other DOM elements. For example body's offset parent is the root element if root element is positioned, but if the root element is static the body's offset parent is the document object.
+Returns the element's [containing block](https://www.w3.org/TR/CSS2/visuren.html#containing-block), which is considered to be the closest ancestor element (or window, or document, or the target element itself) that the target element's positioning is relative to. In other words, containing block is the element the target element's CSS properties *left*, *right*, *top* and *bottom* are relative to. This function is quite similar to the native elem.offsetParent read-only property, but there are enough differences to justify the existence of this function.
+
+**The logic**
+
+ * Document is considered to be the root containing block of all elements and the window.
+ * Getting the document's containing block will return null.
+ * Static element does not have a containing block since setting values to the *left*, *right*, *top* and *bottom* CSS properties does nat have any effect on it. Thus, getting the containing block of a static element will return null.
+ * Relative element's containing block is always the element itself.
+ * Fixed element's containing block is always the closest transformed ancestor or window if the element does not have any transformed ancestors. An exception is made for browsers which allow fixed elements to bypass the W3C specification of transform rendering. In those browsers fixed element's containing block is always the window.
+ * Absolute element's containing block is the closest ancestor element that is transformed or positioned (any element which is not static), or document if no positioned or transformed ancestor is not found.
+ * Root element and body element are considered as equals with all other elements and are treated equally with all other elements.
 
 **Parameters**
 
 * **el** &nbsp;&mdash;&nbsp; *element / window / document*
   * Accepts any DOM element, the document object or the window object.
 
-**Returns** &nbsp;&mdash;&nbsp; *element / null*
-
-The return value is `null` if document object is provided as the element.
+**Returns** &nbsp;&mdash;>&nbsp; *element / window / document / null*
 
 **Examples**
 
 ```javascript
-mezr.offsetParent(elem);
+// Get element's containing block.
+mezr.containingBlock(elem);
+
+// Get element's containing block with faked position value.
+mezr.containingBlock(elem, 'fixed');
+
+// Static behaviour.
+mezr.containingBlock(document); // always null
+mezr.containingBlock(window); // always document
+mezr.containingBlock(elem, 'static'); // always null
+mezr.containingBlock(elem, 'relative'); // always elem
 ```
 
 &nbsp;
@@ -416,13 +430,13 @@ Returns the distance between two elements (in pixels) or `-1` if the elements ov
 **Parameters**
 
 * **elemA** &nbsp;&mdash;&nbsp; *element / array / object*
-  * Element: the element's edge is considered to be "border".
+  * Element: the element's edge is considered to be 'border'.
   * Array: allows one to control which layer (content, padding, scroll, border, margin) is considered as the element's edge, e.g. `[someElem, 'content']`.
   * Object: must have width, height, left and top properties with numeric values (e.g. `{width: 10, height: 10, left: 10, top: -10}`).
 * **elemB** &nbsp;&mdash;&nbsp; *element / array / object*
   * Same specs as with elemA.
 
-**Returns** &nbsp;&mdash;&nbsp; *number*
+**Returns** &nbsp;&mdash;>&nbsp; *number*
 
 If elements/objects overlap the method returns `-1`. Otherwise the method returns the distance between the elements/objects.
 
@@ -456,11 +470,11 @@ Detect if two or more elements overlap and calculate the possible intersection a
 **Parameters**
 
 * **el** &nbsp;&mdash;&nbsp; *array / element / object*
-  * Element: the element's edge is considered to be "border".
+  * Element: the element's edge is considered to be 'border'.
   * Array: allows one to control which layer (content, padding, scroll, border, margin) is considered as the element's edge, e.g. `[someElem, 'content']`.
   * Object: must have width, height, left and top properties with numeric values (e.g. `{width: 10, height: 20, left: 15, top: -10}`).
 
-**Returns** &nbsp;&mdash;&nbsp; *null / object*
+**Returns** &nbsp;&mdash;>&nbsp; *null / object*
 
 In case no the provided elements/objects do not overlap the method returns `null`. Otherwise the intersection area's data (object) is returned with the following properties:
 
@@ -519,42 +533,43 @@ The *options* argument should be an object. You may configure it with the follow
 * **target** &nbsp;&mdash;&nbsp; *element / window / document / array / object*
   * Defines which element the element is positioned relative to.
   * Default: `null`
-  * Element: the element's edge is considered to be "border".
+  * Element: the element's edge is considered to be 'border'.
   * Array: allows one to control which layer (content, padding, scroll, border, margin) is considered as the element's edge, e.g. `[someElem, 'content']`.
   * Object: must have width, height, left and top properties with numeric values (e.g. `{width: 10, height: 20, left: 15, top: -10}`).
-* **elementJoint** &nbsp;&mdash;&nbsp; *string*
-  * The joint of the element that should be connected to the target's joint.
-  * Default: `"left top"`
-  * The syntax is "horizontal vertical" .
-    * Describe horizontal position with `"left"`, `"center"` and `"right"`.
-    * Describe vertical position with `"top"`, `"center"` and `"bottom"`.
-* **targetJoint** &nbsp;&mdash;&nbsp; *string*
-  * The joint of the target that should be connected to the element's joint.
-  * Default: `"left top"`
-  * The syntax is "horizontal vertical" .
-    * Describe horizontal position with `"left"`, `"center"` and `"right"`.
-    * Describe vertical position with `"top"`, `"center"` and `"bottom"`.
-* **container** &nbsp;&mdash;&nbsp; *element / window / document / array / object*
-  * Defines an optional container element/area that is used for collision detection. Basically this element/area defines the boundaries for the positioning while the `options.onCollision` defines what to do if the element is about to be positioned past the boundaries.
-  * Default: `null`
-  * Element: the element's edge is considered to be "border".
-  * Array: allows one to control which layer (content, padding, scroll, border, margin) is considered as the element's edge, e.g. `[someElem, 'content']`.
-  * Object: must have width, height, left and top properties with numeric values (e.g. `{width: 10, height: 20, left: 15, top: -10}`).
-* **onCollision** &nbsp;&mdash;&nbsp; *string / object / null*
-  * Defines how the collisions are handled per each side when a container element/area (`options.container`) is defined. The option expects an object that has left, right, top and bottom properties set, representing the sides of the target element. Alternatively you can provide a string value which will be normalized to an object automatically. For example, `"push"` will become `{left: 'push', right: 'push', top: 'push', bottom: 'push'}` and `"push none"` will become `{left: 'push', right: 'push', top: 'none', bottom: 'none'}`.
-  * Default: `{left: 'push', right: 'push', top: 'push', bottom: 'push'}`
-  * Acceptable values for each side are `"none"`, `"push"` and `"forcePush"`.
-    * `"none"` will ignore containment for the specific side.
-    * `"push"` tries to keep the targeted side of the target element within the container element's boundaries.
-    * If the container element is smaller than the target element and you want to make sure that a specific side will always be pushed fully inside the container element's area you can use `"forcePush"`.
+* **position** &nbsp;&mdash;&nbsp; *string*
+  * Define the attachment joint.
+  * Default: `'left top left top'`
+  * The syntax is 'elementX elementY targetX targetY' .
+    * Describe horizontal position with `'left'`, `'center'` and `'right'`.
+    * Describe vertical position with `'top'`, `'center'` and `'bottom'`.
 * **offsetX** &nbsp;&mdash;&nbsp; *number / string*
-  * An optional horizontal offset in pixels or in percentages. A number is always considered as a pixel value. A string is considered as a percentage value when it contains '%', e.g. `"50%"`. The percentage values are relative to the target element's width. For example if the target element's width is 50 pixels a value of `"100%"` would push the element 50 pixels to the right.
+  * An optional horizontal offset in pixels or in percentages. A number is always considered as a pixel value. A string is considered as a percentage value when it contains '%', e.g. `'50%'`. The percentage values are relative to the target element's width. For example if the target element's width is 50 pixels a value of `'100%'` would push the element 50 pixels to the right.
   * Default: `0`
 * **offsetY** &nbsp;&mdash;&nbsp; *number / string*
-  * An optional vertical offset in pixels or in percentages. A number is always considered as a pixel value. A string is considered as a percentage value when it contains '%', e.g. `"50%"`. The percentage values are relative to the target element's height. For example if the target element's height is 50 pixels a value of `"100%"` would push down the element 50 pixels.
+  * An optional vertical offset in pixels or in percentages. A number is always considered as a pixel value. A string is considered as a percentage value when it contains '%', e.g. `'50%'`. The percentage values are relative to the target element's height. For example if the target element's height is 50 pixels a value of `'100%'` would push down the element 50 pixels.
   * Default: `0`
+* **contain** &nbsp;&mdash;&nbsp; *null / object*
+  * Defines an optional container element/area that is used for restricting the element's positioning.
+  * Default: `null`
+* **contain.within** &nbsp;&mdash;&nbsp; *element / window / document / array / object*
+  * The container element/area.
+  * Default: `null`
+  * Element: the element's edge is considered to be 'border'.
+  * Array: allows one to control which layer (content, padding, scroll, border, margin) is considered as the element's edge, e.g. `[someElem, 'content']`.
+  * Object: must have width, height, left and top properties with numeric values (e.g. `{width: 10, height: 20, left: 15, top: -10}`).
+* **contain.onCollision** &nbsp;&mdash;&nbsp; *string / object / null*
+  * Defines what to do when the element collides with the container's edges.
+  * Default: `'none'`
+  * For maximum control you can provide an object with four properties: 'left', 'right', 'top' and 'bottom'. Each property represents an edge of the container and each property's value should be one of the predefined actions (see below) which will be called when/if the element's edge collides with the container's respective edge. Here's an example: `{left: 'push', right: 'forcepush', top: 'none', bottom: 'push'}`.
+  * Alternatively you can also just define collision actions per axis: `{x: 'push', y: 'none'}`.
+  * Or you can mix and match edges and axis: `{x: 'push', top: 'none', bottom: 'push'}`.
+  * For minimum configuration you can just provide a single value as a string, e.g. `'push'` which will be used for all edges.
+  * Collision actions:
+    * `'none'`: Ignore containment.
+    * `'push'`: Push the element back within the container, so that it does not overlap the container. If the element is larger than the container and opposite edges both have 'push' action enabled, the element will be positioned so that it overlaps the container an equal amount from both edges.
+    * `'forcepush'`: Identical to 'push', but with one exception: it makes sure that the element's edge is always pushed fully back within the container. This action is only useful when the opposite edge has 'push' action enabled.
 
-**Returns** &nbsp;&mdash;&nbsp; *object*
+**Returns** &nbsp;&mdash;>&nbsp; *object*
 
 * **obj.left** &nbsp;&mdash;&nbsp; *number*
   * The positioned element's left (CSS) property value (fractional).
@@ -573,16 +588,17 @@ The *options* argument should be an object. You may configure it with the follow
 mezr.place({
   element: [elemA, 'content'],
   target: [elemB, 'margin'],
-  elementJoint: 'left top',
-  targetJoint: 'center center',
+  position: 'left top center center',
   offsetX: -5,
   offsetY: '50%',
-  container: [elemC, 'padding'],
-  onCollision: {
-    left: 'forcePush',
-    right: 'push',
-    top: 'none',
-    bottom: 'push'
+  contain: {
+    within: [elemC, 'padding'],
+    onCollision: {
+      left: 'forcepush',
+      right: 'push',
+      top: 'none',
+      bottom: 'push'
+    }
   }
 });
 ```
