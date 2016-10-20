@@ -5,16 +5,6 @@
  * Released under the MIT license
  */
 
-// TODO:
-// -----
-// * onCollision updates
-//   -> Allow using a function for maximum extendibility.
-//   -> New collision value: "flip".
-//   -> New collision value: "elemX elemY targetX targetY".
-// * Finish up tests.
-// * Perf and size optimizations.
-// * Review code and comments, review readme.
-
 (function (global, factory) {
 
   if (typeof define === 'function' && define.amd) {
@@ -380,10 +370,11 @@
    * @public
    * @param {Array|Document|Element|Window|Rectangle} a
    * @param {Array|Document|Element|Window|Rectangle} b
-   * @returns {?Rectangle}
+   * @returns {?RectangleExtended}
    */
   function getIntersection(a, b) {
 
+    var ret = {};
     var aRect = getRectInternal(a);
     var bRect = getRectInternal(b);
     var overlap = getOverlap(aRect, bRect);
@@ -391,12 +382,16 @@
     var intHeight = max(aRect.height + min(overlap.top, 0) + min(overlap.bottom, 0), 0);
     var hasIntersection = intWidth > 0 && intHeight > 0;
 
-    return !hasIntersection ? null : {
-      width: intWidth,
-      height: intHeight,
-      left: aRect.left + abs(min(overlap.left, 0)),
-      top: aRect.top + abs(min(overlap.top, 0))
-    };
+    if (hasIntersection) {
+      ret.width = intWidth;
+      ret.height = intHeight;
+      ret.left = aRect.left + abs(min(overlap.left, 0));
+      ret.top = aRect.top + abs(min(overlap.top, 0));
+      ret.right = ret.left + ret.width;
+      ret.bottom = ret.top + ret.height;
+    }
+
+    return hasIntersection ? ret : null;
 
   }
 
@@ -584,7 +579,7 @@
     outer.appendChild(inner);
     body.appendChild(outer);
     leftNotTransformed = inner.getBoundingClientRect().left;
-    outer.style[settings.transform.propName] = 'translateZ(0)';
+    outer.style[settings.transform.propName] = 'translateX(0)';
     leftTransformed = inner.getBoundingClientRect().left;
     body.removeChild(outer);
 
@@ -1258,6 +1253,22 @@
    *   - Element's horizontal distance from the left edge of the document.
    * @property {Number} top
    *   - Element's vertical distance from the top edge of the document.
+   * @property {Number} height
+   *   - Element's height.
+   * @property {Number} width
+   *   - Element's width.
+   */
+
+  /**
+   * @typedef {Object} RectangleExtended
+   * @property {Number} left
+   *   - Element's horizontal distance from the left edge of the document.
+   * @property {Number} right
+   *   - Element's horizontal distance from the left edge of the document plus width.
+   * @property {Number} top
+   *   - Element's vertical distance from the top edge of the document
+   * @property {Number} bottom
+   *   - Element's vertical distance from the top edge of the document plus height.
    * @property {Number} height
    *   - Element's height.
    * @property {Number} width

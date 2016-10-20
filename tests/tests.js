@@ -1,5 +1,3 @@
-// TODO: Modularize tests. Study best practices.
-
 function testSuite(targetTests) {
 
   //
@@ -700,8 +698,90 @@ function testSuite(targetTests) {
 
   QUnit.test('#critical: Fixed element\'s containing block should be the closest transformed ancestor or window.', function (assert) {
 
-    assert.expect(1);
-    assert.strictEqual(1,1);
+    assert.expect(5);
+
+    var transformLeaksFixed = (function() {
+
+      var outer = document.createElement('div');
+      var inner = document.createElement('div');
+      var leftNotTransformed;
+      var leftTransformed;
+
+      setStyles(outer, {
+        display: 'block',
+        visibility: 'hidden',
+        position: 'absolute',
+        width: '1px',
+        height: '1px',
+        left: '1px',
+        top: '0',
+        margin: '0'
+      });
+
+      setStyles(inner, {
+        display: 'block',
+        position: 'fixed',
+        width: '1px',
+        height: '1px',
+        left: '0',
+        top: '0',
+        margin: '0'
+      });
+
+      outer.appendChild(inner);
+      document.body.appendChild(outer);
+      leftNotTransformed = inner.getBoundingClientRect().left;
+      setStyles(outer, {
+        webkitTransform: 'translateX(0)',
+        mozTransform: 'translateX(0)',
+        msTransform: 'translateX(0)',
+        oTransform: 'translateX(0)',
+        transform: 'translateX(0)'
+      });
+      leftTransformed = inner.getBoundingClientRect().left;
+      document.body.removeChild(outer);
+
+      return leftTransformed === leftNotTransformed;
+
+    })();
+
+    console.log('transformLeaksFixed: ' + transformLeaksFixed);
+
+    setStyles(document.documentElement, {position: 'fixed'});
+    setStyles(document.body, {position: 'absolute'});
+    setStyles(fixture, {position: 'relative'});
+    setStyles(element, {position: 'fixed'});
+    assert.strictEqual(mezr.containingBlock(element), window);
+
+    setStyles(document.documentElement, {
+      webkitTransform: 'translateX(0)',
+      mozTransform: 'translateX(0)',
+      msTransform: 'translateX(0)',
+      oTransform: 'translateX(0)',
+      transform: 'translateX(0)'
+    });
+    assert.strictEqual(mezr.containingBlock(element), transformLeaksFixed ? window : document.documentElement);
+
+    setStyles(document.body, {
+      webkitTransform: 'translateX(0)',
+      mozTransform: 'translateX(0)',
+      msTransform: 'translateX(0)',
+      oTransform: 'translateX(0)',
+      transform: 'translateX(0)'
+    });
+    assert.strictEqual(mezr.containingBlock(element), transformLeaksFixed ? window : document.body);
+
+    setStyles(fixture, {
+      webkitTransform: 'translateX(0)',
+      mozTransform: 'translateX(0)',
+      msTransform: 'translateX(0)',
+      oTransform: 'translateX(0)',
+      transform: 'translateX(0)'
+    });
+    assert.strictEqual(mezr.containingBlock(element), transformLeaksFixed ? window : fixture);
+
+    setStyles(fixture, {position: 'static'});
+    assert.strictEqual(mezr.containingBlock(element), transformLeaksFixed ? window : fixture);
 
   });
 
@@ -711,16 +791,37 @@ function testSuite(targetTests) {
 
   QUnit.module('intersection');
 
-  QUnit.test('#critical: Should return the intersection area data', function (assert) {
+  QUnit.test('#critical: Should return the intersection area data of two or more objects', function (assert) {
 
-    assert.expect(2);
+    assert.expect(6);
 
     var rectA = {width: 5, height: 5, left: 0, top: 0};
-    var rectB = {width: 5, height: 5, left: 4, top: 4};
+    var rectB = {width: 5, height: 5, left: 3, top: 3};
     var rectC = {width: 5, height: 5, left: 5, top: 5};
+    var rectD = {width: 5, height: 5, left: 4, top: 4};
 
-    assert.deepEqual(mezr.intersection(rectA, rectB), {left: 4, top: 4, height: 1, width: 1}, 'intersection area exists');
-    assert.strictEqual(mezr.intersection(rectA, rectC), null, 'intersection area does not exist');
+    setStyles(fixture, {
+      position: 'absolute',
+      width: '100px',
+      height: '100px',
+      left: '0px',
+      top: '0px'
+    });
+
+    setStyles(element, {
+      position: 'absolute',
+      width: '5px',
+      height: '5px',
+      left: '-3px',
+      top: '-3px'
+    });
+
+    assert.deepEqual(mezr.intersection(rectA, rectB), {left: 3, right: 5, top: 3, bottom: 5, height: 2, width: 2}, 'two objects: intersection area exists');
+    assert.strictEqual(mezr.intersection(rectA, rectC), null, 'two objects: intersection area does not exist');
+    assert.strictEqual(mezr.intersection(rectA, rectB, rectC), null, 'three objects: intersection area does not exist');
+    assert.deepEqual(mezr.intersection(rectA, rectB, rectD), {left: 4, right: 5, top: 4, bottom: 5, height: 1, width: 1}, 'three objects: intersection area exist');
+    assert.deepEqual(mezr.intersection(element, fixture), {left: 0, right: 2, top: 0, bottom: 2, height: 2, width: 2}, 'two elements: intersection area exist');
+    assert.deepEqual(mezr.intersection(element, fixture, rectA), {left: 0, right: 2, top: 0, bottom: 2, height: 2, width: 2}, 'two elements + object: intersection area exist');
 
   });
 
