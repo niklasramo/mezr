@@ -1,3 +1,6 @@
+// TODO
+// - Split tests in to separate files, based on the modules.
+
 function testSuite(targetTests) {
 
   //
@@ -833,10 +836,12 @@ function testSuite(targetTests) {
 
   QUnit.test('#critical: Should return the direct distance between the two objects', function (assert) {
 
-    assert.expect(8);
+    assert.expect(11);
 
     var rectA = {width: 5, height: 5, left: 10, top: 10};
     var rectB = {width: 5, height: 5};
+    var elemA = fixture;
+    var elemB = element;
     var setA = {
       'right top corner': {
         left: 20,
@@ -874,6 +879,23 @@ function testSuite(targetTests) {
       }
     };
 
+    setStyles(fixture, {
+      position: 'absolute',
+      width: '5px',
+      height: '5px',
+      left: '10px',
+      top: '10px'
+    });
+
+    setStyles(element, {
+      position: 'absolute',
+      width: '5px',
+      height: '5px',
+      left: '-10px',
+      top: '-10px'
+    });
+
+    // Test corner-to-corner distances.
     for (var name in setA) {
       var pos = setA[name];
       var expected = Math.sqrt(Math.pow(5, 2) + Math.pow(5, 2));
@@ -882,6 +904,7 @@ function testSuite(targetTests) {
       assert.strictEqual(mezr.distance(rectA, rectB), expected, name);
     }
 
+    // Test edge-to-edge distances.
     for (var name in setB) {
       var pos = setB[name];
       var expected = 5;
@@ -890,13 +913,31 @@ function testSuite(targetTests) {
       assert.strictEqual(mezr.distance(rectA, rectB), expected, name);
     }
 
+    // Make sure the function works with two elements.
+    assert.strictEqual(mezr.distance(elemA, elemB), Math.sqrt(Math.pow(5, 2) + Math.pow(5, 2)), 'with two elements');
+
+    // Make sure the function works with an element and an object.
+    assert.strictEqual(mezr.distance(rectA, elemB), Math.sqrt(Math.pow(5, 2) + Math.pow(5, 2)), 'with element + object');
+
+    // Make sure the method allows defining the edge layer for elements.
+    setStyles(element, {paddingRight: '5px', paddingBottom: '5px'});
+    assert.strictEqual(mezr.distance(rectA, [elemB, 'content']), Math.sqrt(Math.pow(5, 2) + Math.pow(5, 2)), 'with element (edge layer defined) + object');
+
   });
 
   //
-  // Tests
+  // Tests - place
   //
 
   QUnit.module('place');
+
+  // TODO:
+  // - Test that containment pushing and force pushing work as advertised.
+  // - Test that element accepts an element, window or document.
+  // - Test that target accepts an element, window, document or an object.
+  // - Test that contain.within accepts an element, window, document or an object.
+  // - Test that contain does not do anything if within is not set or onCollision is not set.
+  // - Test that positions work as advertised (a light weight version of the monster test).
 
   QUnit.test('#critical: Should always return an object with two properties: "left" and "top".', function (assert) {
 
