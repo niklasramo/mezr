@@ -932,12 +932,10 @@ function testSuite(targetTests) {
   QUnit.module('place');
 
   // TODO:
-  // - Test that containment pushing and force pushing work as advertised.
-  // - Test that element accepts an element, window or document.
-  // - Test that target accepts an element, window, document or an object.
-  // - Test that contain.within accepts an element, window, document or an object.
-  // - Test that contain does not do anything if within is not set or onCollision is not set.
   // - Test that positions work as advertised (a light weight version of the monster test).
+  // - Test that contain does not do anything if within is not set or onCollision is not set.
+  // - Test that contain.within accepts an element, window, document or an object.
+  // - Test that containment pushing and force pushing work as advertised.
 
   QUnit.test('#critical: Should always return an object with two properties: "left" and "top".', function (assert) {
 
@@ -958,6 +956,239 @@ function testSuite(targetTests) {
       offsetY: 0,
       contain: null
     });
+
+  });
+
+  QUnit.test('#critical: Element option should accept an element, document or window.', function (assert) {
+
+    assert.expect(6);
+
+    setStyles(fixture, {
+      position: 'absolute',
+      width: '10000px',
+      height: '10000px',
+      left: '0px',
+      top: '0px'
+    });
+
+    setStyles(element, {
+      position: 'absolute',
+      width: '10px',
+      height: '10px',
+      padding: '10px',
+      left: '0px',
+      top: '0px'
+    });
+
+    // Element.
+    assert.deepEqual(
+      mezr.place({
+        element: element,
+        target: fixture,
+        position: 'left top right bottom'
+      }),
+      {
+        left: 10000,
+        top: 10000
+      },
+      'Element'
+    );
+
+    // Element (array syntax).
+    assert.deepEqual(
+      mezr.place({
+        element: [element, 'content'],
+        target: fixture,
+        position: 'left top right bottom'
+      }),
+      {
+        left: 10000 - 10,
+        top: 10000 - 10
+      },
+      'Element (array syntax)'
+    );
+
+    // Window.
+    assert.deepEqual(
+      mezr.place({
+        element: window,
+        target: fixture,
+        position: 'left top right bottom'
+      }),
+      {
+        left: 10000,
+        top: 10000
+      },
+      'Window'
+    );
+
+    // Window (array syntax).
+    assert.deepEqual(
+      mezr.place({
+        element: [window, 'content'],
+        target: fixture,
+        position: 'left top right bottom'
+      }),
+      {
+        left: 10000,
+        top: 10000
+      },
+      'Window (array syntax)'
+    );
+
+    // Document.
+    assert.deepEqual(
+      mezr.place({
+        element: document,
+        target: fixture,
+        position: 'left top right bottom'
+      }),
+      {
+        left: 10000,
+        top: 10000
+      },
+      'Document'
+    );
+
+    // Document (array syntax).
+    assert.deepEqual(
+      mezr.place({
+        element: [document, 'content'],
+        target: fixture,
+        position: 'left top right bottom'
+      }),
+      {
+        left: 10000,
+        top: 10000
+      },
+      'Document (array syntax)'
+    );
+
+  });
+
+  QUnit.test('#critical: Target option should accept an element, document, window or an object.', function (assert) {
+
+    assert.expect(7);
+
+    setStyles(fixture, {
+      position: 'absolute',
+      width: '10000px',
+      height: '10000px',
+      padding: '10px',
+      left: '0px',
+      top: '0px'
+    });
+
+    setStyles(element, {
+      position: 'absolute',
+      width: '10px',
+      height: '10px',
+      left: '0px',
+      top: '0px'
+    });
+
+    // Element.
+    assert.deepEqual(
+      mezr.place({
+        element: element,
+        target: fixture,
+        position: 'left top right bottom'
+      }),
+      {
+        left: mezr.width(fixture),
+        top: mezr.height(fixture)
+      },
+      'Element'
+    );
+
+    // Element (array syntax).
+    assert.deepEqual(
+      mezr.place({
+        element: element,
+        target: [fixture, 'content'],
+        position: 'left top right bottom'
+      }),
+      {
+        left: mezr.width(fixture, 'content') + 10,
+        top: mezr.height(fixture, 'content') + 10
+      },
+      'Element (array syntax)'
+    );
+
+    // Window.
+    assert.deepEqual(
+      mezr.place({
+        element: element,
+        target: window,
+        position: 'left top right bottom'
+      }),
+      {
+        left: mezr.width(window),
+        top: mezr.height(window)
+      },
+      'Window'
+    );
+
+    // Window (array syntax).
+    assert.deepEqual(
+      mezr.place({
+        element: element,
+        target: [window, 'content'],
+        position: 'left top right bottom'
+      }),
+      {
+        left: mezr.width(window, 'content'),
+        top: mezr.height(window, 'content')
+      },
+      'Window (array syntax)'
+    );
+
+    // Document.
+    assert.deepEqual(
+      mezr.place({
+        element: element,
+        target: document,
+        position: 'left top right bottom'
+      }),
+      {
+        left: mezr.width(document),
+        top: mezr.height(document)
+      },
+      'Document'
+    );
+
+    // Document (array syntax).
+    assert.deepEqual(
+      mezr.place({
+        element: element,
+        target: [document, 'content'],
+        position: 'left top right bottom'
+      }),
+      {
+        left: mezr.width(document, 'content'),
+        top: mezr.height(document, 'content')
+      },
+      'Document (array syntax)'
+    );
+
+    // Object.
+    assert.deepEqual(
+      mezr.place({
+        element: element,
+        target: {
+          left: 0,
+          top: 0,
+          width: 10,
+          height: 10
+        },
+        position: 'left top right bottom'
+      }),
+      {
+        left: 10,
+        top: 10
+      },
+      'Object'
+    );
 
   });
 

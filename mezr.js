@@ -363,39 +363,6 @@
   }
 
   /**
-   * Detect if two elements overlap and calculate the possible intersection area's dimensions and
-   * offsets. If the intersection area exists the function returns an object containing the
-   * intersection area's dimensions and offsets. Otherwise null is returned.
-   *
-   * @public
-   * @param {Array|Document|Element|Window|Rectangle} a
-   * @param {Array|Document|Element|Window|Rectangle} b
-   * @returns {?RectangleExtended}
-   */
-  function getIntersection(a, b) {
-
-    var ret = {};
-    var aRect = getRectInternal(a);
-    var bRect = getRectInternal(b);
-    var overlap = getOverlap(aRect, bRect);
-    var intWidth = max(aRect.width + min(overlap.left, 0) + min(overlap.right, 0), 0);
-    var intHeight = max(aRect.height + min(overlap.top, 0) + min(overlap.bottom, 0), 0);
-    var hasIntersection = intWidth > 0 && intHeight > 0;
-
-    if (hasIntersection) {
-      ret.width = intWidth;
-      ret.height = intHeight;
-      ret.left = aRect.left + abs(min(overlap.left, 0));
-      ret.top = aRect.top + abs(min(overlap.top, 0));
-      ret.right = ret.left + ret.width;
-      ret.bottom = ret.top + ret.height;
-    }
-
-    return hasIntersection ? ret : null;
-
-  }
-
-  /**
    * Detect if all of the provided elements overlap and calculate the possible intersection area's
    * dimensions and offsets. If the intersection area exists the function returns an object
    * containing the intersection area's dimensions and offsets. Otherwise null is returned.
@@ -439,15 +406,13 @@
    */
   function getPlace(options) {
 
-    // Sanitize options.
-    options = getPlaceOptions(options);
-
     var ret = {};
-    var el = [].concat(options.element);
+    var opts = getPlaceOptions(options);
+    var el = [].concat(opts.element);
     var eRect = getStaticOffset(el[0], el[1]);
-    var tRect = getRectInternal(options.target);
-    var offsetX = options.offsetX;
-    var offsetY = options.offsetY;
+    var tRect = getRectInternal(opts.target);
+    var offsetX = opts.offsetX;
+    var offsetY = opts.offsetY;
 
     // Get element width and height.
     eRect.width = getWidth(el[0], el[1]);
@@ -458,22 +423,22 @@
     offsetY = typeof offsetY === 'string' && offsetY.indexOf('%') > -1 ? toFloat(offsetY) / 100 * eRect.height : toFloat(offsetY);
 
     // Calculate element's new position (left/top coordinates).
-    ret.left = getPlacePosition(options.position[0] + options.position[2], tRect.width, tRect.left, eRect.width, eRect.left, offsetX);
-    ret.top = getPlacePosition(options.position[1] + options.position[3], tRect.height, tRect.top, eRect.height, eRect.top, offsetY);
+    ret.left = getPlacePosition(opts.position[0] + opts.position[2], tRect.width, tRect.left, eRect.width, eRect.left, offsetX);
+    ret.top = getPlacePosition(opts.position[1] + opts.position[3], tRect.height, tRect.top, eRect.height, eRect.top, offsetY);
 
     // If contain is defined, let's add overlap data and handle collisions.
-    if (options.contain) {
+    if (opts.contain) {
 
       // Update element offset data to match the newly calculated position.
       eRect.left += ret.left;
       eRect.top += ret.top;
 
       // Get container overlap data.
-      var containerOverlap = getOverlap(eRect, options.contain.within);
+      var containerOverlap = getOverlap(eRect, opts.contain.within);
 
       // Get adjusted data after collision handling.
-      ret.left += getPlaceCollision(options.contain.onCollision, containerOverlap);
-      ret.top += getPlaceCollision(options.contain.onCollision, containerOverlap, 1);
+      ret.left += getPlaceCollision(opts.contain.onCollision, containerOverlap);
+      ret.top += getPlaceCollision(opts.contain.onCollision, containerOverlap, 1);
 
     }
 
@@ -720,6 +685,39 @@
   }
 
   /**
+   * Detect if two elements overlap and calculate the possible intersection area's dimensions and
+   * offsets. If the intersection area exists the function returns an object containing the
+   * intersection area's dimensions and offsets. Otherwise null is returned.
+   *
+   * @private
+   * @param {Array|Document|Element|Window|Rectangle} a
+   * @param {Array|Document|Element|Window|Rectangle} b
+   * @returns {?RectangleExtended}
+   */
+  function getIntersection(a, b) {
+
+    var ret = {};
+    var aRect = getRectInternal(a);
+    var bRect = getRectInternal(b);
+    var overlap = getOverlap(aRect, bRect);
+    var intWidth = max(aRect.width + min(overlap.left, 0) + min(overlap.right, 0), 0);
+    var intHeight = max(aRect.height + min(overlap.top, 0) + min(overlap.bottom, 0), 0);
+    var hasIntersection = intWidth > 0 && intHeight > 0;
+
+    if (hasIntersection) {
+      ret.width = intWidth;
+      ret.height = intHeight;
+      ret.left = aRect.left + abs(min(overlap.left, 0));
+      ret.top = aRect.top + abs(min(overlap.top, 0));
+      ret.right = ret.left + ret.width;
+      ret.bottom = ret.top + ret.height;
+    }
+
+    return hasIntersection ? ret : null;
+
+  }
+
+  /**
    * Calculates the distance between two points in 2D space.
    *
    * @private
@@ -938,6 +936,13 @@
 
     // Sanitize edge.
     edge = edge || 'border';
+
+    // For window and document just return normal offset.
+    if (el === win || el === doc) {
+
+      return getOffset(el, edge);
+
+    }
 
     var position = getStyle(el, 'position');
     var offset = position === 'static' || position === 'relative' ? getOffset(el, edge) : getOffset(getContainingBlock(el) || doc, 'padding');
