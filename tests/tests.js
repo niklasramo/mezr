@@ -959,9 +959,9 @@ function testSuite(targetTests) {
 
   });
 
-  QUnit.test('#critical: Element option should accept an element, document or window.', function (assert) {
+  QUnit.test('#critical: Element option should accept an element, document, window or an object.', function (assert) {
 
-    assert.expect(6);
+    assert.expect(7);
 
     setStyles(fixture, {
       position: 'absolute',
@@ -1062,6 +1062,25 @@ function testSuite(targetTests) {
         top: 10000
       },
       'Document (array syntax)'
+    );
+
+    // Object.
+    assert.deepEqual(
+      mezr.place({
+        element: {
+          left: 0,
+          top: 0,
+          width: 10,
+          height: 10
+        },
+        target: fixture,
+        position: 'left top right bottom'
+      }),
+      {
+        left: 10000,
+        top: 10000
+      },
+      'Object'
     );
 
   });
