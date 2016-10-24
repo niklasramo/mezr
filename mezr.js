@@ -206,29 +206,7 @@
    */
   function getRect(el, edge) {
 
-    var isElem = el !== doc && el.self !== win.self;
-
-    // Sanitize edge.
-    edge = edge || 'border';
-
-    // Cache element's bounding client rect.
-    if (isElem) {
-      tempBCR = el.getBoundingClientRect();
-    }
-
-    // Get element's data.
-    var rect = getOffset(el, edge);
-    rect.width = getWidth(el, edge);
-    rect.height = getHeight(el, edge);
-    rect.bottom = rect.top + rect.height;
-    rect.right = rect.left + rect.width;
-
-    // Nullify temporary bounding client rect cache.
-    if (isElem) {
-      tempBCR = null;
-    }
-
-    return rect;
+    return getRectInternal(el, edge);
 
   }
 
@@ -355,8 +333,8 @@
    */
   function getDistance(a, b) {
 
-    var aRect = getRectInternal(a);
-    var bRect = getRectInternal(b);
+    var aRect = getSanitizedRect(a);
+    var bRect = getSanitizedRect(b);
 
     return getIntersection(aRect, bRect) ? -1 : getRectDistance(aRect, bRect);
 
@@ -408,15 +386,10 @@
 
     var ret = {};
     var opts = getPlaceOptions(options);
-    var el = [].concat(opts.element);
-    var eRect = getStaticOffset(el[0], el[1]);
-    var tRect = getRectInternal(opts.target);
+    var eRect = getSanitizedRect(opts.element, true);
+    var tRect = getSanitizedRect(opts.target);
     var offsetX = opts.offsetX;
     var offsetY = opts.offsetY;
-
-    // Get element width and height.
-    eRect.width = getWidth(el[0], el[1]);
-    eRect.height = getHeight(el[0], el[1]);
 
     // Sanitize offsets and check for percentage values.
     offsetX = typeof offsetX === 'string' && offsetX.indexOf('%') > -1 ? toFloat(offsetX) / 100 * eRect.width : toFloat(offsetX);
@@ -672,8 +645,8 @@
    */
   function getOverlap(a, b) {
 
-    a = getRectInternal(a);
-    b = getRectInternal(b);
+    a = getSanitizedRect(a);
+    b = getSanitizedRect(b);
 
     return {
       left: a.left - b.left,
@@ -697,8 +670,8 @@
   function getIntersection(a, b) {
 
     var ret = {};
-    var aRect = getRectInternal(a);
-    var bRect = getRectInternal(b);
+    var aRect = getSanitizedRect(a);
+    var bRect = getSanitizedRect(b);
     var overlap = getOverlap(aRect, bRect);
     var intWidth = max(aRect.width + min(overlap.left, 0) + min(overlap.right, 0), 0);
     var intHeight = max(aRect.height + min(overlap.top, 0) + min(overlap.bottom, 0), 0);
@@ -896,30 +869,89 @@
 
   /**
    * Returns an object containing the provided element's dimensions and offsets. This is basically
-   * just a wrapper for the getRect function which does some argument normalization before doing
-   * the actal calculations. Used only internally.
+   * just a wrapper for the getRectInternal function which does some argument normalization before
+   * doing the actal calculations. Used only internally.
    *
    * @private
    * @param {Array|Document|Element|Window|Rectangle} el
+   * @param {Boolean} [useStaticOffset=false]
    * @returns {?Rectangle}
    */
-  function getRectInternal(el) {
+  function getSanitizedRect(el, useStaticOffset) {
 
+    // Can't have an empty value.
     if (!el) {
 
       return null;
 
     }
 
+    // Let's assume that plain objects are static rectangle definitions.
     if (isPlainObject(el)) {
 
       return el;
 
     }
 
+    // We don't know for sure if the provided element is defined with an edge layer (array syntax)
+    // or not. So let's play it safe an normalize the value to an array.
     el = [].concat(el);
 
-    return getRect(el[0], el[1]);
+    return getRectInternal(el[0], el[1], useStaticOffset);
+
+  }
+
+  /**
+   * Returns an object containing the provided element's dimensions and offsets. This is basically a
+   * helper method for calculating an element's dimensions and offsets simultaneously. Mimics the
+   * native getBoundingClientRect method with the added bonus of allowing to provide the "edge" of
+   * the element.
+   *
+   * @public
+   * @param {Document|Element|Window} el
+   * @param {Edge} [edge='border']
+   * @param {Boolean} [useStaticOffset=false]
+   * @returns {Rectangle}
+   */
+  function getRectInternal(el, edge, useStaticOffset) {
+
+    var isElem = el !== doc && el.self !== win.self;
+    var rect;
+
+    // Sanitize edge.
+    edge = edge || 'border';
+
+    // If static offset is required we have to get it before temporary bounding client rect is
+    // cached, since it might need to get the offset of another element than the cached one.
+    if (useStaticOffset) {
+      rect = getStaticOffset(el, edge);
+    }
+
+    // Cache element's bounding client rect.
+    if (isElem) {
+      tempBCR = el.getBoundingClientRect();
+    }
+
+    // If static offset is not required we know for sure that the temporary bounding client rect is
+    // the same element we need to get offset for.
+    if (!useStaticOffset) {
+      rect = getOffset(el, edge);
+    }
+
+    // Get element's width and height.
+    rect.width = getWidth(el, edge);
+    rect.height = getHeight(el, edge);
+
+    // Calculate element's bottom and right.
+    rect.bottom = rect.top + rect.height;
+    rect.right = rect.left + rect.width;
+
+    // Nullify temporary bounding client rect cache.
+    if (isElem) {
+      tempBCR = null;
+    }
+
+    return rect;
 
   }
 
@@ -1306,7 +1338,7 @@
 
   /**
    * @typedef {Object} PlaceOptions
-   * @param {Array|Document|Element|Window} element
+   * @param {Array|Document|Element|Window|Rectangle} element
    * @property {Array|Document|Element|Window|Rectangle} target
    * @property {String} [position='left top left top']
    * @property {Number} [offsetX=0]
