@@ -1,3 +1,3 @@
 window.onload = function() {
-  window.testSuite();
+  new TestSuite('#critical');
 };

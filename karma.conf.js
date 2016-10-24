@@ -80,8 +80,15 @@ module.exports = function (config) {
   // list of files / patterns to load in the browser
   stn.files = [
     package.main,
-    './tests/tests.js',
-    './tests/run-tests-critical.js'
+    './tests/testsuite.js',
+    './tests/modules/dimensions.js',
+    './tests/modules/offset.js',
+    './tests/modules/rect.js',
+    './tests/modules/containing-block.js',
+    './tests/modules/intersection.js',
+    './tests/modules/distance.js',
+    './tests/modules/place.js',
+    './tests/run-tests.js'
   ];
 
   // list of files to exclude
