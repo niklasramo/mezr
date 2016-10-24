@@ -190,7 +190,7 @@ mezr.width(elem, 'margin');
 * [.height( el, [ edge ] )](#height-el--edge--)
 * [.offset( el, [ edge ] )](#offset-el--edge--)
 * [.rect( el, [ edge ] )](#rect-el--edge--)
-* [.containingBlock( el, [ fakePosition ] )](#containingblock-el--fakePosition--)
+* [.containingBlock( el, [ fakePosition ] )](#containingblock-el--fakeposition--)
 * [.distance( elemA, elemB )](#distance-elema-elemb-)
 * [.intersection( ...el )](#intersection-el-)
 * [.place( options )](#place-options-)
