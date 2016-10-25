@@ -2,12 +2,6 @@ TestSuite.modules.push(function () {
 
   QUnit.module('place');
 
-  // TODO:
-  // - Test that positions work as advertised (a light weight version of the monster test).
-  // - Test that contain does not do anything if within is not set or onCollision is not set.
-  // - Test that contain.within accepts an element, window, document or an object.
-  // - Test that containment pushing and force pushing work as advertised.
-
   var inst = this;
   var docElem = document.documentElement;
   var body = document.body;
@@ -352,7 +346,351 @@ TestSuite.modules.push(function () {
 
   });
 
-  QUnit.test('#extended: An extensive test with all possible positioining variations, css positions and edge layers.', function (assert) {
+  QUnit.test('#critical: Contain option should not restrict positioning if it does not have valid within and onCollision values.', function (assert) {
+
+    assert.expect(2);
+
+    inst.setStyles(fixture, {
+      position: 'absolute',
+      width: '10px',
+      height: '10px',
+      left: '0px',
+      top: '0px'
+    });
+
+    inst.setStyles(element, {
+      position: 'absolute',
+      left: '10px',
+      top: '10px',
+      width: '10px',
+      height: '10px'
+    });
+
+    window.scrollTo(0, 0);
+
+    assert.deepEqual(
+      mezr.place({
+        element: element,
+        target: fixture,
+        position: 'right top left top',
+        contain: null
+      }),
+      {
+        left: -10,
+        top: 0
+      },
+      'contain: null'
+    );
+
+    assert.deepEqual(
+      mezr.place({
+        element: element,
+        target: fixture,
+        position: 'right top left top',
+        contain: {
+          within: fixture,
+          onCollision: 'none'
+        }
+      }),
+      {
+        left: -10,
+        top: 0
+      },
+      'onCollision: "none"'
+    );
+
+  });
+
+  QUnit.test('#critical: Contain option should restrict positioning if it has valid within and onCollision values.', function (assert) {
+
+    assert.expect(8);
+
+    inst.setStyles(fixture, {
+      position: 'absolute',
+      width: '4px',
+      height: '4px',
+      left: '0px',
+      top: '0px'
+    });
+
+    inst.setStyles(element, {
+      position: 'absolute',
+      left: '10px',
+      top: '10px',
+      width: '10px',
+      height: '10px'
+    });
+
+    window.scrollTo(0, 0);
+
+    assert.deepEqual(
+      mezr.place({
+        element: element,
+        target: fixture,
+        position: 'right bottom left top',
+        contain: {
+          within: fixture,
+          onCollision: 'push'
+        }
+      }),
+      {
+        left: -3,
+        top: -3
+      },
+      'onCollision: "push"'
+    );
+
+    assert.deepEqual(
+      mezr.place({
+        element: element,
+        target: fixture,
+        position: 'right bottom left top',
+        contain: {
+          within: fixture,
+          onCollision: {
+            x: 'push',
+            y: 'push'
+          }
+        }
+      }),
+      {
+        left: -3,
+        top: -3
+      },
+      'onCollision: {x: "push", y: "push"}'
+    );
+
+    assert.deepEqual(
+      mezr.place({
+        element: element,
+        target: fixture,
+        position: 'right bottom left top',
+        contain: {
+          within: fixture,
+          onCollision: {
+            left: 'push',
+            right: 'push',
+            top: 'push',
+            bottom: 'push'
+          }
+        }
+      }),
+      {
+        left: -3,
+        top: -3
+      },
+      'onCollision: {left: "push", right: "push", top: "push", bottom: "push"}'
+    );
+
+    assert.deepEqual(
+      mezr.place({
+        element: element,
+        target: fixture,
+        position: 'right bottom left top',
+        contain: {
+          within: fixture,
+          onCollision: {
+            left: 'push',
+            right: 'none',
+            top: 'push',
+            bottom: 'none'
+          }
+        }
+      }),
+      {
+        left: 0,
+        top: 0
+      },
+      'onCollision: {left: "push", right: "none", top: "push", bottom: "none"}'
+    );
+
+    assert.deepEqual(
+      mezr.place({
+        element: element,
+        target: fixture,
+        position: 'left top right bottom',
+        contain: {
+          within: fixture,
+          onCollision: {
+            left: 'none',
+            right: 'push',
+            top: 'none',
+            bottom: 'push'
+          }
+        }
+      }),
+      {
+        left: -6,
+        top: -6
+      },
+      'onCollision: {left: "push", right: "none", top: "push", bottom: "none"}'
+    );
+
+    assert.deepEqual(
+      mezr.place({
+        element: element,
+        target: fixture,
+        position: 'right bottom left top',
+        contain: {
+          within: fixture,
+          onCollision: {
+            left: 'forcepush',
+            right: 'push',
+            top: 'forcepush',
+            bottom: 'push'
+          }
+        }
+      }),
+      {
+        left: 0,
+        top: 0
+      },
+      'onCollision: {left: "forcepush", right: "push", top: "forcepush", bottom: "push"}'
+    );
+
+    assert.deepEqual(
+      mezr.place({
+        element: element,
+        target: fixture,
+        position: 'right bottom left top',
+        contain: {
+          within: fixture,
+          onCollision: {
+            left: 'push',
+            right: 'forcepush',
+            top: 'push',
+            bottom: 'forcepush'
+          }
+        }
+      }),
+      {
+        left: -6,
+        top: -6
+      },
+      'onCollision: {left: "push", right: "forcepush", top: "push", bottom: "forcepush"}'
+    );
+
+    assert.deepEqual(
+      mezr.place({
+        element: element,
+        target: fixture,
+        position: 'right bottom left top',
+        contain: {
+          within: fixture,
+          onCollision: {
+            left: 'forcepush',
+            right: 'forcepush',
+            top: 'forcepush',
+            bottom: 'forcepush'
+          }
+        }
+      }),
+      {
+        left: -3,
+        top: -3
+      },
+      'onCollision: {left: "forcepush", right: "forcepush", top: "forcepush", bottom: "forcepush"}'
+    );
+
+  });
+
+  QUnit.test('#critical: Contain within option should accept an element, document, window or an object.', function (assert) {
+
+    assert.expect(4);
+
+    inst.setStyles(fixture, {
+      position: 'absolute',
+      width: '2px',
+      height: '2px',
+      left: '0px',
+      top: '0px',
+      padding: '1px'
+    });
+
+    inst.setStyles(element, {
+      position: 'absolute',
+      left: '10px',
+      top: '10px',
+      width: '10px',
+      height: '10px'
+    });
+
+    window.scrollTo(0, 0);
+
+    assert.deepEqual(
+      mezr.place({
+        element: element,
+        target: fixture,
+        position: 'right bottom left top',
+        contain: {
+          within: window,
+          onCollision: 'push'
+        }
+      }),
+      {
+        left: 0,
+        top: 0
+      },
+      'within: window'
+    );
+
+    assert.deepEqual(
+      mezr.place({
+        element: element,
+        target: fixture,
+        position: 'right bottom left top',
+        contain: {
+          within: document,
+          onCollision: 'push'
+        }
+      }),
+      {
+        left: 0,
+        top: 0
+      },
+      'within: document'
+    );
+
+    assert.deepEqual(
+      mezr.place({
+        element: element,
+        target: fixture,
+        position: 'right bottom left top',
+        contain: {
+          within: {left: -5, top: -5, width: 10, height: 10},
+          onCollision: 'push'
+        }
+      }),
+      {
+        left: -5,
+        top: -5
+      },
+      'within: {left: -5, top: -5, width: 10, height: 10}'
+    );
+
+    assert.deepEqual(
+      mezr.place({
+        element: element,
+        target: fixture,
+        position: 'right bottom left top',
+        contain: {
+          within: [fixture, 'content'],
+          onCollision: {
+            left: 'push',
+            top: 'push'
+          }
+        }
+      }),
+      {
+        left: 1,
+        top: 1
+      },
+      'within: [fixture, "content"]'
+    );
+
+  });
+
+  QUnit.test('#critical: An extensive test with all possible positioining variations, css positions and edge layers.', function (assert) {
 
     var done = assert.async();
     var edgeLayers = ['content', 'padding', 'scroll', 'border', 'margin'];
@@ -368,7 +706,7 @@ TestSuite.modules.push(function () {
       });
       return ret;
     })();
-    var totalAssertions = cssPositions.length * cssPositions.length * positionCombos.length * positionCombos.length * edgeLayers.length * edgeLayers.length;
+    var totalAssertions = cssPositions.length * positionCombos.length * positionCombos.length * edgeLayers.length;
     var assertionCount = 0;
 
     assert.expect(totalAssertions);
@@ -483,41 +821,37 @@ TestSuite.modules.push(function () {
     });
 
     cssPositions.forEach(function (elemCssPos) {
-      cssPositions.forEach(function (anchorCssPos) {
-        positionCombos.forEach(function (elemPos) {
-          positionCombos.forEach(function (anchorPos) {
-            edgeLayers.forEach(function (elemEdge) {
-              edgeLayers.forEach(function (anchorEdge) {
-                window.setTimeout(function() {
-                  checkPlacement(elemCssPos, anchorCssPos, elemPos, anchorPos, elemEdge, anchorEdge);
-                  if ((++assertionCount) === totalAssertions) {
-                    done();
-                  }
-                }, 0);
-              });
-            });
+      positionCombos.forEach(function (elemPos) {
+        positionCombos.forEach(function (anchorPos) {
+          edgeLayers.forEach(function (elemEdge) {
+            window.setTimeout(function() {
+              checkPlacement(elemCssPos, elemPos, anchorPos, elemEdge);
+              if ((++assertionCount) === totalAssertions) {
+                done();
+              }
+            }, 0);
           });
         });
       });
     });
 
-    function checkPlacement(elementCssPosition, anchorCssPosition, elementPosition, anchorPosition, elementEdge, anchorEdge) {
+    function checkPlacement(elementCssPosition, elementPosition, anchorPosition, elementEdge) {
 
       // Set CSS positions.
       inst.setStyles(element, {position: elementCssPosition});
-      inst.setStyles(anchor, {position: anchorCssPosition});
+      inst.setStyles(anchor, {position: 'absolute'});
 
       var my = elementPosition[0] + ' ' +  elementPosition[1];
       var at = anchorPosition[0] + ' ' +  anchorPosition[1];
 
       // Get element and anchor rects.
       var elemRect = mezr.rect(element, elementEdge);
-      var anchorRect = mezr.rect(anchor, anchorEdge);
+      var anchorRect = mezr.rect(anchor, 'border');
 
       // Get the result.
       var result = mezr.place({
         element: [element, elementEdge],
-        target: [anchor, anchorEdge],
+        target: [anchor, 'border'],
         position: my + ' ' + at
       });
 
@@ -532,9 +866,7 @@ TestSuite.modules.push(function () {
         result,
         expected,
         'element position: ' + elementCssPosition + ', ' +
-        'anchor position: ' + anchorCssPosition + ', ' +
         'element edge: ' + elementEdge + ', ' +
-        'anchor edge: ' + anchorEdge + ', ' +
         'my: ' + my + ', ' +
         'at: ' + at
       );

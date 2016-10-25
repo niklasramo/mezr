@@ -131,8 +131,6 @@ TestSuite.modules.push(function () {
 
     })();
 
-    console.log('transformLeaksFixed: ' + transformLeaksFixed);
-
     inst.setStyles(document.documentElement, {position: 'fixed'});
     inst.setStyles(document.body, {position: 'absolute'});
     inst.setStyles(fixture, {position: 'relative'});
