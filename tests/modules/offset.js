@@ -175,14 +175,12 @@ TestSuite.modules.push(function () {
 
   QUnit.test('#critical: Should return the element\'s offset relative to another element/window/document.', function (assert) {
 
-    // TODO
-
-    assert.expect(0);
+    assert.expect(8);
 
     inst.setStyles(fixture, {
       position: 'absolute',
-      width: '10000px',
-      height: '10000px',
+      width: '10px',
+      height: '10px',
       left: '10px',
       top: '10px',
       margin: '10px',
@@ -198,8 +196,26 @@ TestSuite.modules.push(function () {
       top: '10px',
       margin: '10px',
       border: '10px solid',
-      padding: '15px'
+      padding: '10px'
     });
+
+    window.scrollTo(0, 0);
+
+    var result = mezr.offset([element, 'content'], [fixture, 'padding']);
+    assert.strictEqual(result.left, 40, 'left offset - array syntax');
+    assert.strictEqual(result.top, 40, 'top offset - array syntax');
+
+    var result = mezr.offset(element, fixture);
+    assert.strictEqual(result.left, 30, 'left offset - element syntax');
+    assert.strictEqual(result.top, 30, 'top offset - element syntax');
+
+    var result = mezr.offset(element, window);
+    assert.strictEqual(result.left, 50, 'left offset - from window');
+    assert.strictEqual(result.top, 50, 'top offset - from window');
+
+    var result = mezr.offset(element, document);
+    assert.strictEqual(result.left, 50, 'left offset - from document');
+    assert.strictEqual(result.top, 50, 'top offset - from document');
 
   });
 

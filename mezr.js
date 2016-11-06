@@ -158,7 +158,7 @@
       var elemA = [].concat(el);
       var elemB = [].concat(edge);
       var offsetA = isPlainObject(el) ? el : getOffsetFromDocument(elemA[0], elemA[1]);
-      var offsetB = isPlainOjbect(edge) ? edge : getOffsetFromDocument(elemB[0], elemB[1]);
+      var offsetB = isPlainObject(edge) ? edge : getOffsetFromDocument(elemB[0], elemB[1]);
 
       return {
         left: offsetA.left - offsetB.left,
