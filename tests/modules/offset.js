@@ -173,4 +173,34 @@ TestSuite.modules.push(function () {
 
   });
 
+  QUnit.test('#critical: Should return the element\'s offset relative to another element/window/document.', function (assert) {
+
+    // TODO
+
+    assert.expect(0);
+
+    inst.setStyles(fixture, {
+      position: 'absolute',
+      width: '10000px',
+      height: '10000px',
+      left: '10px',
+      top: '10px',
+      margin: '10px',
+      border: '10px solid',
+      padding: '10px'
+    });
+
+    inst.setStyles(element, {
+      position: 'absolute',
+      width: '10px',
+      height: '10px',
+      left: '10px',
+      top: '10px',
+      margin: '10px',
+      border: '10px solid',
+      padding: '15px'
+    });
+
+  });
+
 });

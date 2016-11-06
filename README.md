@@ -1,59 +1,14 @@
 # Mezr
 
-Mezr is a lightweight JavaScript utility library for measuring and comparing the dimensions and positions of HTML DOM elements in modern browsers (IE9+). For starters Mezr provides a bit more extended variations of jQuery's [offset](http://api.jquery.com/category/offset/) and [dimension](http://api.jquery.com/category/dimension/) methods. Bonus features include collision detection and positioning elements relative to other elements in the style of jQuery UI's [position](https://jqueryui.com/position/) method.
+Mezr is a lightweight JavaScript utility library for measuring and comparing the dimensions and positions of HTML DOM elements in modern browsers (IE9+).
 
-**In a nutshell**
+**Features**
 
-* Calculate document's, window's and element's width, height and offsets consistently.
+* Calculate any element's dimensions and offset consistently.
 * Get element's [containing block](https://www.w3.org/TR/CSS2/visuren.html#containing-block).
-* Position elements relative to other elements.
-* Calculate the intersection area of multiple elements.
+* Position elements relative to other elements (similar to jQuery UI's [position](https://jqueryui.com/position/) method).
+* Calculate the intersection area between multiple elements.
 * Calculate distance between two elements.
-* Lightweight (2.97kb gzipped).
-* Cross-browser (IE9+).
-* No dependencies.
-
-## Why another library?
-
-Simply put, for conveniency and consistency. Mezr abstracts a part of the DOM API into a more convenient and consistent form. For example, let's imagine a scneario where you would want to calculate an element's [DOMCLientRect](https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XPCOM/Reference/Interface/nsIDOMClientRect) data but without the element's potential borders, paddings and scrollbars — just the content.
-
-With Mezr.
-
-```javascript
-var rect = mezr.rect(elem, 'content');
-```
-
-With vanilla JS.
-
-```javascript
-var getStyle = function (elem, style) {
-  return parseFloat(getComputedStyle(elem, null).getPropertyValue(style)) || 0;
-};
-var gbcr = elem.getBoundingClientRect();
-var borders = {
-  left: getStyle(elem, 'border-left-width'),
-  right: getStyle(elem, 'border-right-width'),
-  top: getStyle(elem, 'border-top-width'),
-  bottom: getStyle(elem, 'border-bottom-width')
-};
-var paddings = {
-  left: getStyle(elem, 'padding-left'),
-  right: getStyle(elem, 'padding-right'),
-  top: getStyle(elem, 'padding-top'),
-  bottom: getStyle(elem, 'padding-bottom')
-};
-var sb = {
-  y: Math.round(gbcr.width) - elem.clientWidth - border.left - border.right
-  x: Math.round(gbcr.height) - elem.clientHeight - border.top - border.bottom
-};
-var rect = {};
-rect.left = gbcr.left + border.left + padding.left;
-rect.top = gbcr.top + border.top + padding.top;
-rect.width = gbcr.width - sb.y - border.left - border.right - padding.left - padding.right;
-rect.height = gbcr.height - sb.x - border.top - border.bottom - padding.top - padding.bottom;
-rect.right = rect.left + rect.width;
-rect.bottom = rect.top + rect.height;
-```
 
 ## Getting started
 
@@ -70,25 +25,27 @@ rect.bottom = rect.top + rect.height;
 2. Then just start measuring the DOM. Here are some simple examples to get you started.
 
   ```javascript
-  // Get element content width.
+  // Get element content width/height.
   mezr.width(elem, 'content');
+  mezr.height(elem, 'content');
 
-  // Get element content + padding width.
+  // Get element content + padding width/height.
   mezr.width(elem, 'padding');
+  mezr.height(elem, 'padding');
 
   // Get element content + padding + scrollbar width.
   mezr.width(elem, 'scroll');
+  mezr.height(elem, 'scroll');
 
   // Get element content + padding + scrollbar + border width (default).
-  mezr.width(elem, 'border') === mezr.width(elem);
+  mezr.width(elem, 'border');
+  mezr.height(elem, 'border');
 
   // Get element content + padding + scrollbar + border + margin width.
   mezr.width(elem, 'margin');
+  mezr.height(elem, 'margin');
 
-  // All the above stuff applies to mezr.height() also.
-  mezr.height(elem);
-
-  // Calculate element's offset (distance from document's northwest corner).
+  // Calculate element's offset from the document.
   // The second argument defines the element's edge for the calculations.
   mezr.offset(elem); // {left: ..., top: ...}
   mezr.offset(elem, 'content');
@@ -96,13 +53,17 @@ rect.bottom = rect.top + rect.height;
   mezr.offset(elem, 'scroll');
   mezr.offset(elem, 'border');
   mezr.offset(elem, 'margin');
+  
+  // Calculate element's offset from another element or the window.
+  mezr.offset([elemTo, 'content'], [elemFrom, 'padding']);
+  mezr.offset([elemTo, 'content'], window);
 
   // Calculate direct distance between two elements.
   mezr.distance(elemA, elemB);
   mezr.distance([elemA, 'content'], [elemB, 'margin']);
 
-  // Check if two elements overlap.
-  mezr.intersection(elemA, elemB);
+  // Get the intersection area between two or more elements.
+  mezr.intersection(elemA, elemB, elemC);
   mezr.intersection([elemA, 'content'], [elemB, 'margin']);
 
   // Calculate what elemA's position (left and top CSS properties) should
@@ -116,82 +77,15 @@ rect.bottom = rect.top + rect.height;
   });
   ```
 
-## Comparison to jQuery's dimension methods
-
-Document width with viewport scrollbar.
-
-```javascript
-// No jQuery alternative.
-mezr.width(document);
-mezr.width(document. 'scroll');
-```
-
-Document width without viewport scrollbar.
-
-```javascript
-// jQuery -> $(document).width()
-mezr.width(document, 'content');
-```
-
-Window width with viewport scrollbar (handy for working with media queries).
-
-```javascript
-// No jQuery alternative.
-mezr.width(window);
-mezr.width(window, 'scroll');
-```
-
-Window width without viewport scrollbar.
-
-```javascript
-// jQuery -> $(window).width()
-mezr.width(window, 'content');
-```
-
-Element's inner width. Note that Mezr's implementation differs slightly from jQuery's `.width()` and should not be used as a drop in replacement. If the element has vertical scrollbar Mezr never includes it in the result unlike jQuery. In other words jQuery version returns the element's *potential* inner width whereas Mezr version returns the element's *true* inner width.
-
-```javascript
-// No jQuery alternative
-mezr.width(elem, 'content');
-```
-
-Element's width with paddings, but without vertical scollbar's width (if it exists). The same stuff applies to this example as the one above. jQuery's `.innerWidth()` method returns identical values as Mezr's padding-width as long as the element does not have a vertical scrollbar.
-
-```javascript
-// No jQuery alternative
-mezr.width(elem, 'padding');
-```
-
-Element's width with paddings and vertical scollbar's width (if it exists).
-
-```javascript
-// jQuery -> $(elem).innerWidth()
-mezr.width(elem, 'scroll');
-```
-
-Element's width with paddings, borders and vertical scollbar's width (if it exists).
-
-```javascript
-// jQuery -> $(elem).outerWidth()
-mezr.width(elem, 'border');
-mezr.width(elem);
-```
-
-Element's width with paddings, borders margins and vertical scollbar's width (if it exists). Note that negative margins are not subtracted from the width, they are just ignored. This is by design. Visually, negative margins do not reduce the element's width so it makes sense to ignore them in this scenario. jQuery's `.outerWidth(true)` method returns exactly the same results as margin-width with the exception that it does subtract negative margins from the width.
-
-```javascript
-// No jQuery alternative
-mezr.width(elem, 'margin');
-```
-
 ## API v0.5.0
 
 * [.width( el, [ edge ] )](#width-el--edge--)
 * [.height( el, [ edge ] )](#height-el--edge--)
 * [.offset( el, [ edge ] )](#offset-el--edge--)
+* [.offset( el, [ from ] )](#offset-el--from--)
 * [.rect( el, [ edge ] )](#rect-el--edge--)
 * [.containingBlock( el, [ fakePosition ] )](#containingblock-el--fakeposition--)
-* [.distance( elemA, elemB )](#distance-elema-elemb-)
+* [.distance( from, to )](#distance-from-to-)
 * [.intersection( ...el )](#intersection-el-)
 * [.place( options )](#place-options-)
 
@@ -206,7 +100,7 @@ Returns the width of an element in pixels. Accepts also the window object (for g
 * **el** &nbsp;&mdash;&nbsp; *element / window / document*
   * Accepts any DOM element, the document object or the window object.
 * **edge** &nbsp;&mdash;&nbsp; *string*
-  * Defines which edge (content, padding, scroll, border, margin) of the element is considered as its outer edge.
+  * Defines which edge (content, padding, scroll, border, margin) of the element is considered as it's outer edge. Optional.
   * Default: `'border'`
   * Allowed values: `'content'`, `'padding'`, `'scroll'`, `'border'`, `'margin'`.
   * For `window` and `document` objects this argument behaves a bit differently since they cannot have any paddings, borders or margins. Only 'content' (without vertical scrollbar's width) and 'scroll' (with vertical scrollbar's width) are effective values. 'padding' is normalized to 'content' while 'border' and 'margin' are normalized to 'scroll'.
@@ -257,7 +151,7 @@ Returns the height of an element in pixels. Accepts also the window object (for 
 * **el** &nbsp;&mdash;&nbsp; *element / window / document*
   * Accepts any DOM element, the document object or the window object.
 * **edge** &nbsp;&mdash;&nbsp; *string*
-  * Defines which edge (content, padding, scroll, border, margin) of the element is considered as its outer edge.
+  * Defines which edge (content, padding, scroll, border, margin) of the element is considered as it's outer edge. Optional.
   * Default: `'border'`
   * Allowed values: `'content'`, `'padding'`, `'scroll'`, `'border'`, `'margin'`.
   * For `window` and `document` objects this argument behaves a bit differently since they cannot have any paddings, borders or margins. Only 'content' (without vertical scrollbar's width) and 'scroll' (with vertical scrollbar's width) are effective values. 'padding' is normalized to 'content' while 'border' and 'margin' are normalized to 'scroll'.
@@ -301,17 +195,17 @@ mezr.height(elem, 'margin');
 
 ### `.offset( el, [ edge ] )`
 
-Returns the element's offsets which in practice means the vertical and horizontal distance between the element's northwest corner and the document's northwest corner. The *edge* argument controls which layer (content, padding, scroll, border, margin) of the element is considered as the edge of the element for the calculations. For example, if the edge was set to 'padding' the element's margins and borders would be added to the offsets.
+Returns the element's offset from the document, which in practice means the vertical and horizontal distance from the document's northwest corner to the element's northwest corner. You can optionally define which edge layer of the element is used for the calculations.
 
 **Parameters**
 
 * **el** &nbsp;&mdash;&nbsp; *element / window / document*
   * Accepts any DOM element, the document object or the window object.
-* **edge** &nbsp;&mdash;&nbsp; *boolean*
-  * Defines which edge (content, padding, scroll, border, margin) of the element is considered as its outer edge.
+* **edge** &nbsp;&mdash;&nbsp; *string*
+  * Defines which edge (content, padding, scroll, border, margin) of the element is considered as its outer edge. Optional.
   * Default: `'border'`
   * Allowed values: `'content'`, `'padding'`, `'scroll'`, `'border'`, `'margin'`.
-  * This argument has no effect for `window` and `document`.
+  * This argument has no effect for `window` or `document`.
   * Note that 'padding' and 'scroll' values produce identical results. The 'scroll' value is only allowed here in order to make this method work in sync with [`.width()`](#width) and [`.height()`](#height) methods.
 
 **Returns** &nbsp;&mdash;>&nbsp; *object*
@@ -342,9 +236,58 @@ mezr.offset(elem, 'margin');
 
 &nbsp;
 
+### `.offset( el, [ from ] )`
+
+Returns the element's offset from another element, window or document. By default the offset is calculated from the document if no second argument is provided.
+
+**Parameters**
+
+* **el** &nbsp;&mdash;&nbsp; *element / window / document / object / array*
+  * Defines the element for which the offset is calculated for.
+  * Document/Element/Window: the edge is considered to be 'border'.
+  * Array: allows one to control which layer (content, padding, scroll, border, margin) is considered as the element's edge, e.g. `[someElem, 'content']`.
+  * Object: must have left and top properties with numeric values (e.g. `{left: 10, top: -10}`).
+* **from** &nbsp;&mdash;&nbsp; *element / window / document / object / array*
+  * Defines the element from which the offset is calculated for. Optional.
+  * Default: `document`
+  * Document/Element/Window: the edge is considered to be 'border'.
+  * Array: allows one to control which layer (content, padding, scroll, border, margin) is considered as the element's edge, e.g. `[someElem, 'content']`.
+  * Object: must have left and top properties with numeric values (e.g. `{left: 10, top: -10}`).
+
+**Returns** &nbsp;&mdash;>&nbsp; *object*
+
+* **obj.left** &nbsp;&mdash;&nbsp; *number*
+  * The element's left offset in pixels (fractional).
+* **obj.top** &nbsp;&mdash;&nbsp; *number*
+  * The element's top offset in pixels (fractional).
+
+**Examples**
+
+```javascript
+// Element's offset from document.
+mezr.offset(elem, document);
+mezr.offset(elem);
+
+// Element's offset from window.
+mezr.offset(elem, window);
+
+// Element's offset from another element.
+mezr.offset(elem, otherElem);
+
+// And you can also define edge layers for both arguments.
+mezr.offset([elem, 'content'], [otherElem, 'margin']);
+
+// Mimic jQuery's .position() method. Do note that this is not
+// a drop in replacement for jQuery's .position() method, but
+// works in a similar fashion.
+mezr.offset(elem, mezr.containingBlock(elem));
+```
+
+&nbsp;
+
 ### `.rect( el, [ edge ] )`
 
-Returns an object containing the provided element's dimensions and offsets. This is basically a helper method for calculating an element's dimensions and offsets simultaneously. Mimics the native (getBoundingClientRect[https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect] method with the added bonus of allowing to provide the *edge* of the element.
+Returns an object containing the provided element's dimensions and offsets. This is basically a helper method for calculating an element's dimensions and offsets simultaneously. Mimics the native [getBoundingClientRect](https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect) method with the added bonus of allowing to provide the *edge* of the element.
 
 **Parameters**
 
@@ -354,8 +297,6 @@ Returns an object containing the provided element's dimensions and offsets. This
   * Defines which edge (content, padding, scroll, border, margin) of the element is considered as its outer edge.
   * Default: `'border'`
   * Allowed values: `'content'`, `'padding'`, `'scroll'`, `'border'`, `'margin'`.
-  * This argument has no effect for `window` and `document`.
-  * Note that 'padding' and 'scroll' values produce identical results. The 'scroll' value is only allowed here in order to make this method work in sync with [`.width()`](#width) and [`.height()`](#height) methods.
 
 **Returns** &nbsp;&mdash;>&nbsp; *object*
 
@@ -386,22 +327,26 @@ mezr.rect(elem, 'margin');
 
 ### `.containingBlock( el, [ fakePosition ] )`
 
-Returns the element's [containing block](https://www.w3.org/TR/CSS2/visuren.html#containing-block), which is considered to be the closest ancestor element (or window, or document, or the target element itself) that the target element's positioning is relative to. In other words, containing block is the element the target element's CSS properties *left*, *right*, *top* and *bottom* are relative to. This function is quite similar to the native elem.offsetParent read-only property, but there are enough differences to justify the existence of this function.
+Returns the element's [containing block](https://www.w3.org/TR/CSS2/visuren.html#containing-block), which is considered to be the closest ancestor element (or window, or document, or the target element itself) that the target element's positioning is relative to. In other words, containing block is the element the target element's CSS properties *left*, *right*, *top* and *bottom* are relative to. This function is quite similar to the native [elem.offsetParent](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/offsetParent) read-only property, but there are enough differences to justify the existence of this function.
 
 **The logic**
 
  * Document is considered to be the root containing block of all elements and the window.
- * Getting the document's containing block will return null.
- * Static element does not have a containing block since setting values to the *left*, *right*, *top* and *bottom* CSS properties does nat have any effect on it. Thus, getting the containing block of a static element will return null.
+ * Getting the document's containing block will return `null`.
+ * Static element does not have a containing block since setting values to the *left*, *right*, *top* and *bottom* CSS properties does not have any effect on the element's position. Thus, getting the containing block of a static element will return `null`.
  * Relative element's containing block is always the element itself.
- * Fixed element's containing block is always the closest transformed ancestor or window if the element does not have any transformed ancestors. An exception is made for browsers which allow fixed elements to bypass the W3C specification of transform rendering. In those browsers fixed element's containing block is always the window.
- * Absolute element's containing block is the closest ancestor element that is transformed or positioned (any element which is not static), or document if no positioned or transformed ancestor is not found.
- * Root element and body element are considered as equals with all other elements and are treated equally with all other elements.
+ * Fixed element's containing block is always the closest transformed ancestor or `window` if the element does not have any transformed ancestors. An exception is made for browsers which allow fixed elements to bypass the W3C specification of transform rendering. In those browsers fixed element's containing block is always the `window`.
+ * Absolute element's containing block is the closest ancestor element that is transformed or positioned (any element which is not static). If no positioned or transformed ancestor is not found the containing block is the `document`.
+ * Root element and body element are treated equally with all other elements.
 
 **Parameters**
 
 * **el** &nbsp;&mdash;&nbsp; *element / window / document*
   * Accepts any DOM element, the document object or the window object.
+* **fakePosition** &nbsp;&mdash;&nbsp; *element / window / document*
+  * An optional argument which allows you to get the element's containing block as if the element had this CSS position value applied. Using this argument does not modify the element's true CSS position in any way, it's only used for the calculations.
+  * Default: the element's current CSS position.
+  * Allowed values: `"static"`, `"relative"`, `"absolute"` and  `"fixed"`.
 
 **Returns** &nbsp;&mdash;>&nbsp; *element / window / document / null*
 
@@ -423,18 +368,20 @@ mezr.containingBlock(elem, 'relative'); // always elem
 
 &nbsp;
 
-### `.distance( elemA, elemB )`
+### `.distance( from, to )`
 
 Returns the distance between two elements (in pixels) or `-1` if the elements overlap.
 
 **Parameters**
 
-* **elemA** &nbsp;&mdash;&nbsp; *element / array / object*
+* **from** &nbsp;&mdash;&nbsp; *element / array / object*
   * Element: the element's edge is considered to be 'border'.
   * Array: allows one to control which layer (content, padding, scroll, border, margin) is considered as the element's edge, e.g. `[someElem, 'content']`.
   * Object: must have width, height, left and top properties with numeric values (e.g. `{width: 10, height: 10, left: 10, top: -10}`).
-* **elemB** &nbsp;&mdash;&nbsp; *element / array / object*
-  * Same specs as with elemA.
+* **to** &nbsp;&mdash;&nbsp; *element / array / object*
+  * Element: the element's edge is considered to be 'border'.
+  * Array: allows one to control which layer (content, padding, scroll, border, margin) is considered as the element's edge, e.g. `[someElem, 'content']`.
+  * Object: must have width, height, left and top properties with numeric values (e.g. `{width: 10, height: 10, left: 10, top: -10}`).
 
 **Returns** &nbsp;&mdash;>&nbsp; *number*
 
@@ -465,7 +412,7 @@ mezr.distance([elemA, 'content'], [elemB, 'scroll']);
 
 ### `.intersection( ...el )`
 
-Detect if two or more elements overlap and calculate the possible intersection area's dimensions and offsets. If the intersection area exists the function returns an object containing the intersection area's dimensions and offsets. Otherwise `null` is returned.
+Detect if two or more elements overlap and calculate their possible intersection area (dimensions and offsets). If the intersection area exists the function returns an object containing the intersection area's dimensions and offsets. Otherwise `null` is returned.
 
 **Parameters**
 
@@ -519,7 +466,7 @@ mezr.intersection(elemA, [elemB, 'margin'], rectA, rectB);
 
 ### `.place( options )`
 
-Calculate an element's position (left/top CSS properties) when positioned relative to another element, window or the document.
+Calculate an element's position (left/top CSS properties) when positioned relative to another element, window or the document. Note that this method does not actually position the element, it just returns the new position which can be applied to the element if needed.
 
 **Options**
 

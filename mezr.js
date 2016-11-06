@@ -23,7 +23,7 @@
 
   'use strict';
 
-  // Make sure we received a valid window object from the factory arguments.
+  // Make sure we received a valid window object from the arguments.
   var win = win.document && win.self === win.document.defaultView ? win : window;
 
   // Cache document, root and body elements.
@@ -118,78 +118,54 @@
   }
 
   /**
-   * Returns the element's offset, which in practice means the vertical and horizontal distance
-   * between the element's northwest corner and the document's northwest corner.
+   * Returns the element's offset from another element, window or document. In practice the offset
+   * means the vertical and horizontal distance from the comparison element's northwest corner to
+   * the target element's northwest corner. By default the comparison element is considered to be
+   * the document.
+   *
+   * @example
+   * // Returns offset from document's northwest corner to elemA's content layer's northwest corner.
+   * mezr.offset(elemA, 'content');
+   *
+   * @example
+   * // Returns offset from window's northwest corner to elemA's content layer's northwest corner.
+   * mezr.offset([elemA, 'content'], window);
+   *
+   * @example
+   * // Returns offset from elemB's margin layer's northwest corner to elemA's content layer's
+   * // northwest corner.
+   * mezr.offset([elemA, 'padding'], [elemB, 'margin']);
    *
    * @public
-   * @param {Document|Element|Window} el
-   * @param {Edge} [edge='border']
+   * @param {Array|Document|Element|Rectangle|Window} el
+   * @param {Array|Document|Edge|Element|Rectangle|Window} [edge='border']
+   *   - If this argument is a string it is considered to be an edge layer definition for the first
+   *     argument. Otherwise this is considered to be a defintion of an element, document or window.
    * @returns {Offset}
    */
   function getOffset(el, edge) {
 
-    var ret = {
-      left: 0,
-      top: 0
-    };
+    // Use default syntax if the element is not an array and the edge is undefined or a string.
+    if (!Array.isArray(el) && (!edge || typeof edge === 'string')) {
 
-    // Document's offsets are always 0.
-    if (el === doc) {
-
-      return ret;
+      return getOffsetFromDocument(el, edge);
 
     }
+    // Otherwise assume that two element/document/window defintions were provided and calculate the
+    // offset from the second to the first element.
+    else {
 
-    // Add viewport's scroll left/top to the respective offsets.
-    ret.left = win.pageXOffset || 0;
-    ret.top = win.pageYOffset || 0;
+      var elemA = [].concat(el);
+      var elemB = [].concat(edge);
+      var offsetA = isPlainObject(el) ? el : getOffsetFromDocument(elemA[0], elemA[1]);
+      var offsetB = isPlainOjbect(edge) ? edge : getOffsetFromDocument(elemB[0], elemB[1]);
 
-    // Window's offsets are the viewport's scroll left/top values.
-    if (el.self === win.self) {
-
-      return ret;
-
-    }
-
-    // Now we know we are calculating an element's offsets so let's first get the element's
-    // bounding client rect. If it is not cached, then just fetch it.
-    var gbcr = tempBCR || el.getBoundingClientRect();
-
-    // Add bounding client rect's left/top values to the offsets.
-    ret.left += gbcr.left;
-    ret.top += gbcr.top;
-
-    // Sanitize edge.
-    edge = edge && edges[edge] || 4;
-
-    // Exclude element's positive margin size from the offset if needed.
-    if (edge === 5) {
-
-      var marginLeft = getStyleAsFloat(el, 'margin-left');
-      var marginTop = getStyleAsFloat(el, 'margin-top');
-
-      ret.left -=  marginLeft > 0 ? marginLeft : 0;
-      ret.top -= marginTop > 0 ? marginTop : 0;
+      return {
+        left: offsetA.left - offsetB.left,
+        top: offsetA.top - offsetB.top
+      };
 
     }
-
-    // Include element's border size to the offset if needed.
-    if (edge < 4) {
-
-      ret.left += getStyleAsFloat(el, 'border-left-width');
-      ret.top += getStyleAsFloat(el, 'border-top-width');
-
-    }
-
-    // Include element's padding size to the offset if needed.
-    if (edge === 1) {
-
-      ret.left += getStyleAsFloat(el, 'padding-left');
-      ret.top += getStyleAsFloat(el, 'padding-top');
-
-    }
-
-    return ret;
 
   }
 
@@ -222,8 +198,8 @@
    * - Document is considered to be the root containing block of all elements and the window.
    *   Getting the document's containing block will return null.
    * - Static element does not have a containing block since setting values to the "left", "right",
-   *   "top" and "bottom" CSS properties does not have any effect on it. Thus, getting the position
-   *   container of a static element will return null.
+   *   "top" and "bottom" CSS properties does not have any effect on the element's position. Thus,
+   *   getting the containing block of a static element will return null.
    * - Relative element's containing block is always the element itself.
    * - Fixed element's containing block is always the closest transformed ancestor or window if
    *   the element does not have any transformed ancestors. An exception is made for browsers which
@@ -239,10 +215,8 @@
    * @param {Document|Element|Window} el
    * @param {String} [fakePosition]
    *   - An optional argument which allows you to get the element's containing block as if the
-   *     element had the position set to the value provided with this argument. Using this argument
-   *     does not modify the element's true position in any way, it's just used as fake value for
-   *     function. By default (when this argument is empty) the function will automatically get the
-   *     element's current position.
+   *     element had this CSS position value applied. Using this argument does not modify the
+   *     element's true CSS position in any way, it's only used for the calculations.
    * @returns {?Document|Element|Window}
    */
   function getContainingBlock(el, fakePosition) {
@@ -868,6 +842,82 @@
   }
 
   /**
+   * Returns the element's (or window's) document offset, which in practice means the vertical and
+   * horizontal distance between the element's northwest corner and the document's northwest corner.
+   *
+   * @public
+   * @param {Document|Element|Window} el
+   * @param {Edge} [edge='border']
+   * @returns {Offset}
+   */
+  function getOffsetFromDocument(el, edge) {
+
+    var ret = {
+      left: 0,
+      top: 0
+    };
+
+    // Document's offsets are always 0.
+    if (el === doc) {
+
+      return ret;
+
+    }
+
+    // Add viewport's scroll left/top to the respective offsets.
+    ret.left = win.pageXOffset || 0;
+    ret.top = win.pageYOffset || 0;
+
+    // Window's offsets are the viewport's scroll left/top values.
+    if (el.self === win.self) {
+
+      return ret;
+
+    }
+
+    // Now we know we are calculating an element's offsets so let's first get the element's
+    // bounding client rect. If it is not cached, then just fetch it.
+    var gbcr = tempBCR || el.getBoundingClientRect();
+
+    // Add bounding client rect's left/top values to the offsets.
+    ret.left += gbcr.left;
+    ret.top += gbcr.top;
+
+    // Sanitize edge.
+    edge = edge && edges[edge] || 4;
+
+    // Exclude element's positive margin size from the offset if needed.
+    if (edge === 5) {
+
+      var marginLeft = getStyleAsFloat(el, 'margin-left');
+      var marginTop = getStyleAsFloat(el, 'margin-top');
+
+      ret.left -=  marginLeft > 0 ? marginLeft : 0;
+      ret.top -= marginTop > 0 ? marginTop : 0;
+
+    }
+
+    // Include element's border size to the offset if needed.
+    if (edge < 4) {
+
+      ret.left += getStyleAsFloat(el, 'border-left-width');
+      ret.top += getStyleAsFloat(el, 'border-top-width');
+
+    }
+
+    // Include element's padding size to the offset if needed.
+    if (edge === 1) {
+
+      ret.left += getStyleAsFloat(el, 'padding-left');
+      ret.top += getStyleAsFloat(el, 'padding-top');
+
+    }
+
+    return ret;
+
+  }
+
+  /**
    * Returns an object containing the provided element's dimensions and offsets. This is basically
    * just a wrapper for the getRectInternal function which does some argument normalization before
    * doing the actal calculations. Used only internally.
@@ -935,7 +985,7 @@
     // If static offset is not required we know for sure that the temporary bounding client rect is
     // the same element we need to get offset for.
     if (!useStaticOffset) {
-      rect = getOffset(el, edge);
+      rect = getOffsetFromDocument(el, edge);
     }
 
     // Get element's width and height.
@@ -972,12 +1022,12 @@
     // For window and document just return normal offset.
     if (el === win || el === doc) {
 
-      return getOffset(el, edge);
+      return getOffsetFromDocument(el, edge);
 
     }
 
     var position = getStyle(el, 'position');
-    var offset = position === 'static' || position === 'relative' ? getOffset(el, edge) : getOffset(getContainingBlock(el) || doc, 'padding');
+    var offset = position === 'static' || position === 'relative' ? getOffsetFromDocument(el, edge) : getOffsetFromDocument(getContainingBlock(el) || doc, 'padding');
 
     if (position === 'static') {
 
@@ -1315,17 +1365,9 @@
   /**
    * @typedef {Object} Offset
    * @property {Number} left
-   *   - Element's horizontal distance from the left edge of the document.
+   *   - Element's horizontal distance from the left edge of the document, window or other element.
    * @property {Number} top
-   *   - Element's vertical distance from the top edge of the document.
-   */
-
-  /**
-   * @typedef {Object} Position
-   * @property {Number} left
-   *   - Element's horizontal distance from the left edge of another element.
-   * @property {Number} top
-   *   - Element's vertical distance from the top edge of another element.
+   *   - Element's vertical distance from the top edge of the document, window, or other element.
    */
 
   /**
