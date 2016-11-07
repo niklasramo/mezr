@@ -12,7 +12,7 @@ Mezr is a lightweight JavaScript utility library for measuring and comparing the
 
 ## Getting started
 
-1. Include [mezr.js](https://raw.githubusercontent.com/niklasramo/mezr/0.5.0/mezr.js) within the `body` element on your site. Mezr needs to access the body element, because it does some browser behaviour checking on initialization and will throw an error if `document.body` is not available.
+1. Include [mezr.js](https://raw.githubusercontent.com/niklasramo/mezr/0.5.0/mezr.js) within the **body** element on your site. Mezr needs to access the body element, because it does some browser behaviour checking on initialization and will throw an error if `document.body` is not available.
 
   ```html
   <html>
@@ -198,7 +198,7 @@ Returns the element's offset from another element, window or document.
 
 **`.offset( el, [ edge ] )`**
 
-Returns the element's offset from the document. Define which edge layer of the element should be used for the calculations with the second argument.
+Returns the element's offset from the document. The second argument defines which edge layer of the element should be used for the calculations.
 
 * **el** &nbsp;&mdash;&nbsp; *element / window / document*
   * Accepts any DOM element, the document object or the window object.
@@ -211,10 +211,9 @@ Returns the element's offset from the document. Define which edge layer of the e
 
 **`.offset( el, [ from ] )`**
 
-Returns the element's offset from another element, window or document. By default the offset is calculated from the document if no second argument is provided.
+Returns the element's offset from another element, window or document. The second (optional) argument defines from which element the offset is calculated.
 
 * **el** &nbsp;&mdash;&nbsp; *element / window / document / object / array*
-  * Defines the element for which the offset is calculated.
   * Document/Element/Window: the edge is considered to be 'border'.
   * Array: allows one to control which layer (content, padding, scroll, border, margin) is considered as the element's edge, e.g. `[someElem, 'content']`.
   * Object: must have left and top properties with numeric values (e.g. `{left: 10, top: -10}`).
@@ -267,9 +266,11 @@ mezr.offset(elem, mezr.containingBlock(elem));
 
 ### .rect()
 
-Returns an object containing the provided element's dimensions and offsets. This is basically a helper method for calculating an element's dimensions and offsets simultaneously. Mimics the native [getBoundingClientRect](https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect) method with the added bonus of allowing to provide the *edge* of the element.
+Returns an object containing the provided element's dimensions and offsets. This is basically a helper method for calculating an element's dimensions and offsets simultaneously. Mimics the native [getBoundingClientRect](https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect) method with the added bonus of allowing to define the *edge layer* of the element, and also the element from which the offset is calculated.
 
 **`.rect( el, [ edge ] )`**
+
+Get rect data of the element with the offset calculated relative to the document.
 
 * **el** &nbsp;&mdash;&nbsp; *element / window / document*
   * Accepts any DOM element, the document object or the window object.
@@ -280,8 +281,9 @@ Returns an object containing the provided element's dimensions and offsets. This
 
 **`.rect( el, [ from ] )`**
 
+Get rect data of the element with the offset calculated relative to another element, window or document.
+
 * **el** &nbsp;&mdash;&nbsp; *element / window / document / object / array*
-  * Defines the element for which the offset is calculated.
   * Document/Element/Window: the edge is considered to be 'border'.
   * Array: allows one to control which layer (content, padding, scroll, border, margin) is considered as the element's edge, e.g. `[someElem, 'content']`.
   * Object: must have left and top properties with numeric values (e.g. `{left: 10, top: -10}`).
@@ -310,18 +312,26 @@ Returns an object containing the provided element's dimensions and offsets. This
 **Examples**
 
 ```javascript
+// Element's rect data with offset relative to the document.
 mezr.rect(elem, 'content');
 mezr.rect(elem, 'padding');
 mezr.rect(elem, 'scroll');
 mezr.rect(elem, 'border'); // or just -> mezr.rect(elem);
 mezr.rect(elem, 'margin');
+
+// Element rect data with offset relative to the window.
+mezr.rect(elem, window);
+
+// Element rect data with offset relative to another element.
+mezr.rect(elem, anotherElem);
+mezr.rect([elem, 'padding'], [anotherElem, 'margin']);
 ```
 
 &nbsp;
 
 ### .containingBlock()
 
-Returns the element's [containing block](https://www.w3.org/TR/CSS2/visuren.html#containing-block), which is considered to be the closest ancestor element (or window, or document, or the target element itself) that the target element's positioning is relative to. In other words, containing block is the element the target element's CSS properties *left*, *right*, *top* and *bottom* are relative to. This function is quite similar to the native [elem.offsetParent](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/offsetParent) read-only property, but there are enough differences to justify the existence of this function.
+Returns the element's [containing block](https://www.w3.org/TR/CSS2/visuren.html#containing-block), which is considered to be the closest ancestor element (or window, or document, or the target element itself) that the target element's positioning is relative to. In other words, containing block is the element the target element's CSS properties *left*, *right*, *top* and *bottom* are relative to. You should not confuse this with the native [elem.offsetParent](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/offsetParent) read-only property, which works in a similar fashion (and even identically in certain situations), but is really not the same thing (although the name might imply it).
 
 **The logic**
 

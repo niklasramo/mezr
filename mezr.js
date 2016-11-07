@@ -1,5 +1,5 @@
 /*!
- * mezr v0.5.0-dev
+ * mezr v0.5.0
  * https://github.com/niklasramo/mezr
  * Copyright (c) 2016 Niklas Rämö <inramo@gmail.com>
  * Released under the MIT license
@@ -264,9 +264,10 @@
    * Returns the element's containing block, which is considered to be the closest ancestor
    * element (or window, or document, or the target element itself) that the target element's
    * positioning is relative to. In other words, containing block is the element the target
-   * element's CSS properties "left", "right", "top" and "bottom" are relative to. This function
-   * is quite similar to the native elem.offsetParent read-only property, but there are enough
-   * differences to justify the existence of this function.
+   * element's CSS properties "left", "right", "top" and "bottom" are relative to. You should not
+   * confuse this with the native elem.offsetParent read-only property, which works in a similar
+   * fashion (and even identically in certain situations), but is really not the same thing
+   * (although the name might imply it)
    *
    * The logic:
    * - Document is considered to be the root containing block of all elements and the window.
