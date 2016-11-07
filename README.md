@@ -132,10 +132,12 @@ mezr.width(elem, 'padding');
 // Element content width + left/right padding + vertical scrollbar width.
 mezr.width(elem, 'scroll');
 
-// Element content width + left/right padding + vertical scrollbar width + left/right border.
+// Element content width + left/right padding + vertical scrollbar width +
+// left/right border.
 mezr.width(elem, 'border'); // or just -> mezr.width(elem);
 
-// Element content width + left/right padding + vertical scrollbar width + left/right border + left/right (positive) margin.
+// Element content width + left/right padding + vertical scrollbar width +
+// left/right border + left/right (positive) margin.
 mezr.width(elem, 'margin');
 ```
 
@@ -183,10 +185,12 @@ mezr.height(elem, 'padding');
 // Element content height + top/bottom padding + horizontal scrollbar height.
 mezr.height(elem, 'scroll');
 
-// Element content height + top/bottom padding + horizontal scrollbar height + top/bottom border.
+// Element content height + top/bottom padding + horizontal scrollbar height +
+// top/bottom border.
 mezr.height(elem, 'border'); // or just -> mezr.height(elem);
 
-// Element content height + top/bottom padding + horizontal scrollbar height + top/bottom border + top/bottom (positive) margin.
+// Element content height + top/bottom padding + horizontal scrollbar height +
+// top/bottom border + top/bottom (positive) margin.
 mezr.height(elem, 'margin');
 ```
 
@@ -456,13 +460,15 @@ mezr.intersection(elemA, elemB);
 // Calculate the intersection area between two objects.
 mezr.intersection(rectA, rectB);
 
-// Calculate the intersection area between an object and an element.
+// Calculate the intersection area between an object and an
+// element.
 mezr.intersection(elemA, rectB);
 
 // Define which edge to use for element calculations
 mezr.intersection([elemA, 'content'], [elemB, 'scroll']);
 
-// Calculate the intersection area between two elements and two objects.
+// Calculate the intersection area between two elements and
+// two objects.
 mezr.intersection(elemA, [elemB, 'margin'], rectA, rectB);
 ```
 
