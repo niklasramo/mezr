@@ -8,15 +8,23 @@
 (function (global, factory) {
 
   if (typeof define === 'function' && define.amd) {
+
     define([], function () {
+
       return factory(global);
+
     });
+
   }
   else if (typeof module === 'object' && module.exports) {
+
     module.exports = factory(global);
+
   }
   else {
+
     global.mezr = factory(global);
+
   }
 
 }(this, function (win, undefined) {
@@ -69,9 +77,9 @@
   // Get the primary supported transform property.
   settings.transform = getSupportedTransform();
 
-  // Do transformed elements leak fixed elements? According W3C specification about transform
-  // rendering a transformed element should contain even fixed elements, but not every browser
-  // follows the spec. So we need to test it.
+  // Do transformed elements leak fixed elements? According W3C specification (about transform
+  // rendering) a transformed element should contain fixed elements, but not every browser follows
+  // the spec. So we need to test it.
   settings.transformLeaksFixed = doesTransformLeakFixed();
 
   /**
@@ -151,6 +159,7 @@
       return getOffsetFromDocument(el, edge);
 
     }
+
     // Otherwise assume that two element/document/window defintions were provided and calculate the
     // offset from the second to the first element.
     else {
@@ -170,19 +179,84 @@
   }
 
   /**
+   * Returns the element's offset from another element, window or document. In practice the offset
+   * means the vertical and horizontal distance from the comparison element's northwest corner to
+   * the target element's northwest corner. By default the comparison element is considered to be
+   * the document.
+   *
+   * @example
+   * // Returns offset from document's northwest corner to elemA's content layer's northwest corner.
+   * mezr.offset(elemA, 'content');
+   *
+   * @example
+   * // Returns offset from window's northwest corner to elemA's content layer's northwest corner.
+   * mezr.offset([elemA, 'content'], window);
+   *
+   * @example
+   * // Returns offset from elemB's margin layer's northwest corner to elemA's content layer's
+   * // northwest corner.
+   * mezr.offset([elemA, 'padding'], [elemB, 'margin']);
+   *
+   * @public
+   * @param {Array|Document|Element|Rectangle|Window} el
+   * @param {Array|Document|Edge|Element|Rectangle|Window} [edge='border']
+   *   - If this argument is a string it is considered to be an edge layer definition for the first
+   *     argument. Otherwise this is considered to be a defintion of an element, document or window.
+   * @returns {Offset}
+   */
+
+  /**
    * Returns an object containing the provided element's dimensions and offsets. This is basically a
    * helper method for calculating an element's dimensions and offsets simultaneously. Mimics the
    * native getBoundingClientRect method with the added bonus of allowing to provide the "edge" of
    * the element.
    *
+   * @example
+   * // Returns rect data for elemA (using the element's "content" layer in the calculations) with
+   * // the offset calculated from the document.
+   * mezr.offset(elemA, 'content');
+   *
+   * @example
+   * // Returns rect data for elemA (using the element's "content" layer in the calculations) with
+   * // the offset calculated from the window.
+   * mezr.rect([elemA, 'content'], window);
+   *
+   * @example
+   * // Returns rect data for elemA (using the element's "padding" layer in the calculations) with
+   * // the offset calculated from the elemB ("margin" layer).
+   * mezr.rect([elemA, 'padding'], [elemB, 'margin']);
+   *
    * @public
-   * @param {Document|Element|Window} el
-   * @param {Edge} [edge='border']
+   * @param {Array|Document|Element|Rectangle|Window} el
+   * @param {Array|Document|Edge|Element|Rectangle|Window} [edge='border']
+   *   - If this argument is a string it is considered to be an edge layer definition for the first
+   *     argument. Otherwise this is considered to be a defintion of an element, document or window.
    * @returns {Rectangle}
    */
   function getRect(el, edge) {
 
-    return getRectInternal(el, edge);
+    // Use default syntax if the element is not an array and the edge is undefined or a string.
+    if (!Array.isArray(el) && (!edge || typeof edge === 'string')) {
+
+      return getRectInternal(el, edge);
+
+    }
+
+    // Otherwise assume that two element/document/window defintions were provided and calculate the
+    // offset from the second to the first element.
+    else {
+
+      var elemA = [].concat(el);
+      var elemB = [].concat(edge);
+      var rect = isPlainObject(el) ? el : getRectInternal(elemA[0], elemA[1]);
+      var offsetFrom = isPlainObject(edge) ? edge : getOffsetFromDocument(elemB[0], elemB[1]);
+
+      rect.left = rect.left - offsetFrom.left;
+      rect.top = rect.top - offsetFrom.top;
+
+      return rect;
+
+    }
 
   }
 
@@ -278,6 +352,7 @@
       return ret === doc ? win : ret;
 
     }
+
     // If the element is absolute positioned.
     else {
 
@@ -337,7 +412,9 @@
         intersection = getIntersection(intersection, arguments[i]);
 
         if (!intersection) {
+
           break;
+
         }
 
       }
@@ -652,12 +729,14 @@
     var hasIntersection = intWidth > 0 && intHeight > 0;
 
     if (hasIntersection) {
+
       ret.width = intWidth;
       ret.height = intHeight;
       ret.left = aRect.left + abs(min(overlap.left, 0));
       ret.top = aRect.top + abs(min(overlap.top, 0));
       ret.right = ret.left + ret.width;
       ret.bottom = ret.top + ret.height;
+
     }
 
     return hasIntersection ? ret : null;
@@ -974,18 +1053,24 @@
     // If static offset is required we have to get it before temporary bounding client rect is
     // cached, since it might need to get the offset of another element than the cached one.
     if (useStaticOffset) {
+
       rect = getStaticOffset(el, edge);
+
     }
 
     // Cache element's bounding client rect.
     if (isElem) {
+
       tempBCR = el.getBoundingClientRect();
+
     }
 
     // If static offset is not required we know for sure that the temporary bounding client rect is
     // the same element we need to get offset for.
     if (!useStaticOffset) {
+
       rect = getOffsetFromDocument(el, edge);
+
     }
 
     // Get element's width and height.
@@ -998,7 +1083,9 @@
 
     // Nullify temporary bounding client rect cache.
     if (isElem) {
+
       tempBCR = null;
+
     }
 
     return rect;
@@ -1114,19 +1201,21 @@
    */
   function getPlaceOptions(options) {
 
-    // Merge user options with default options.
     var opts = mergeObjects(options ? [settings.placeDefaultOptions, options] : [settings.placeDefaultOptions]);
+    var contain = opts.contain;
 
-    // Sanitize position option. Transform to array with shortened string values.
-    var position = opts.position;
-    opts.position = position = typeof position === 'string' ? position.split(' ') : position;
-    for (var i = 0; i < position.length; i++) {
-      position[i] = position[i].charAt(0);
+    // Sanitize position option.
+    opts.position = typeof opts.position === 'string' ? opts.position.split(' ') : opts.position;
+
+    // Transform position option to array with shortened string values.
+    for (var i = 0; i < opts.position.length; i++) {
+
+      opts.position[i] = opts.position[i].charAt(0);
+
     }
 
     // Sanitize contain option. First of all make sure that the contain option and contain.within
     // option are both objects and not null.
-    var contain = opts.contain;
     if (contain && typeof contain === 'object' && contain.within && typeof contain.within === 'object') {
 
       var collision = contain.onCollision;
@@ -1142,6 +1231,7 @@
         left = right = top = bottom = collision;
 
       }
+
       // onCollision object value can have properties that present a side (left/right/top/bottom) or
       // an axis (x/y). Always try to use the side value first and then fallback to axis value. If
       // all else fails fallback to "none".
@@ -1166,6 +1256,7 @@
         };
 
       }
+
       // Otherwise we know that the collision will not have an effect.
       else {
 
