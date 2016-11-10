@@ -1,8 +1,20 @@
 /*!
- * mezr v0.5.0
+ * mezr v0.6.0-dev
  * https://github.com/niklasramo/mezr
  * Copyright (c) 2016 Niklas Rämö <inramo@gmail.com>
  * Released under the MIT license
+ */
+
+/*
+
+TODO
+****
+- .place() method's adjust option.
+  - A function that works exactly like onCollision callback. It should pick up from where
+    onCollision left off in case onCollision is defined.
+  - Restructure the option sanitizer not to null contain method.
+  - Think about merging the adjust option with onCollision callback.
+
  */
 
 (function (global, factory) {
@@ -71,7 +83,8 @@
     position: 'left top left top',
     offsetX: 0,
     offsetY: 0,
-    contain: null
+    contain: null,
+    adjust: null
   };
 
   // Get the primary supported transform property.
@@ -177,33 +190,6 @@
     }
 
   }
-
-  /**
-   * Returns the element's offset from another element, window or document. In practice the offset
-   * means the vertical and horizontal distance from the comparison element's northwest corner to
-   * the target element's northwest corner. By default the comparison element is considered to be
-   * the document.
-   *
-   * @example
-   * // Returns offset from document's northwest corner to elemA's content layer's northwest corner.
-   * mezr.offset(elemA, 'content');
-   *
-   * @example
-   * // Returns offset from window's northwest corner to elemA's content layer's northwest corner.
-   * mezr.offset([elemA, 'content'], window);
-   *
-   * @example
-   * // Returns offset from elemB's margin layer's northwest corner to elemA's content layer's
-   * // northwest corner.
-   * mezr.offset([elemA, 'padding'], [elemB, 'margin']);
-   *
-   * @public
-   * @param {Array|Document|Element|Rectangle|Window} el
-   * @param {Array|Document|Edge|Element|Rectangle|Window} [edge='border']
-   *   - If this argument is a string it is considered to be an edge layer definition for the first
-   *     argument. Otherwise this is considered to be a defintion of an element, document or window.
-   * @returns {Offset}
-   */
 
   /**
    * Returns an object containing the provided element's dimensions and offsets. This is basically a
@@ -459,11 +445,64 @@
       eRect.top += ret.top;
 
       // Get container overlap data.
-      var containerOverlap = getOverlap(eRect, opts.contain.within);
+      var wRect = getSanitizedRect(opts.contain.within);
+      var overlap = getOverlap(eRect, wRect);
+      var bleedsHorizontally = overlap.left < 0 || overlap.right < 0;
+      var bleedsVertically = overlap.top < 0 || overlap.bottom < 0;
 
-      // Get adjusted data after collision handling.
-      ret.left += getPlaceCollision(opts.contain.onCollision, containerOverlap);
-      ret.top += getPlaceCollision(opts.contain.onCollision, containerOverlap, 1);
+      // Make sure the element "bleeds" from the container before doing any position fixing.
+      if (bleedsHorizontally || bleedsVertically) {
+
+        // If onCollision is a function, let's call it and provide all the juicy positioning data
+        // as arguments.
+        if (typeof opts.contain.onCollision === 'function') {
+
+          // Get the element's current offset so we can calculate how much the element moved.
+          var eCurrentOffset = isPlainObject(opts.element) ? opts.element : getOffsetFromDocument.apply(null, [].concat(opts.element));
+
+          // Provide the final position hash as the first argument (which can be modified and it
+          // affects the return value of this method) and all the positioning data as the
+          // second argument.
+          opts.contain.onCollision(ret, {
+            elementRect: eRect,
+            targetRect: tRect,
+            containerRect: wRect,
+            elementShift: {
+              left: eRect.left - eCurrentOffset.left,
+              top: eRect.top - eCurrentOffset.top,
+            },
+            containerBleed: {
+              left: -overlap.left,
+              right: -overlap.right,
+              top: -overlap.top,
+              bottom: -overlap.bottom
+            }
+          });
+
+        }
+        // If onCollision is anything else than a function let's use predefined collision handling
+        // methods to correct the position where necessary.
+        else {
+
+          // Handle horizontal bleed
+          if (hasXOverlap) {
+            ret.left += getPlaceCollision(opts.contain.onCollision, overlap);
+          }
+
+          // Handle vertical bleed
+          if (hasYOverlap) {
+            ret.top += getPlaceCollision(opts.contain.onCollision, overlap, 1);
+          }
+
+        }
+
+      }
+
+    }
+
+    if (typeof opts.adjust === 'function') {
+
+      // TODO
 
     }
 
@@ -1226,42 +1265,47 @@
       var top = 'none';
       var bottom = 'none';
 
-      // onCollision string value is always used for all sides.
-      if (collisionType === 'string') {
+      // Allow onCollision remain intact if it is a function.
+      if (collisionType !== 'function') {
 
-        left = right = top = bottom = collision;
+        // onCollision string value is always used for all sides.
+        if (collisionType === 'string') {
 
-      }
+          left = right = top = bottom = collision;
 
-      // onCollision object value can have properties that present a side (left/right/top/bottom) or
-      // an axis (x/y). Always try to use the side value first and then fallback to axis value. If
-      // all else fails fallback to "none".
-      else if (collisionType === 'object') {
+        }
 
-        left = collision.left || collision.x || left;
-        right = collision.right || collision.x || right;
-        top = collision.top || collision.y || top;
-        bottom = collision.bottom || collision.y || bottom;
+        // onCollision object value can have properties that present a side (left/right/top/bottom) or
+        // an axis (x/y). Always try to use the side value first and then fallback to axis value. If
+        // all else fails fallback to "none".
+        else if (collisionType === 'object') {
 
-      }
+          left = collision.left || collision.x || left;
+          right = collision.right || collision.x || right;
+          top = collision.top || collision.y || top;
+          bottom = collision.bottom || collision.y || bottom;
 
-      // If one side (or more) has a value other than "none" we know that the collision option might
-      // have an effect on the positioning. So let's update the options object with the new data.
-      if (left !== 'none' || right !== 'none' || top !== 'none' || bottom !== 'none') {
+        }
 
-        opts.contain.onCollision = {
-          left: left,
-          right: right,
-          top: top,
-          bottom: bottom
-        };
+        // If one side (or more) has a value other than "none" we know that the collision option might
+        // have an effect on the positioning. So let's update the options object with the new data.
+        if (left !== 'none' || right !== 'none' || top !== 'none' || bottom !== 'none') {
 
-      }
+          opts.contain.onCollision = {
+            left: left,
+            right: right,
+            top: top,
+            bottom: bottom
+          };
 
-      // Otherwise we know that the collision will not have an effect.
-      else {
+        }
 
-        opts.contain = null;
+        // Otherwise we know that the collision will not have an effect.
+        else {
+
+          opts.contain = null;
+
+        }
 
       }
 
