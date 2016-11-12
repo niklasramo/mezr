@@ -9,6 +9,7 @@ Mezr is a lightweight JavaScript utility library for measuring and comparing the
 * Position elements relative to other elements (similar to jQuery UI's [position](https://jqueryui.com/position/) method).
 * Calculate the intersection area between multiple elements.
 * Calculate distance between two elements.
+* Calculate how much an element overflows another element per each side.
 
 ## Getting started
 
@@ -77,7 +78,7 @@ Mezr is a lightweight JavaScript utility library for measuring and comparing the
   });
   ```
 
-## API v0.5.0
+## API v0.6.0
 
 * [.width()](#width)
 * [.height()](#height)
@@ -86,6 +87,7 @@ Mezr is a lightweight JavaScript utility library for measuring and comparing the
 * [.containingBlock()](#containingblock)
 * [.distance()](#distance)
 * [.intersection()](#intersection)
+* [.overflow()](#overflow)
 * [.place()](#place)
 
 &nbsp;
@@ -431,7 +433,7 @@ Detect if two or more elements overlap and calculate their possible intersection
 
 **Returns** &nbsp;&mdash;>&nbsp; *null / object*
 
-In case no the provided elements/objects do not overlap the method returns `null`. Otherwise the intersection area's data (object) is returned with the following properties:
+In case the provided elements/objects do not overlap the method returns `null`. Otherwise the intersection area's data (object) is returned with the following properties:
 
 * **obj.width** &nbsp;&mdash;&nbsp; *number*
   * The width of the intersection area in pixels (fractional).
@@ -470,6 +472,47 @@ mezr.intersection([elemA, 'content'], [elemB, 'scroll']);
 // Calculate the intersection area between two elements and
 // two objects.
 mezr.intersection(elemA, [elemB, 'margin'], rectA, rectB);
+```
+
+&nbsp;
+
+### .overflow()
+
+Calculate how much an element overflows another element per each side.
+
+**`.intersection( container, el )`**
+
+* **container** &nbsp;&mdash;&nbsp; *array / element / object*
+  * Element: the element's edge is considered to be 'border'.
+  * Array: allows one to control which layer (content, padding, scroll, border, margin) is considered as the element's edge, e.g. `[someElem, 'content']`.
+  * Object: must have width, height, left and top properties with numeric values (e.g. `{width: 10, height: 20, left: 15, top: -10}`).
+* **el** &nbsp;&mdash;&nbsp; *array / element / object*
+  * Element: the element's edge is considered to be 'border'.
+  * Array: allows one to control which layer (content, padding, scroll, border, margin) is considered as the element's edge, e.g. `[someElem, 'content']`.
+  * Object: must have width, height, left and top properties with numeric values (e.g. `{width: 10, height: 20, left: 15, top: -10}`).
+
+**Returns** &nbsp;&mdash;>&nbsp; *object*
+
+* **obj.left** &nbsp;&mdash;&nbsp; *number*
+  * How much element's left edge overflows the container's left edge.
+* **obj.right** &nbsp;&mdash;&nbsp; *number*
+  * How much element's right edge overflows the container's right edge.
+* **obj.top** &nbsp;&mdash;&nbsp; *number*
+  * How much element's top edge overflows the container's top edge.
+* **obj.bottom** &nbsp;&mdash;&nbsp; *number*
+  * How much element's bottom edge overflows the container's bottom edge.
+
+**Examples**
+
+```javascript
+var container = document.getElementById('container');
+var elem = document.getElementById('elem');
+
+// Calculate the intersection area between two elements.
+mezr.overflow(container, elem);
+
+// Define which edge to use for element calculations
+mezr.overflow([container, 'content'], [elem, 'scroll']);
 ```
 
 &nbsp;
@@ -514,10 +557,10 @@ The *options* argument should be an object. You may configure it with the follow
   * Element: the element's edge is considered to be 'border'.
   * Array: allows one to control which layer (content, padding, scroll, border, margin) is considered as the element's edge, e.g. `[someElem, 'content']`.
   * Object: must have width, height, left and top properties with numeric values (e.g. `{width: 10, height: 20, left: 15, top: -10}`).
-* **contain.onCollision** &nbsp;&mdash;&nbsp; *string / object / null*
-  * Defines what to do when the element collides with the container's edges.
+* **contain.onOverflow** &nbsp;&mdash;&nbsp; *string / object / null*
+  * Defines what to do when the element overflows the container.
   * Default: `'none'`
-  * For maximum control you can provide an object with four properties: 'left', 'right', 'top' and 'bottom'. Each property represents an edge of the container and each property's value should be one of the predefined actions (see below) which will be called when/if the element's edge collides with the container's respective edge. Here's an example: `{left: 'push', right: 'forcepush', top: 'none', bottom: 'push'}`.
+  * For maximum control you can provide an object with four properties: 'left', 'right', 'top' and 'bottom'. Each property represents an edge of the container and each property's value should be one of the predefined actions (see below) which will be called when/if the element overflows the container. Here's an example: `{left: 'push', right: 'forcepush', top: 'none', bottom: 'push'}`.
   * Alternatively you can also just define collision actions per axis: `{x: 'push', y: 'none'}`.
   * Or you can mix and match edges and axis: `{x: 'push', top: 'none', bottom: 'push'}`.
   * For minimum configuration you can just provide a single value as a string, e.g. `'push'` which will be used for all edges.
@@ -525,6 +568,10 @@ The *options* argument should be an object. You may configure it with the follow
     * `'none'`: Ignore containment.
     * `'push'`: Push the element back within the container, so that it does not overlap the container. If the element is larger than the container and opposite edges both have 'push' action enabled, the element will be positioned so that it overlaps the container an equal amount from both edges.
     * `'forcepush'`: Identical to 'push', but with one exception: it makes sure that the element's edge is always pushed fully back within the container. This action is only useful when the opposite edge has 'push' action enabled.
+* **adjust** &nbsp;&mdash;&nbsp; *function / null*
+  * An optional callback function which can be used to adjust the positioning data just before returning it. This function receives all positioning data as arguments so you can use this callback, for example, to create custom positioning logic.
+  * Default: `null`
+
 
 **Returns** &nbsp;&mdash;>&nbsp; *object*
 

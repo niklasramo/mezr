@@ -5,18 +5,6 @@
  * Released under the MIT license
  */
 
-/*
-
-TODO
-****
-- .place() method's adjust option.
-  - A function that works exactly like onCollision callback. It should pick up from where
-    onCollision left off in case onCollision is defined.
-  - Restructure the option sanitizer not to null contain method.
-  - Think about merging the adjust option with onCollision callback.
-
- */
-
 (function (global, factory) {
 
   if (typeof define === 'function' && define.amd) {
@@ -413,6 +401,27 @@ TODO
   }
 
   /**
+   * Calculate how much an element overflows another element per each side.
+   *
+   * @public
+   * @param {...Array|Document|Element|Window|Rectangle} container
+   * @param {...Array|Document|Element|Window|Rectangle} el
+   * @returns {Overflow}
+   */
+  function getOverflow(container, el) {
+
+    var ret = getOverlap(el, container);
+
+    return {
+      left: -ret.left,
+      right: -ret.right,
+      top: -ret.top,
+      bottom: -ret.bottom
+    };
+
+  }
+
+  /**
    * Calculate an element's position (left/top CSS properties) when positioned relative to another
    * element, window or the document.
    *
@@ -423,78 +432,54 @@ TODO
   function getPlace(options) {
 
     var ret = {};
-    var opts = getPlaceOptions(options);
+    var opts = mergeObjects([settings.placeDefaultOptions, options || {}]);
+    var position = generatePositionConfig(opts.position);
     var eRect = getSanitizedRect(opts.element, true);
     var tRect = getSanitizedRect(opts.target);
+    var isContainDefined = isPlainObject(opts.contain);
+    var container = isContainDefined && opts.contain.within;
+    var overflowAction = isContainDefined && getOverflowAction(opts.contain.onOverflow);
+    var overflowFixLeft = 0;
+    var overflowFixTop = 0;
     var offsetX = opts.offsetX;
     var offsetY = opts.offsetY;
+    var cRect;
+    var overlap;
+    var eCurrentOffset;
 
     // Sanitize offsets and check for percentage values.
     offsetX = typeof offsetX === 'string' && offsetX.indexOf('%') > -1 ? toFloat(offsetX) / 100 * eRect.width : toFloat(offsetX);
     offsetY = typeof offsetY === 'string' && offsetY.indexOf('%') > -1 ? toFloat(offsetY) / 100 * eRect.height : toFloat(offsetY);
 
     // Calculate element's new position (left/top coordinates).
-    ret.left = getPlacePosition(opts.position[0] + opts.position[2], tRect.width, tRect.left, eRect.width, eRect.left, offsetX);
-    ret.top = getPlacePosition(opts.position[1] + opts.position[3], tRect.height, tRect.top, eRect.height, eRect.top, offsetY);
+    ret.left = getPlacePosition(position[0] + position[2], tRect.width, tRect.left, eRect.width, eRect.left, offsetX);
+    ret.top = getPlacePosition(position[1] + position[3], tRect.height, tRect.top, eRect.height, eRect.top, offsetY);
 
-    // If contain is defined, let's add overlap data and handle collisions.
-    if (opts.contain) {
+    // Update element offset data to match the newly calculated position.
+    eRect.left += ret.left;
+    eRect.top += ret.top;
 
-      // Update element offset data to match the newly calculated position.
-      eRect.left += ret.left;
-      eRect.top += ret.top;
+    // If container element and overflow action are defined, let's handle container's possible
+    // overflow.
+    if (container && overflowAction) {
 
-      // Get container overlap data.
-      var wRect = getSanitizedRect(opts.contain.within);
-      var overlap = getOverlap(eRect, wRect);
-      var bleedsHorizontally = overlap.left < 0 || overlap.right < 0;
-      var bleedsVertically = overlap.top < 0 || overlap.bottom < 0;
+      // Get container rect and overlap data.
+      cRect = getSanitizedRect(container);
+      overlap = getOverlap(eRect, cRect);
 
-      // Make sure the element "bleeds" from the container before doing any position fixing.
-      if (bleedsHorizontally || bleedsVertically) {
+      // Handle horizontal overflow.
+      if (overlap.left < 0 || overlap.right < 0) {
 
-        // If onCollision is a function, let's call it and provide all the juicy positioning data
-        // as arguments.
-        if (typeof opts.contain.onCollision === 'function') {
+        overflowFixLeft = getPlaceOverflowPush(overflowAction, overlap);
+        ret.left += overflowFixLeft;
 
-          // Get the element's current offset so we can calculate how much the element moved.
-          var eCurrentOffset = isPlainObject(opts.element) ? opts.element : getOffsetFromDocument.apply(null, [].concat(opts.element));
+      }
 
-          // Provide the final position hash as the first argument (which can be modified and it
-          // affects the return value of this method) and all the positioning data as the
-          // second argument.
-          opts.contain.onCollision(ret, {
-            elementRect: eRect,
-            targetRect: tRect,
-            containerRect: wRect,
-            elementShift: {
-              left: eRect.left - eCurrentOffset.left,
-              top: eRect.top - eCurrentOffset.top,
-            },
-            containerBleed: {
-              left: -overlap.left,
-              right: -overlap.right,
-              top: -overlap.top,
-              bottom: -overlap.bottom
-            }
-          });
+      // Handle vertical overflow.
+      if (overlap.top < 0 || overlap.bottom < 0) {
 
-        }
-        // If onCollision is anything else than a function let's use predefined collision handling
-        // methods to correct the position where necessary.
-        else {
-
-          // Handle horizontal bleed
-          if (hasXOverlap) {
-            ret.left += getPlaceCollision(opts.contain.onCollision, overlap);
-          }
-
-          // Handle vertical bleed
-          if (hasYOverlap) {
-            ret.top += getPlaceCollision(opts.contain.onCollision, overlap, 1);
-          }
-
-        }
+        overflowFixTop = getPlaceOverflowPush(overflowAction, overlap, 1);
+        ret.top += overflowFixTop;
 
       }
 
@@ -502,7 +487,52 @@ TODO
 
     if (typeof opts.adjust === 'function') {
 
-      // TODO
+      // Update element's left and right rect data to account for the possible overflow correction.
+      if (overflowFixLeft !== 0) {
+
+        eRect.left += overflowFixLeft;
+        eRect.right = eRect.left + eRect.width;
+
+      }
+
+      // Update element's top and bottom rect data to account for the possible overflow correction.
+      if (overflowFixTop !== 0) {
+
+        eRect.top += overflowFixTop;
+        eRect.bottom = eRect.left + eRect.width;
+
+      }
+
+      // Get container rect.
+      cRect = container ? cRect || getSanitizedRect(container) : null;
+
+      // Get the element's current offset so we can calculate how much the element moved.
+      eCurrentOffset = isPlainObject(opts.element) ? opts.element : getOffsetFromDocument.apply(null, [].concat(opts.element));
+
+      // Calculate overlap data based on the new position.
+      overlap = cRect ? getOverlap(eRect, cRect) : null;
+
+      // Provide the final position hash as the first argument (which can be modified and it affects
+      // the return value of this method) and all the positioning data as the second argument.
+      opts.adjust(ret, {
+        elementRect: eRect,
+        targetRect: tRect,
+        containerRect: cRect,
+        shift: {
+          left: eRect.left - eCurrentOffset.left,
+          top: eRect.top - eCurrentOffset.top
+        },
+        overflow: !overlap ? null : {
+          left: -overlap.left,
+          right: -overlap.right,
+          top: -overlap.top,
+          bottom: -overlap.bottom
+        },
+        overflowCorrection: {
+          left: overflowFixLeft,
+          top: overflowFixTop
+        }
+      });
 
     }
 
@@ -1233,94 +1263,6 @@ TODO
   }
 
   /**
-   * Merges default options with the instance options and sanitizes the new options.
-   *
-   * @private
-   * @param {PlaceOptions} [options]
-   * @returns {Object}
-   */
-  function getPlaceOptions(options) {
-
-    var opts = mergeObjects(options ? [settings.placeDefaultOptions, options] : [settings.placeDefaultOptions]);
-    var contain = opts.contain;
-
-    // Sanitize position option.
-    opts.position = typeof opts.position === 'string' ? opts.position.split(' ') : opts.position;
-
-    // Transform position option to array with shortened string values.
-    for (var i = 0; i < opts.position.length; i++) {
-
-      opts.position[i] = opts.position[i].charAt(0);
-
-    }
-
-    // Sanitize contain option. First of all make sure that the contain option and contain.within
-    // option are both objects and not null.
-    if (contain && typeof contain === 'object' && contain.within && typeof contain.within === 'object') {
-
-      var collision = contain.onCollision;
-      var collisionType = typeof collision;
-      var left = 'none';
-      var right = 'none';
-      var top = 'none';
-      var bottom = 'none';
-
-      // Allow onCollision remain intact if it is a function.
-      if (collisionType !== 'function') {
-
-        // onCollision string value is always used for all sides.
-        if (collisionType === 'string') {
-
-          left = right = top = bottom = collision;
-
-        }
-
-        // onCollision object value can have properties that present a side (left/right/top/bottom) or
-        // an axis (x/y). Always try to use the side value first and then fallback to axis value. If
-        // all else fails fallback to "none".
-        else if (collisionType === 'object') {
-
-          left = collision.left || collision.x || left;
-          right = collision.right || collision.x || right;
-          top = collision.top || collision.y || top;
-          bottom = collision.bottom || collision.y || bottom;
-
-        }
-
-        // If one side (or more) has a value other than "none" we know that the collision option might
-        // have an effect on the positioning. So let's update the options object with the new data.
-        if (left !== 'none' || right !== 'none' || top !== 'none' || bottom !== 'none') {
-
-          opts.contain.onCollision = {
-            left: left,
-            right: right,
-            top: top,
-            bottom: bottom
-          };
-
-        }
-
-        // Otherwise we know that the collision will not have an effect.
-        else {
-
-          opts.contain = null;
-
-        }
-
-      }
-
-    }
-    else {
-
-      opts.contain = null;
-
-    }
-
-    return opts;
-
-  }
-
-  /**
    * Returns the horizontal or vertical base position of an element relative to the target element.
    * In other words, this function returns the left and top CSS values which should be set as to the
    * target element in order to position it according to the desired position.
@@ -1360,26 +1302,26 @@ TODO
    * correctly if the target element overlaps the container.
    *
    * @private
-   * @param {Collision} collision
+   * @param {OverflowConfig} overflowConfig
    * @param {Overlap} targetOverlap
    * @param {Boolean} isVertical
    * @returns {Number}
    */
-  function getPlaceCollision(collision, targetOverlap, isVertical) {
+  function getPlaceOverflowPush(overflowConfig, targetOverlap, isVertical) {
 
     var ret = 0;
     var push = 'push';
     var forcePush = 'forcepush';
     var sideA = isVertical ? 'top' : 'left';
     var sideB = isVertical ? 'bottom' : 'right';
-    var sideACollision = collision[sideA];
-    var sideBCollision = collision[sideB];
+    var sideAConfig = overflowConfig[sideA];
+    var sideBConfig = overflowConfig[sideB];
     var sideAOverlap = targetOverlap[sideA];
     var sideBOverlap = targetOverlap[sideB];
     var sizeDifference = sideAOverlap + sideBOverlap;
 
     // If pushing is needed from both sides.
-    if ((sideACollision === push || sideACollision === forcePush) && (sideBCollision === push || sideBCollision === forcePush) && (sideAOverlap < 0 || sideBOverlap < 0)) {
+    if ((sideAConfig === push || sideAConfig === forcePush) && (sideBConfig === push || sideBConfig === forcePush) && (sideAOverlap < 0 || sideBOverlap < 0)) {
 
       // Do push correction from opposite sides with equal force.
       if (sideAOverlap < sideBOverlap) {
@@ -1400,14 +1342,14 @@ TODO
       sideBOverlap -= ret;
 
       // Check if left/top side forced push correction is needed.
-      if (sideACollision === forcePush && sideBCollision != forcePush && sideAOverlap < 0) {
+      if (sideAConfig === forcePush && sideBConfig != forcePush && sideAOverlap < 0) {
 
         ret -= sideAOverlap;
 
       }
 
       // Check if right/top side forced push correction is needed.
-      if (sideBCollision === forcePush && sideACollision != forcePush && sideBOverlap < 0) {
+      if (sideBConfig === forcePush && sideAConfig != forcePush && sideBOverlap < 0) {
 
         ret += sideBOverlap;
 
@@ -1416,20 +1358,93 @@ TODO
     }
 
     // Check if pushing is needed from left or top side only.
-    else if ((sideACollision === forcePush || sideACollision === push) && sideAOverlap < 0) {
+    else if ((sideAConfig === forcePush || sideAConfig === push) && sideAOverlap < 0) {
 
       ret -= sideAOverlap;
 
     }
 
     // Check if pushing is needed from right or bottom side only.
-    else if ((sideBCollision === forcePush || sideBCollision === push) && sideBOverlap < 0) {
+    else if ((sideBConfig === forcePush || sideBConfig === push) && sideBOverlap < 0) {
 
       ret += sideBOverlap;
 
     }
 
     return ret;
+
+  }
+
+  /**
+   * Generate sanitized position configuration data from raw position data.
+   *
+   * @public
+   * @param {PositionConfig} position
+   * @returns {PositionConfigSanitized}
+   */
+  function generatePositionConfig(position) {
+
+    var ret = typeof position === 'string' ? position.split(' ') : position;
+
+    for (var i = 0; i < ret.length; i++) {
+
+      ret[i] = ret[i].charAt(0);
+
+    }
+
+    return ret;
+
+  }
+
+  /**
+   * Sanitize contain.onOverflow option of .place() method.
+   *
+   * @private
+   * @param {OverflowConfig} overflowConfig
+   * @returns {?overflowConfigSanitized}
+   */
+  function getOverflowAction(overflowConfig) {
+
+    var actionType = typeof overflowConfig;
+    var left = 'none';
+    var right = 'none';
+    var top = 'none';
+    var bottom = 'none';
+
+    // onOverflow string value is always used for all sides.
+    if (actionType === 'string') {
+
+      left = right = top = bottom = overflowConfig;
+
+    }
+
+    // onOverflow object value can have properties that present a side (left/right/top/bottom)
+    // or an axis (x/y). Always try to use the side value first and then fallback to axis value.
+    // If all else fails fallback to "none".
+    else if (actionType === 'object') {
+
+      left = overflowConfig.left || overflowConfig.x || left;
+      right = overflowConfig.right || overflowConfig.x || right;
+      top = overflowConfig.top || overflowConfig.y || top;
+      bottom = overflowConfig.bottom || overflowConfig.y || bottom;
+
+    }
+
+
+    // If one side (or more) has a value other than "none" we know that the contain option
+    // might have an effect on the positioning.
+    if (left !== 'none' || right !== 'none' || top !== 'none' || bottom !== 'none') {
+
+      return {
+        left: left,
+        right: right,
+        top: top,
+        bottom: bottom
+      };
+
+    }
+
+    return null;
 
   }
 
@@ -1515,6 +1530,16 @@ TODO
    */
 
   /**
+   * @typedef {Object} Overflow
+   * @property {Number} left
+   * @property {Number} top
+   * @property {Number} right
+   * @property {Number} bottom
+   */
+
+
+
+  /**
    * @typedef {Object} PlaceOptions
    * @param {Array|Document|Element|Window|Rectangle} element
    * @property {Array|Document|Element|Window|Rectangle} target
@@ -1529,18 +1554,18 @@ TODO
    *
    * @typedef {Object} Containment
    * @property {?Array|Document|Element|Window|Rectangle} within
-   * @property {?Collision|String} onCollision
+   * @property {?OverflowConfig|String} onOverflow
    */
 
   /**
    * All properties accepts the following values: "push", "forcepush" and "none". The properties
-   * left, right, top and bottom are used to define the collision action that should be called when
-   * the positioned element overlaps the container element from the respective side. Alternatively
-   * you can also use the properties x and y to define the collision action per axis. If you mix
-   * side collision properties with axis collision properties remember that the side collision
-   * overwrites the axis collision.
+   * left, right, top and bottom are used to define the overflow action that should be called when
+   * the positioned element overflows the container element from the respective side. Alternatively
+   * you can also use the properties x and y to define the overflow action per axis. If you mix
+   * side overflow properties with axis overflow properties remember that the side configuration
+   * overwrites the axis configuration.
    *
-   * @typedef {Object} Collision
+   * @typedef {Object} OverflowConfig
    * @property {String} [left='none']
    * @property {String} [right='none']
    * @property {String} [top='none']
@@ -1550,11 +1575,40 @@ TODO
    */
 
   /**
+   * A sanitized configuration data object for contain.onOverflow option of .place() method.
+   *
+   * @typedef {Object} OverflowConfigSanitized
+   * @property {String} left
+   * @property {String} right
+   * @property {String} top
+   * @property {String} bottom
+   */
+
+  /**
    * @typedef {Object} PlaceData
    * @property {Number} left
    *   - Target element's new left position.
    * @property {Number} top
    *   - Target element's new top position.
+   */
+
+  /**
+   * Raw positioning data for position option of .place() method.
+   * String syntax: "elemX elemY targetX targetY".
+   * Array syntax: ["elemX", "elemY", "targetX", "targetY"].
+   * Possible values for elemX and targetX: "left", "center", "right".
+   * Possible values for elemY and targetY: "top", "center", "bottom".
+   *
+   * @typedef {Array|String} PositionConfig
+   */
+
+  /**
+   * Sanitized positioning data for position option of .place() method.
+   * Syntax: ["elemX", "elemY", "targetX", "targetY"].
+   * Possible values for elemX and targetX: "l", "c", "r".
+   * Possible values for elemY and targetY: "t", "c", "b".
+   *
+   * @typedef {Array} PositionConfigSanitized
    */
 
   /**
@@ -1579,6 +1633,7 @@ TODO
     containingBlock: getContainingBlock,
     distance: getDistance,
     intersection: getIntersectionMultiple,
+    overflow: getOverflow,
     place: getPlace,
     _settings: settings
   };

@@ -28,7 +28,8 @@ TestSuite.modules.push(function () {
       position: 'left top left top',
       offsetX: 0,
       offsetY: 0,
-      contain: null
+      contain: null,
+      adjust: null
     });
 
   });
@@ -346,7 +347,7 @@ TestSuite.modules.push(function () {
 
   });
 
-  QUnit.test('#critical: Contain option should not restrict positioning if it does not have valid within and onCollision values.', function (assert) {
+  QUnit.test('#critical: Contain option should not restrict positioning if it does not have valid within and onOverflow values.', function (assert) {
 
     assert.expect(2);
 
@@ -389,19 +390,19 @@ TestSuite.modules.push(function () {
         position: 'right top left top',
         contain: {
           within: fixture,
-          onCollision: 'none'
+          onOverflow: 'none'
         }
       }),
       {
         left: -10,
         top: 0
       },
-      'onCollision: "none"'
+      'onOverflow: "none"'
     );
 
   });
 
-  QUnit.test('#critical: Contain option should restrict positioning if it has valid within and onCollision values.', function (assert) {
+  QUnit.test('#critical: Contain option should restrict positioning if it has valid within and onOverflow values.', function (assert) {
 
     assert.expect(8);
 
@@ -430,14 +431,14 @@ TestSuite.modules.push(function () {
         position: 'right bottom left top',
         contain: {
           within: fixture,
-          onCollision: 'push'
+          onOverflow: 'push'
         }
       }),
       {
         left: -3,
         top: -3
       },
-      'onCollision: "push"'
+      'onOverflow: "push"'
     );
 
     assert.deepEqual(
@@ -447,7 +448,7 @@ TestSuite.modules.push(function () {
         position: 'right bottom left top',
         contain: {
           within: fixture,
-          onCollision: {
+          onOverflow: {
             x: 'push',
             y: 'push'
           }
@@ -457,7 +458,7 @@ TestSuite.modules.push(function () {
         left: -3,
         top: -3
       },
-      'onCollision: {x: "push", y: "push"}'
+      'onOverflow: {x: "push", y: "push"}'
     );
 
     assert.deepEqual(
@@ -467,7 +468,7 @@ TestSuite.modules.push(function () {
         position: 'right bottom left top',
         contain: {
           within: fixture,
-          onCollision: {
+          onOverflow: {
             left: 'push',
             right: 'push',
             top: 'push',
@@ -479,7 +480,7 @@ TestSuite.modules.push(function () {
         left: -3,
         top: -3
       },
-      'onCollision: {left: "push", right: "push", top: "push", bottom: "push"}'
+      'onOverflow: {left: "push", right: "push", top: "push", bottom: "push"}'
     );
 
     assert.deepEqual(
@@ -489,7 +490,7 @@ TestSuite.modules.push(function () {
         position: 'right bottom left top',
         contain: {
           within: fixture,
-          onCollision: {
+          onOverflow: {
             left: 'push',
             right: 'none',
             top: 'push',
@@ -501,7 +502,7 @@ TestSuite.modules.push(function () {
         left: 0,
         top: 0
       },
-      'onCollision: {left: "push", right: "none", top: "push", bottom: "none"}'
+      'onOverflow: {left: "push", right: "none", top: "push", bottom: "none"}'
     );
 
     assert.deepEqual(
@@ -511,7 +512,7 @@ TestSuite.modules.push(function () {
         position: 'left top right bottom',
         contain: {
           within: fixture,
-          onCollision: {
+          onOverflow: {
             left: 'none',
             right: 'push',
             top: 'none',
@@ -523,7 +524,7 @@ TestSuite.modules.push(function () {
         left: -6,
         top: -6
       },
-      'onCollision: {left: "push", right: "none", top: "push", bottom: "none"}'
+      'onOverflow: {left: "push", right: "none", top: "push", bottom: "none"}'
     );
 
     assert.deepEqual(
@@ -533,7 +534,7 @@ TestSuite.modules.push(function () {
         position: 'right bottom left top',
         contain: {
           within: fixture,
-          onCollision: {
+          onOverflow: {
             left: 'forcepush',
             right: 'push',
             top: 'forcepush',
@@ -545,7 +546,7 @@ TestSuite.modules.push(function () {
         left: 0,
         top: 0
       },
-      'onCollision: {left: "forcepush", right: "push", top: "forcepush", bottom: "push"}'
+      'onOverflow: {left: "forcepush", right: "push", top: "forcepush", bottom: "push"}'
     );
 
     assert.deepEqual(
@@ -555,7 +556,7 @@ TestSuite.modules.push(function () {
         position: 'right bottom left top',
         contain: {
           within: fixture,
-          onCollision: {
+          onOverflow: {
             left: 'push',
             right: 'forcepush',
             top: 'push',
@@ -567,7 +568,7 @@ TestSuite.modules.push(function () {
         left: -6,
         top: -6
       },
-      'onCollision: {left: "push", right: "forcepush", top: "push", bottom: "forcepush"}'
+      'onOverflow: {left: "push", right: "forcepush", top: "push", bottom: "forcepush"}'
     );
 
     assert.deepEqual(
@@ -577,7 +578,7 @@ TestSuite.modules.push(function () {
         position: 'right bottom left top',
         contain: {
           within: fixture,
-          onCollision: {
+          onOverflow: {
             left: 'forcepush',
             right: 'forcepush',
             top: 'forcepush',
@@ -589,7 +590,7 @@ TestSuite.modules.push(function () {
         left: -3,
         top: -3
       },
-      'onCollision: {left: "forcepush", right: "forcepush", top: "forcepush", bottom: "forcepush"}'
+      'onOverflow: {left: "forcepush", right: "forcepush", top: "forcepush", bottom: "forcepush"}'
     );
 
   });
@@ -624,7 +625,7 @@ TestSuite.modules.push(function () {
         position: 'right bottom left top',
         contain: {
           within: window,
-          onCollision: 'push'
+          onOverflow: 'push'
         }
       }),
       {
@@ -641,7 +642,7 @@ TestSuite.modules.push(function () {
         position: 'right bottom left top',
         contain: {
           within: document,
-          onCollision: 'push'
+          onOverflow: 'push'
         }
       }),
       {
@@ -658,7 +659,7 @@ TestSuite.modules.push(function () {
         position: 'right bottom left top',
         contain: {
           within: {left: -5, top: -5, width: 10, height: 10},
-          onCollision: 'push'
+          onOverflow: 'push'
         }
       }),
       {
@@ -675,7 +676,7 @@ TestSuite.modules.push(function () {
         position: 'right bottom left top',
         contain: {
           within: [fixture, 'content'],
-          onCollision: {
+          onOverflow: {
             left: 'push',
             top: 'push'
           }
