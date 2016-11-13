@@ -691,6 +691,55 @@ TestSuite.modules.push(function () {
 
   });
 
+  QUnit.test('#critical: Adjust option should receive all the position data and the result data object.', function (assert) {
+
+    var result;
+    var expected;
+
+    assert.expect(2);
+
+    inst.setStyles(fixture, {
+      position: 'absolute',
+      width: '10px',
+      height: '10px',
+      left: '-10px',
+      top: '-10px'
+    });
+
+    inst.setStyles(element, {
+      position: 'absolute',
+      left: '10px',
+      top: '10px',
+      width: '10px',
+      height: '10px'
+    });
+
+    window.scrollTo(0, 0);
+
+    expected = mezr.place({
+      element: element,
+      target: fixture,
+      position: 'left top left top',
+      adjust: function (position) {
+        result = position;
+      }
+    });
+    assert.strictEqual(result, expected, 'The first argument of adjust callback is the return object.');
+
+    expected = mezr.place({
+      element: element,
+      target: fixture,
+      position: 'left top left top',
+      adjust: function (position) {
+        result = position;
+        position.left = 999;
+        position.top = 999;
+      }
+    });
+    assert.deepEqual(result, expected, 'Modifying the first argument of adjust callback affects the return data.');
+
+
+  });
 
   QUnit.test('#critical: An extensive test with all possible positioining variations, css positions and edge layers.', function (assert) {
 
