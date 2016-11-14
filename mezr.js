@@ -748,11 +748,11 @@
    */
   function setStyles(element, styles) {
 
-    for (var prop in styles) {
+    Object.keys(styles).forEach(function (styleName) {
 
-      element.style[prop] = styles[prop];
+      element.style[styleName] = styles[styleName];
 
-    }
+    });
 
   }
 
@@ -929,7 +929,8 @@
         sbSize = win[innerDimension] - root[clientDimension];
         ret = max(root[scrollDimension] + sbSize, body[scrollDimension] + sbSize, win[innerDimension]);
 
-      } else {
+      }
+      else {
 
         ret = max(root[scrollDimension], body[scrollDimension], root[clientDimension]);
 
@@ -1041,7 +1042,7 @@
       var marginLeft = getStyleAsFloat(el, 'margin-left');
       var marginTop = getStyleAsFloat(el, 'margin-top');
 
-      ret.left -=  marginLeft > 0 ? marginLeft : 0;
+      ret.left -= marginLeft > 0 ? marginLeft : 0;
       ret.top -= marginTop > 0 ? marginTop : 0;
 
     }
@@ -1342,14 +1343,14 @@
       sideBOverlap -= ret;
 
       // Check if left/top side forced push correction is needed.
-      if (sideAConfig === forcePush && sideBConfig != forcePush && sideAOverlap < 0) {
+      if (sideAConfig === forcePush && sideBConfig !== forcePush && sideAOverlap < 0) {
 
         ret -= sideAOverlap;
 
       }
 
       // Check if right/top side forced push correction is needed.
-      if (sideBConfig === forcePush && sideAConfig != forcePush && sideBOverlap < 0) {
+      if (sideBConfig === forcePush && sideAConfig !== forcePush && sideBOverlap < 0) {
 
         ret += sideBOverlap;
 

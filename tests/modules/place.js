@@ -696,7 +696,7 @@ TestSuite.modules.push(function () {
     var result;
     var expected;
 
-    assert.expect(2);
+    assert.expect(16);
 
     inst.setStyles(fixture, {
       position: 'absolute',
@@ -715,6 +715,15 @@ TestSuite.modules.push(function () {
     });
 
     window.scrollTo(0, 0);
+
+    mezr.place({
+      element: element,
+      target: fixture,
+      position: 'left top left top',
+      adjust: function () {
+        assert.deepEqual(arguments.length, 2, 'Adjust callback receives two arguments');
+      }
+    });
 
     expected = mezr.place({
       element: element,
@@ -738,6 +747,86 @@ TestSuite.modules.push(function () {
     });
     assert.deepEqual(result, expected, 'Modifying the first argument of adjust callback affects the return data.');
 
+    mezr.place({
+      element: element,
+      target: fixture,
+      position: 'left top left top',
+      adjust: function (position, data) {
+        assert.deepEqual(
+          Object.keys(data).sort(),
+          [
+            'elementRect',
+            'targetRect',
+            'containerRect',
+            'shift',
+            'overflow',
+            'overflowCorrection'
+          ].sort(),
+          'Adjust callback data argument has correct properties.'
+        );
+      }
+    });
+
+    mezr.place({
+      element: element,
+      target: fixture,
+      position: 'left top left top',
+      adjust: function (position, data) {
+
+        var elementRect = mezr.rect(element);
+        elementRect.left -= 10;
+        elementRect.right -= 10;
+        elementRect.top -= 10;
+        elementRect.bottom -= 10;
+
+        assert.deepEqual(data.elementRect, elementRect, 'elementRect has correct data');
+        assert.strictEqual(data.containerRect, null, 'containerRect is null when no container is specified.');
+        assert.strictEqual(data.overflow, null, 'overflow is null when no container is specified.');
+        assert.deepEqual(data.overflowCorrection, {left: 0, top: 0}, 'overflowCorrection has 0 left and top values when no overlap fixing has occured.');
+        assert.deepEqual(data.targetRect, mezr.rect(fixture), 'targetRect has correct values.');
+        assert.deepEqual(data.shift, {left: -10, top: -10}, 'shift has correct values.');
+
+      }
+    });
+
+    mezr.place({
+      element: element,
+      target: fixture,
+      position: 'left top left top',
+      contain: {
+        within: window
+      },
+      adjust: function (position, data) {
+
+        var overflow = mezr.overflow(window, element);
+        overflow.left += 10;
+        overflow.right -= 10;
+        overflow.top += 10;
+        overflow.bottom -= 10;
+
+        assert.deepEqual(data.containerRect, mezr.rect(window), 'containerRect has correct data.');
+        assert.deepEqual(data.overflow, overflow, 'overflow has correct data.');
+        assert.deepEqual(data.overflowCorrection, {left: 0, top: 0}, 'overflowCorrection has 0 left and top values when no overlap fixing has occured.');
+        assert.deepEqual(data.shift, {left: -10, top: -10}, 'shift has correct values.');
+
+      }
+    });
+
+    mezr.place({
+      element: element,
+      target: fixture,
+      position: 'left top left top',
+      contain: {
+        within: window,
+        onOverflow: 'push'
+      },
+      adjust: function (position, data) {
+
+        assert.deepEqual(data.overflowCorrection, {left: 10, top: 10}, 'overflowCorrection has correct data.');
+        assert.deepEqual(data.shift, {left: 0, top: 0}, 'shift has correct values.');
+
+      }
+    });
 
   });
 
