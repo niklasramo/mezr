@@ -480,11 +480,11 @@ mezr.intersection(elemA, [elemB, 'margin'], rectA, rectB);
 
 Calculate how much an element overflows another element per each side.
 
-**`.intersection( container, el )`**
+**`.overflow( container, el )`**
 
 * **container** &nbsp;&mdash;&nbsp; *array / element / object*
-  * Element: the element's edge is considered to be 'border'.
-  * Array: allows one to control which layer (content, padding, scroll, border, margin) is considered as the element's edge, e.g. `[someElem, 'content']`.
+  * Element: the container's edge is considered to be 'border'.
+  * Array: allows one to control which layer (content, padding, scroll, border, margin) is considered as the container's edge, e.g. `[someElem, 'content']`.
   * Object: must have width, height, left and top properties with numeric values (e.g. `{width: 10, height: 20, left: 15, top: -10}`).
 * **el** &nbsp;&mdash;&nbsp; *array / element / object*
   * Element: the element's edge is considered to be 'border'.
@@ -501,6 +501,8 @@ Calculate how much an element overflows another element per each side.
   * How much element's top edge overflows the container's top edge.
 * **obj.bottom** &nbsp;&mdash;&nbsp; *number*
   * How much element's bottom edge overflows the container's bottom edge.
+
+Note: A positive value means that the element overflows the container.
 
 **Examples**
 
