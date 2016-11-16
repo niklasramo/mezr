@@ -574,8 +574,37 @@ The *options* argument should be an object. You may configure it with the follow
     * `'push'`: Push the element back within the container, so that it does not overlap the container. If the element is larger than the container and opposite edges both have 'push' action enabled, the element will be positioned so that it overlaps the container an equal amount from both edges.
     * `'forcepush'`: Identical to 'push', but with one exception: it makes sure that the element's edge is always pushed fully back within the container. This action is only useful when the opposite edge has 'push' action enabled.
 * **adjust** &nbsp;&mdash;&nbsp; *function / null*
-  * An optional callback function which can be used to adjust the positioning data just before returning it. This function receives all positioning data as arguments so you can use this callback, for example, to create custom positioning logic.
+  * An optional callback function which can be used to adjust the positioning data just before returning it and accessing all the positioning data that was used to calculate the element's new position.
   * Default: `null`
+  * This callback receives two arguments:
+    * **position** &nbsp;&mdash;&nbsp; *object*
+      * This object is the same object that the method will return, so modifying it's properties will affect the return value of the method. 
+      * **position.left** &nbsp;&mdash;&nbsp; *number*
+        * The positioned element's left (CSS) property value (fractional).
+      * **position.top** &nbsp;&mdash;&nbsp; *number*
+        * The positioned element's top (CSS) property value (fractional).
+    * **data** &nbsp;&mdash;&nbsp; *object*
+      * This object contains all the positioning data.
+      * **data.elementRect** &nbsp;&mdash;&nbsp; *object*
+        * Element's *new* [rect](#rect) data where the element is assumed to be in the newly calculated position.
+      * **data.targetRect** &nbsp;&mdash;&nbsp; *object*
+        * Target's *current* [rect](#rect) data.
+      * **data.containerRect** &nbsp;&mdash;&nbsp; *object / null*
+        * Container's *current* [rect](#rect) data if `collision.within` is defined. Otherwise `null`.
+      * **data.shift** &nbsp;&mdash;&nbsp; *object*
+        * Horiozontal and vertical diff between the element's current and new offset. In other words, answers the question how much the element moved in the x-axis and y-axis and in which direction.
+        * **data.shift.left** &nbsp;&mdash;&nbsp; *number*
+        * **data.shift.top** &nbsp;&mdash;&nbsp; *number*
+      * **data.overflow** &nbsp;&mdash;&nbsp; *object / null*
+        * How much the element (in it's *new* position) [overflows](#overflow) the container per each side. Identical to `mezr.overflow(data.containerRect, data.elementRect)`. If `collision.within` is not defined this will be `null`.
+        * **data.overflow.left** &nbsp;&mdash;&nbsp; *number*
+        * **data.overflow.right** &nbsp;&mdash;&nbsp; *number*
+        * **data.overflow.top** &nbsp;&mdash;&nbsp; *number*
+        * **data.overflow.bottom** &nbsp;&mdash;&nbsp; *number*
+      * **data.overflowCorrection** &nbsp;&mdash;&nbsp; *object*
+        * This object contains data on how much the `contain.onOverflow` action moved the element in x-axis and y-axis, and in which direction. If no `contain.onOverflow` action was defined or the action had no effect on the element's position the values of the `left` and `top` attributes are `0`.
+        * **data.overflowCorrection.left** &nbsp;&mdash;&nbsp; *number*
+        * **data.overflowCorrection.top** &nbsp;&mdash;&nbsp; *number*
 
 
 **Returns** &nbsp;&mdash;>&nbsp; *object*
@@ -588,26 +617,35 @@ The *options* argument should be an object. You may configure it with the follow
 **Examples**
 
 ```javascript
-// Calculate elemA's new position (left and top CSS properties)
-// when it's northwest corner is positioned in the center of elemB.
-// Also add some static offsets and make sure that elemA stays
-// within the boundaries elemC. The onCollision option determines
-// what to do when a specific edge of elemC is "breached" by
-// elemA.
-mezr.place({
+// Calculate elemA's new position (left and top CSS properties).
+var newElementPosition = mezr.place({
+  // Let's use elemA's content layer for calculations.
   element: [elemA, 'content'],
+  // Let's use elemB's margin layer for calculations.
   target: [elemB, 'margin'],
+  // Let's position elemA's "left top" corner to the center of elemB.
   position: 'left top center center',
+  // Nudge elemA 5px to the left.
   offsetX: -5,
+  // Nudge elemA 50% (relative to it's own current height) to the bottom.
   offsetY: '50%',
+  // Define containment for elemA.
   contain: {
+    // Contain elemA within elemC (padding layer).
     within: [elemC, 'padding'],
-    onCollision: {
+    // Define (for each side) what to do when/if elemA overflows elemC.
+    onOverflow: {
       left: 'forcepush',
       right: 'push',
       top: 'none',
       bottom: 'push'
     }
+  },
+  adjust: function (position, data) {
+    // Nudge the element's position 1px to the left and 1px to the bottom
+    // after all positioning stuff above has happened.
+    position.left -= 1;
+    position.top += 1;
   }
 });
 ```

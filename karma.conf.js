@@ -71,10 +71,7 @@ module.exports = function (config) {
   // plugins to use
   stn.plugins = [
     'karma-qunit',
-    'karma-sauce-launcher',
-    'karma-story-reporter',
-    'karma-coveralls',
-    'karma-coverage'
+    'karma-sauce-launcher'
   ];
 
   // list of files / patterns to load in the browser
@@ -98,19 +95,13 @@ module.exports = function (config) {
   // preprocess matching files before serving them to the browser
   // https://npmjs.org/browse/keyword/karma-preprocessor
   stn.preprocessors = {};
-  stn.preprocessors[package.main] = ['coverage'];
 
   // possible values: 'dots', 'progress', 'story'
   // https://npmjs.org/browse/keyword/karma-reporter
   stn.reporters = [
     'progress',
-    'coverage',
     'saucelabs'
   ];
-
-  if (process.env.CI) {
-    stn.reporters.push('coveralls');
-  }
 
   // enable / disable colors in the output (reporters and logs)
   stn.colors = true;

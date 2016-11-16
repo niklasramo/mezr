@@ -38,11 +38,8 @@
     "gulp-util": "^3.0.7",
     "jsdoc-parse": "^1.2.7",
     "karma": "^1.3.0",
-    "karma-coverage": "^1.1.1",
-    "karma-coveralls": "^1.1.2",
     "karma-qunit": "^1.2.0",
     "karma-sauce-launcher": "^1.1.0",
-    "karma-story-reporter": "^0.3.1",
     "qunitjs": "^2.0.1",
     "rimraf": "^2.5.4",
     "run-sequence": "^1.2.2"
