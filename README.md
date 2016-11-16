@@ -67,6 +67,9 @@ Mezr is a lightweight JavaScript utility library for measuring and comparing the
   mezr.intersection(elemA, elemB, elemC);
   mezr.intersection([elemA, 'content'], [elemB, 'margin']);
 
+  // Calculate how much elem overflows container.
+  mezr.overflow(container, elem);
+
   // Calculate what elemA's position (left and top CSS properties) should
   // be when it's left-top (northwest) corner is placed in the center of
   // elemB. Works only for for positioned elements (CSS position attribute

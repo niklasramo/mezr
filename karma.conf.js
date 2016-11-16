@@ -87,7 +87,7 @@ module.exports = function (config) {
     './tests/modules/containing-block.js',
     './tests/modules/intersection.js',
     './tests/modules/distance.js',
-    './tests/modules/overlap.js',
+    './tests/modules/overflow.js',
     './tests/modules/place.js',
     './tests/run-tests.js'
   ];

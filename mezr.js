@@ -1,5 +1,5 @@
 /*!
- * mezr v0.6.0-dev
+ * mezr v0.6.0
  * https://github.com/niklasramo/mezr
  * Copyright (c) 2016 Niklas Rämö <inramo@gmail.com>
  * Released under the MIT license
@@ -27,12 +27,12 @@
 
   }
 
-}(this, function (win, undefined) {
+}(this, function (global, undefined) {
 
   'use strict';
 
   // Make sure we received a valid window object from the arguments.
-  var win = win.document && win.self === win.document.defaultView ? win : window;
+  var win = global.document && global.self === global.document.defaultView ? global : window;
 
   // Cache document, root and body elements.
   var doc = win.document;
@@ -433,7 +433,7 @@
 
     var ret = {};
     var opts = mergeObjects([settings.placeDefaultOptions, options || {}]);
-    var position = generatePositionConfig(opts.position);
+    var position = typeof opts.position === 'string' ? opts.position.split(' ') : opts.position;
     var eRect = getSanitizedRect(opts.element, true);
     var tRect = getSanitizedRect(opts.target);
     var isContainDefined = isPlainObject(opts.contain);
@@ -452,8 +452,8 @@
     offsetY = typeof offsetY === 'string' && offsetY.indexOf('%') > -1 ? toFloat(offsetY) / 100 * eRect.height : toFloat(offsetY);
 
     // Calculate element's new position (left/top coordinates).
-    ret.left = getPlacePosition(position[0] + position[2], tRect.width, tRect.left, eRect.width, eRect.left, offsetX);
-    ret.top = getPlacePosition(position[1] + position[3], tRect.height, tRect.top, eRect.height, eRect.top, offsetY);
+    ret.left = getPlacePosition(position[0], position[2], tRect.width, tRect.left, eRect.width, eRect.left, offsetX);
+    ret.top = getPlacePosition(position[1], position[3], tRect.height, tRect.top, eRect.height, eRect.top, offsetY);
 
     // Update element offset data to match the newly calculated position.
     eRect.left += ret.left;
@@ -1269,7 +1269,10 @@
    * target element in order to position it according to the desired position.
    *
    * @private
-   * @param {Placement} placement
+   * @param {String} elementPosition
+   *   - Element's position: "left", "right", "top", "bottom" or "center".
+   * @param {String} targetPosition
+   *   - Target's position: "left", "right", "top", "bottom" or "center".
    * @param {Number} targetSize
    *   - Target's width/height in pixels.
    * @param {Number} targetOffset
@@ -1282,8 +1285,9 @@
    *   - Additional left/top offset in pixels.
    * @returns {Number}
    */
-  function getPlacePosition(placement, targetSize, targetOffset, elementSize, elementNwOffset, extraOffset) {
+  function getPlacePosition(elementPosition, targetPosition, targetSize, targetOffset, elementSize, elementNwOffset, extraOffset) {
 
+    var placement = elementPosition.charAt(0) + targetPosition.charAt(0);
     var northwestPoint = targetOffset + extraOffset - elementNwOffset;
 
     return placement === 'll' || placement === 'tt' ? northwestPoint :
@@ -1377,27 +1381,6 @@
   }
 
   /**
-   * Generate sanitized position configuration data from raw position data.
-   *
-   * @public
-   * @param {PositionConfig} position
-   * @returns {PositionConfigSanitized}
-   */
-  function generatePositionConfig(position) {
-
-    var ret = typeof position === 'string' ? position.split(' ') : position;
-
-    for (var i = 0; i < ret.length; i++) {
-
-      ret[i] = ret[i].charAt(0);
-
-    }
-
-    return ret;
-
-  }
-
-  /**
    * Sanitize contain.onOverflow option of .place() method.
    *
    * @private
@@ -1430,7 +1413,6 @@
       bottom = overflowConfig.bottom || overflowConfig.y || bottom;
 
     }
-
 
     // If one side (or more) has a value other than "none" we know that the contain option
     // might have an effect on the positioning.
@@ -1538,22 +1520,30 @@
    * @property {Number} bottom
    */
 
-
-
   /**
    * @typedef {Object} PlaceOptions
    * @param {Array|Document|Element|Window|Rectangle} element
    * @property {Array|Document|Element|Window|Rectangle} target
-   * @property {String} [position='left top left top']
+   * @property {PlaceOptionsPosition} [position='left top left top']
    * @property {Number} [offsetX=0]
    * @property {Number} [offsetY=0]
-   * @property {?Containment} [contain=null]
+   * @property {?PlaceOptionsContainment} [contain=null]
+   */
+
+  /**
+   * Raw positioning data for position option of .place() method.
+   * String syntax: "elemX elemY targetX targetY".
+   * Array syntax: ["elemX", "elemY", "targetX", "targetY"].
+   * Possible values for elemX and targetX: "left", "center", "right".
+   * Possible values for elemY and targetY: "top", "center", "bottom".
+   *
+   * @typedef {Array|String} PlaceOptionsPosition
    */
 
   /**
    * All properties accepts the following values: "push", "forcepush" and "none".
    *
-   * @typedef {Object} Containment
+   * @typedef {Object} PlaceOptionsContainment
    * @property {?Array|Document|Element|Window|Rectangle} within
    * @property {?OverflowConfig|String} onOverflow
    */
@@ -1592,38 +1582,6 @@
    * @property {Number} top
    *   - Target element's new top position.
    */
-
-  /**
-   * Raw positioning data for position option of .place() method.
-   * String syntax: "elemX elemY targetX targetY".
-   * Array syntax: ["elemX", "elemY", "targetX", "targetY"].
-   * Possible values for elemX and targetX: "left", "center", "right".
-   * Possible values for elemY and targetY: "top", "center", "bottom".
-   *
-   * @typedef {Array|String} PositionConfig
-   */
-
-  /**
-   * Sanitized positioning data for position option of .place() method.
-   * Syntax: ["elemX", "elemY", "targetX", "targetY"].
-   * Possible values for elemX and targetX: "l", "c", "r".
-   * Possible values for elemY and targetY: "t", "c", "b".
-   *
-   * @typedef {Array} PositionConfigSanitized
-   */
-
-  /**
-    * Describe an element's vertical or horizontal placement relative to another element. For
-    * example, if we wanted to place element's left side to the target's right side we would write:
-    * "lr", which is short from  "left" and "right".
-    * left   -> "l"
-    * right  -> "r"
-    * top    -> "t"
-    * bottom -> "b"
-    * center -> "c"
-    *
-    * @typedef {String} Placement
-    */
 
   // Name and return the public methods.
   return {
