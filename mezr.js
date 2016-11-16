@@ -766,14 +766,14 @@
    */
   function getOverlap(a, b) {
 
-    a = getSanitizedRect(a);
-    b = getSanitizedRect(b);
+    var aRect = getSanitizedRect(a);
+    var bRect = getSanitizedRect(b);
 
     return {
-      left: a.left - b.left,
-      right: (b.left + b.width) - (a.left + a.width),
-      top: a.top - b.top,
-      bottom: (b.top + b.height) - (a.top + a.height)
+      left: aRect.left - bRect.left,
+      right: (bRect.left + bRect.width) - (aRect.left + aRect.width),
+      top: aRect.top - bRect.top,
+      bottom: (bRect.top + bRect.height) - (aRect.top + aRect.height)
     };
 
   }
@@ -872,7 +872,7 @@
       ret = bBottom < aTop ? aTop - bBottom :
             bLeft > aRight ? bLeft - aRight :
             bTop > aBottom ? bTop - aBottom :
-                             aLeft - bRight ;
+            aLeft - bRight;
 
     }
 
