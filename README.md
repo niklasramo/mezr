@@ -574,7 +574,7 @@ The *options* argument should be an object. You may configure it with the follow
     * `'push'`: Push the element back within the container, so that it does not overlap the container. If the element is larger than the container and opposite edges both have 'push' action enabled, the element will be positioned so that it overlaps the container an equal amount from both edges.
     * `'forcepush'`: Identical to 'push', but with one exception: it makes sure that the element's edge is always pushed fully back within the container. This action is only useful when the opposite edge has 'push' action enabled.
 * **adjust** &nbsp;&mdash;&nbsp; *function / null*
-  * An optional callback function which can be used to adjust the positioning data just before returning it and accessing all the positioning data that was used to calculate the element's new position.
+  * An optional callback function which is called just before returning the element's new calculated position. Can be used to adjust the return value just before returning it and accessing all the positioning data that was used to calculate the element's new position.
   * Default: `null`
   * This callback receives two arguments:
     * **position** &nbsp;&mdash;&nbsp; *object*
