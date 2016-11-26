@@ -81,7 +81,7 @@ Mezr is a lightweight JavaScript utility library for measuring and comparing the
   });
   ```
 
-## API v0.6.0
+## API v0.6.1
 
 * [.width()](#width)
 * [.height()](#height)
@@ -578,7 +578,7 @@ The *options* argument should be an object. You may configure it with the follow
   * Default: `null`
   * This callback receives two arguments:
     * **position** &nbsp;&mdash;&nbsp; *object*
-      * This object is the same object that the method will return, so modifying it's properties will affect the return value of the method. 
+      * This object is the same object that the method will return, so modifying it's properties will affect the return value of the method.
       * **position.left** &nbsp;&mdash;&nbsp; *number*
         * The positioned element's left (CSS) property value (fractional).
       * **position.top** &nbsp;&mdash;&nbsp; *number*

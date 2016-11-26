@@ -147,24 +147,27 @@ TestSuite.modules.push(function () {
       var edgeLayer = edgeLayer || 'border';
       var sideA = dimension === 'width' ? 'left' : 'top';
       var sideB = dimension === 'width' ? 'right' : 'bottom';
+      var ret;
 
       if (edgeLayer === 'content') {
-        return innerGBCR[dimension] - padding[sideA] - padding[sideB];
+        ret = innerGBCR[dimension] - padding[sideA] - padding[sideB];
       }
       else if (edgeLayer === 'padding') {
-        return innerGBCR[dimension];
+        ret = innerGBCR[dimension];
       }
       else if (edgeLayer === 'scroll') {
-        return elemGBCR[dimension] - border[sideA] - border[sideB];
+        ret = elemGBCR[dimension] - border[sideA] - border[sideB];
       }
       else if (edgeLayer === 'border') {
-        return elemGBCR[dimension];
+        ret = elemGBCR[dimension];
       }
       else if (edgeLayer === 'margin') {
         var marginA = margin[sideA] < 0 ? 0 : margin[sideA];
         var marginB = margin[sideB] < 0 ? 0 : margin[sideB];
-        return elemGBCR[dimension] + marginA + marginB;
+        ret = elemGBCR[dimension] + marginA + marginB;
       }
+
+      return ret > 0 ? ret : 0;
 
     }
 
@@ -289,6 +292,51 @@ TestSuite.modules.push(function () {
 
     assert.strictEqual(mezr.width(element, 'margin'), 300, 'width - "margin" - border-box');
     assert.strictEqual(mezr.height(element, 'margin'), 300, 'height - "margin" - border-box');
+
+  });
+
+  QUnit.test('#critical: Should return the element\'s width and height correctly no matter what the display value is.', function (assert) {
+
+    var edgeLayers = ['content', 'padding', 'scroll', 'border', 'margin'];
+    var displayValues = [
+      'inline',
+      'inline-block',
+      'list-item',
+      'table',
+      'inline-table',
+      'table',
+      'table-cell',
+      'table-column',
+      'table-column-group',
+      'table-header-group',
+      'table-row-group',
+      'table-footer-group',
+      'table-row',
+      'table-caption'
+    ];
+
+    assert.expect(edgeLayers.length * displayValues.length * 2);
+
+    inst.setStyles(fixture, {
+      position: 'absolute',
+      left: '0px',
+      top: '0px',
+      width: '10px',
+      height: '10px'
+    });
+
+    displayValues.forEach(function (displayValue) {
+
+      inst.setStyles(fixture, {
+        display: displayValue
+      });
+
+      edgeLayers.forEach(function (edgeLayer) {
+        assert.strictEqual(mezr.width(fixture, edgeLayer), 10, 'width - ' + displayValue + ' - ' + edgeLayer);
+        assert.strictEqual(mezr.height(fixture, edgeLayer), 10, 'height - ' + displayValue + ' - ' + edgeLayer);
+      });
+
+    });
 
   });
 
