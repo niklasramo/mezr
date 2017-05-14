@@ -4,7 +4,7 @@ Mezr is a lightweight JavaScript utility library for measuring and comparing the
 
 **Features**
 
-* Calculate any element's dimensions and offset consistently.
+* Calculate any element's dimensions and offsets consistently.
 * Get element's [containing block](https://www.w3.org/TR/CSS2/visuren.html#containing-block).
 * Position elements relative to other elements (similar to jQuery UI's [position](https://jqueryui.com/position/) method).
 * Calculate the intersection area between multiple elements.
@@ -13,7 +13,7 @@ Mezr is a lightweight JavaScript utility library for measuring and comparing the
 
 ## Getting started
 
-1. Include [mezr.js](https://raw.githubusercontent.com/niklasramo/mezr/0.5.0/mezr.js) within the **body** element on your site. Mezr needs to access the body element, because it does some browser behaviour checking on initialization and will throw an error if `document.body` is not available.
+1. Include [mezr.js](mezr.js) within the **body** element on your site. Mezr needs to access the body element, because it does some browser behaviour checking on initialization and will throw an error if `document.body` is not available.
 
   ```html
   <html>
@@ -26,27 +26,27 @@ Mezr is a lightweight JavaScript utility library for measuring and comparing the
 2. Then just start measuring the DOM. Here are some simple examples to get you started.
 
   ```javascript
-  // Get element content width/height.
+  // Get element's content dimensions.
   mezr.width(elem, 'content');
   mezr.height(elem, 'content');
 
-  // Get element content + padding width/height.
+  // Get element's content + padding dimensions.
   mezr.width(elem, 'padding');
   mezr.height(elem, 'padding');
 
-  // Get element content + padding + scrollbar width.
+  // Get element's content + padding + scrollbar dimensions.
   mezr.width(elem, 'scroll');
   mezr.height(elem, 'scroll');
 
-  // Get element content + padding + scrollbar + border width (default).
+  // Get element's content + padding + scrollbar + border dimensions (default).
   mezr.width(elem, 'border');
   mezr.height(elem, 'border');
 
-  // Get element content + padding + scrollbar + border + margin width.
+  // Get element's content + padding + scrollbar + border + margin dimensions.
   mezr.width(elem, 'margin');
   mezr.height(elem, 'margin');
 
-  // Calculate element's offset from the document.
+  // Calculate element's offsets from the document.
   // The second argument defines the element's edge for the calculations.
   mezr.offset(elem); // {left: ..., top: ...}
   mezr.offset(elem, 'content');
@@ -55,7 +55,7 @@ Mezr is a lightweight JavaScript utility library for measuring and comparing the
   mezr.offset(elem, 'border');
   mezr.offset(elem, 'margin');
 
-  // Calculate element's offset from another element or the window.
+  // Calculate element's offsets from another element or the window.
   mezr.offset([elemTo, 'content'], [elemFrom, 'padding']);
   mezr.offset([elemTo, 'content'], window);
 
@@ -63,12 +63,12 @@ Mezr is a lightweight JavaScript utility library for measuring and comparing the
   mezr.distance(elemA, elemB);
   mezr.distance([elemA, 'content'], [elemB, 'margin']);
 
-  // Get the intersection area between two or more elements.
+  // Calculate the intersection area between two or more elements.
   mezr.intersection(elemA, elemB, elemC);
   mezr.intersection([elemA, 'content'], [elemB, 'margin']);
 
-  // Calculate how much elem overflows container.
-  mezr.overflow(container, elem);
+  // Calculate how much elemB overflows elemA.
+  mezr.overflow(elemA, elemB);
 
   // Calculate what elemA's position (left and top CSS properties) should
   // be when it's left-top (northwest) corner is placed in the center of
@@ -81,7 +81,7 @@ Mezr is a lightweight JavaScript utility library for measuring and comparing the
   });
   ```
 
-## API v0.6.1
+## API v0.6.2
 
 * [.width()](#width)
 * [.height()](#height)
@@ -117,7 +117,7 @@ The return value may be fractional when calculating the width of an element. For
 
 ```javascript
 // Document width (with viewport scrollbar).
-mezr.width(document. 'scroll'); // or just -> mezr.width(document);
+mezr.width(document, 'scroll'); // or just -> mezr.width(document);
 
 // Document width (without viewport scrollbar).
 mezr.width(document, 'content');
@@ -170,7 +170,7 @@ The return value may be fractional when calculating the height of an element. Fo
 
 ```javascript
 // Document height (with viewport scrollbar).
-mezr.height(document. 'scroll'); // or just -> mezr.height(document);
+mezr.height(document, 'scroll'); // or just -> mezr.height(document);
 
 // Document height (without viewport scrollbar).
 mezr.height(document, 'content');
@@ -249,7 +249,6 @@ mezr.offset(document);
 
 // Window's offset from document.
 mezr.offset(window);
-// Returns always {left: window.pageXOffset, top: window.pageYOffset}
 
 // Element's offset from document.
 mezr.offset(elem, 'content');
@@ -340,17 +339,18 @@ mezr.rect([elem, 'padding'], [anotherElem, 'margin']);
 
 ### .containingBlock()
 
-Returns the element's [containing block](https://www.w3.org/TR/CSS2/visuren.html#containing-block), which is considered to be the closest ancestor element (or window, or document, or the target element itself) that the target element's positioning is relative to. In other words, containing block is the element the target element's CSS properties *left*, *right*, *top* and *bottom* are relative to. You should not confuse this with the native [elem.offsetParent](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/offsetParent) read-only property, which works in a similar fashion (and even identically in certain situations), but is really not the same thing (although the name might imply it).
+Returns the element's [containing block](https://www.w3.org/TR/CSS2/visuren.html#containing-block), which is considered to be the closest ancestor element (or window, or document, or the target element itself) that the target element's positioning is relative to. In other words, containing block is the element that the target element's CSS properties *left*, *right*, *top* and *bottom* are relative to. You should not confuse this with the native [elem.offsetParent](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/offsetParent) read-only property, which works in a similar fashion (and even identically in certain situations), but is really not the same thing (although the name might imply it).
 
 **The logic**
 
- * Document is considered to be the root containing block of all elements and the window.
- * Getting the document's containing block will return `null`.
- * Static element does not have a containing block since setting values to the *left*, *right*, *top* and *bottom* CSS properties does not have any effect on the element's position. Thus, getting the containing block of a static element will return `null`.
- * Relative element's containing block is always the element itself.
- * Fixed element's containing block is always the closest transformed ancestor or `window` if the element does not have any transformed ancestors. An exception is made for browsers which allow fixed elements to bypass the W3C specification of transform rendering. In those browsers fixed element's containing block is always the `window`.
- * Absolute element's containing block is the closest ancestor element that is transformed or positioned (any element which is not static). If no positioned or transformed ancestor is not found the containing block is the `document`.
- * Root element and body element are treated equally with all other elements.
+* Document is considered to be the root containing block of all elements and the window.
+* Getting the document's containing block will return `null`.
+* Static element does not have a containing block since setting values to the *left*, *right*, *top* and *bottom* CSS properties does not have any effect on the element's position. Thus, getting the containing block of a static element will return `null`.
+* Relative element's containing block is always the element itself.
+* Fixed element's containing block is always the closest transformed ancestor or `window` if the element does not have any transformed ancestors. An exception is made for browsers which allow fixed elements to bypass the W3C specification of transform rendering. In those browsers fixed element's containing block is always the `window`.
+* Absolute element's containing block is the closest ancestor element that is transformed or positioned (any element which is not static). If no positioned or transformed ancestor is not found the containing block is the `document`.
+* Sticky element is a special case since "left", "right", "top" and "bottom" CSS properties do not always affect the element's position. However, for consistency, the closest scrolling ancestor element is always considered as sticky element's containing block, and if no scrolling ancestor is found window is returned.
+* Root element and body element are treated equally with all other elements.
 
 **`.containingBlock( el, [ fakePosition ] )`**
 
@@ -359,7 +359,7 @@ Returns the element's [containing block](https://www.w3.org/TR/CSS2/visuren.html
 * **fakePosition** &nbsp;&mdash;&nbsp; *element / window / document*
   * An optional argument which allows you to get the element's containing block as if the element had this CSS position value applied. Using this argument does not modify the element's true CSS position in any way, it's only used for the calculations.
   * Default: the element's current CSS position.
-  * Allowed values: `"static"`, `"relative"`, `"absolute"` and  `"fixed"`.
+  * Allowed values: `"static"`, `"relative"`, `"absolute"`, `"fixed"` and `"sticky"`.
 
 **Returns** &nbsp;&mdash;>&nbsp; *element / window / document / null*
 
@@ -417,7 +417,7 @@ mezr.distance(rectA, rectB);
 // Calculate the distance between an object and element.
 mezr.distance(elemA, rectB);
 
-// Define which edge to use for element calculations
+// Define which edge to use for element calculations.
 mezr.distance([elemA, 'content'], [elemB, 'scroll']);
 ```
 
@@ -469,7 +469,7 @@ mezr.intersection(rectA, rectB);
 // element.
 mezr.intersection(elemA, rectB);
 
-// Define which edge to use for element calculations
+// Define which edge to use for element calculations.
 mezr.intersection([elemA, 'content'], [elemB, 'scroll']);
 
 // Calculate the intersection area between two elements and
@@ -516,7 +516,7 @@ var elem = document.getElementById('elem');
 // Calculate the intersection area between two elements.
 mezr.overflow(container, elem);
 
-// Define which edge to use for element calculations
+// Define which edge to use for element calculations.
 mezr.overflow([container, 'content'], [elem, 'scroll']);
 ```
 
@@ -531,7 +531,7 @@ Calculate an element's position (left/top CSS properties) when positioned relati
 The *options* argument should be an object. You may configure it with the following properties.
 
 * **element** &nbsp;&mdash;&nbsp; *element / window / document / array*
-  * The element which is to be positioned.
+  * The element which is to be positioned. This element's position needs to be either "relative", "absolute" or "fixed" for the function to work correctly. Although "sticky" elements are considered to be positioned this method does not yet support calculating their placement correctly.
   * Default: `null`
   * Element: the element’s edge is considered to be “border”.
   * Array: allows one to control which layer (content, padding, scroll, border, margin) is considered as the element's edge, e.g. `[someElem, 'content']`.
@@ -605,7 +605,6 @@ The *options* argument should be an object. You may configure it with the follow
         * This object contains data on how much the `contain.onOverflow` action moved the element in x-axis and y-axis, and in which direction. If no `contain.onOverflow` action was defined or the action had no effect on the element's position the values of the `left` and `top` attributes are `0`.
         * **data.overflowCorrection.left** &nbsp;&mdash;&nbsp; *number*
         * **data.overflowCorrection.top** &nbsp;&mdash;&nbsp; *number*
-
 
 **Returns** &nbsp;&mdash;>&nbsp; *object*
 

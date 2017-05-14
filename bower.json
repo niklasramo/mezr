@@ -1,6 +1,5 @@
 {
   "name": "mezr",
-  "version": "0.6.1",
   "description": "Measure and compare the dimensions and distances of DOM elements.",
   "keywords": [
     "dom",
@@ -24,7 +23,7 @@
     "type": "git",
     "url": "git@github.com:niklasramo/mezr.git"
   },
-  "main": "./mezr.js",
+  "main": "mezr.js",
   "ignore": [
     "./!(mezr*.js)"
   ]
