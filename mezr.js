@@ -1571,8 +1571,8 @@
    * overflow action that should be called when the positioned element overflows
    * the container element from the respective side. Alternatively you can also
    * use the properties x and y to define the overflow action per axis. If you
-   * mixside overflow properties with axis overflow properties remember that the
-   * side configuration overwrites the axis configuration.
+   * mix side overflow properties with axis overflow properties remember that
+   * the side configuration overwrites the axis configuration.
    *
    * @typedef {Object} OverflowConfig
    * @property {String} [left='none']
