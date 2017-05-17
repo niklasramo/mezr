@@ -1,4 +1,4 @@
-function TestSuite(targetTests) {
+function TestSuite(filter) {
 
   var inst = this;
 
@@ -28,8 +28,8 @@ function TestSuite(targetTests) {
   });
 
   // Filter tests if needed.
-  if (targetTests) {
-    QUnit.config.filter = targetTests;
+  if (filter) {
+    QUnit.config.filter = filter;
   }
 
   // Run tests.

@@ -11,7 +11,7 @@ TestSuite.modules.push(function () {
   var anchor = this.anchor;
   var container = this.container;
 
-  QUnit.test('#critical: Should match the results of mezr.width(), mezr.height and mezr.offset().', function (assert) {
+  QUnit.test('Should match the results of mezr.width(), mezr.height and mezr.offset().', function (assert) {
 
     assert.expect(36);
 
@@ -54,7 +54,7 @@ TestSuite.modules.push(function () {
 
   });
 
-  QUnit.test('#critical: Should calculate the element\'s offset relative to another element/window/document.', function (assert) {
+  QUnit.test('Should calculate the element\'s offset relative to another element/window/document.', function (assert) {
 
     assert.expect(8);
 

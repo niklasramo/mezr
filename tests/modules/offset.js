@@ -11,7 +11,7 @@ TestSuite.modules.push(function () {
   var anchor = this.anchor;
   var container = this.container;
 
-  QUnit.test('#critical: Should return the document\'s offset.', function (assert) {
+  QUnit.test('Should return the document\'s offset.', function (assert) {
 
     assert.expect(2);
 
@@ -33,7 +33,7 @@ TestSuite.modules.push(function () {
 
   });
 
-  QUnit.test('#critical: Should return the window\'s offset.', function (assert) {
+  QUnit.test('Should return the window\'s offset.', function (assert) {
 
     assert.expect(2);
 
@@ -55,7 +55,7 @@ TestSuite.modules.push(function () {
 
   });
 
-  QUnit.test('#critical: Should return the element\'s offset.', function (assert) {
+  QUnit.test('Should return the element\'s offset.', function (assert) {
 
     assert.expect(40);
 
@@ -123,7 +123,7 @@ TestSuite.modules.push(function () {
 
   });
 
-  QUnit.test('#critical: Absolute element - scroll test.', function (assert) {
+  QUnit.test('Absolute element - scroll test.', function (assert) {
 
     assert.expect(2);
 
@@ -149,7 +149,7 @@ TestSuite.modules.push(function () {
 
   });
 
-  QUnit.test('#critical: Fixed element - scroll test.', function (assert) {
+  QUnit.test('Fixed element - scroll test.', function (assert) {
 
     assert.expect(2);
 
@@ -173,7 +173,7 @@ TestSuite.modules.push(function () {
 
   });
 
-  QUnit.test('#critical: Should return the element\'s offset relative to another element/window/document.', function (assert) {
+  QUnit.test('Should return the element\'s offset relative to another element/window/document.', function (assert) {
 
     assert.expect(8);
 

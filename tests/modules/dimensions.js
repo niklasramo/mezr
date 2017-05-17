@@ -11,7 +11,7 @@ TestSuite.modules.push(function () {
   var anchor = this.anchor;
   var container = this.container;
 
-  QUnit.test('#critical: Should return the document\'s width and height.', function (assert) {
+  QUnit.test('Should return the document\'s width and height.', function (assert) {
 
     assert.expect(12);
 
@@ -45,7 +45,7 @@ TestSuite.modules.push(function () {
 
   });
 
-  QUnit.test('#critical: Should return the window\'s width and height.', function (assert) {
+  QUnit.test('Should return the window\'s width and height.', function (assert) {
 
     assert.expect(12);
 
@@ -75,7 +75,7 @@ TestSuite.modules.push(function () {
 
   });
 
-  QUnit.test('#critical: Should return the element\'s width and height.', function (assert) {
+  QUnit.test('Should return the element\'s width and height.', function (assert) {
 
     assert.expect(48);
 
@@ -219,7 +219,7 @@ TestSuite.modules.push(function () {
 
   });
 
-  QUnit.test('#critical: Should return the element\'s width and height correctly if the padding is defined in percentages.', function (assert) {
+  QUnit.test('Should return the element\'s width and height correctly if the padding is defined in percentages.', function (assert) {
 
     assert.expect(4);
 
@@ -257,7 +257,7 @@ TestSuite.modules.push(function () {
 
   });
 
-  QUnit.test('#critical: Should return the element\'s width and height correctly if the margin is defined in percentages.', function (assert) {
+  QUnit.test('Should return the element\'s width and height correctly if the margin is defined in percentages.', function (assert) {
 
     assert.expect(4);
 
@@ -295,7 +295,7 @@ TestSuite.modules.push(function () {
 
   });
 
-  QUnit.test('#critical: Should return the element\'s width and height correctly no matter what the display value is.', function (assert) {
+  QUnit.test('Should return the element\'s width and height correctly no matter what the display value is.', function (assert) {
 
     var edgeLayers = ['content', 'padding', 'scroll', 'border', 'margin'];
     var displayValues = [

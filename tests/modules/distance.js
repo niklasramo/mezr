@@ -11,7 +11,7 @@ TestSuite.modules.push(function () {
   var anchor = this.anchor;
   var container = this.container;
 
-  QUnit.test('#critical: Should return the direct distance between the two objects', function (assert) {
+  QUnit.test('Should return the direct distance between the two objects', function (assert) {
 
     assert.expect(11);
 

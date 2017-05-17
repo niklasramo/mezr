@@ -11,14 +11,14 @@ TestSuite.modules.push(function () {
   var anchor = this.anchor;
   var container = this.container;
 
-  QUnit.test('#critical: Should always return an object with two properties: "left" and "top".', function (assert) {
+  QUnit.test('Should always return an object with two properties: "left" and "top".', function (assert) {
 
     assert.expect(1);
     assert.deepEqual(Object.keys(mezr.place({element: element, target: element})).sort(), ['left', 'top']);
 
   });
 
-  QUnit.test('#critical: Make sure we have correct default options.', function (assert) {
+  QUnit.test('Make sure we have correct default options.', function (assert) {
 
     assert.expect(1);
 
@@ -34,7 +34,7 @@ TestSuite.modules.push(function () {
 
   });
 
-  QUnit.test('#critical: Element option should accept an element, document or window.', function (assert) {
+  QUnit.test('Element option should accept an element, document or window.', function (assert) {
 
     assert.expect(6);
 
@@ -141,7 +141,7 @@ TestSuite.modules.push(function () {
 
   });
 
-  QUnit.test('#critical: Target option should accept an element, document, window or an object.', function (assert) {
+  QUnit.test('Target option should accept an element, document, window or an object.', function (assert) {
 
     assert.expect(7);
 
@@ -267,7 +267,7 @@ TestSuite.modules.push(function () {
 
   });
 
-  QUnit.test('#critical: Negative or positive "offset" option values should affect the positioning.', function (assert) {
+  QUnit.test('Negative or positive "offset" option values should affect the positioning.', function (assert) {
 
     assert.expect(4);
 
@@ -347,7 +347,7 @@ TestSuite.modules.push(function () {
 
   });
 
-  QUnit.test('#critical: Contain option should not restrict positioning if it does not have valid within and onOverflow values.', function (assert) {
+  QUnit.test('Contain option should not restrict positioning if it does not have valid within and onOverflow values.', function (assert) {
 
     assert.expect(2);
 
@@ -402,7 +402,7 @@ TestSuite.modules.push(function () {
 
   });
 
-  QUnit.test('#critical: Contain option should restrict positioning if it has valid within and onOverflow values.', function (assert) {
+  QUnit.test('Contain option should restrict positioning if it has valid within and onOverflow values.', function (assert) {
 
     assert.expect(8);
 
@@ -595,7 +595,7 @@ TestSuite.modules.push(function () {
 
   });
 
-  QUnit.test('#critical: Contain within option should accept an element, document, window or an object.', function (assert) {
+  QUnit.test('Contain within option should accept an element, document, window or an object.', function (assert) {
 
     assert.expect(4);
 
@@ -691,7 +691,7 @@ TestSuite.modules.push(function () {
 
   });
 
-  QUnit.test('#critical: Adjust option should receive all the position data and the result data object.', function (assert) {
+  QUnit.test('Adjust option should receive all the position data and the result data object.', function (assert) {
 
     var result;
     var expected;
@@ -830,7 +830,7 @@ TestSuite.modules.push(function () {
 
   });
 
-  QUnit.test('#critical: An extensive test with all possible positioining variations, css positions and edge layers.', function (assert) {
+  QUnit.test('An extensive test with all possible positioining variations, css positions and edge layers.', function (assert) {
 
     var done = assert.async();
     var edgeLayers = ['content', 'padding', 'scroll', 'border', 'margin'];

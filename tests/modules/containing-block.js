@@ -11,7 +11,7 @@ TestSuite.modules.push(function () {
   var anchor = this.anchor;
   var container = this.container;
 
-  QUnit.test('#critical: Document\'s containing block should be null.', function (assert) {
+  QUnit.test('Document\'s containing block should be null.', function (assert) {
 
     assert.expect(1);
 
@@ -19,7 +19,7 @@ TestSuite.modules.push(function () {
 
   });
 
-  QUnit.test('#critical: Window\'s containing block should be document.', function (assert) {
+  QUnit.test('Window\'s containing block should be document.', function (assert) {
 
     assert.expect(1);
 
@@ -27,7 +27,7 @@ TestSuite.modules.push(function () {
 
   });
 
-  QUnit.test('#critical: Static element\'s containing block should be null.', function (assert) {
+  QUnit.test('Static element\'s containing block should be null.', function (assert) {
 
     assert.expect(1);
 
@@ -39,7 +39,7 @@ TestSuite.modules.push(function () {
 
   });
 
-  QUnit.test('#critical: Relative element\'s containing block should be the element itself.', function (assert) {
+  QUnit.test('Relative element\'s containing block should be the element itself.', function (assert) {
 
     assert.expect(1);
 
@@ -51,7 +51,7 @@ TestSuite.modules.push(function () {
 
   });
 
-  QUnit.test('#critical: Absolute element\'s containing block should be the closest positioned and/or transformed ancestor, and fallback to document if all ancestors are static.', function (assert) {
+  QUnit.test('Absolute element\'s containing block should be the closest positioned and/or transformed ancestor, and fallback to document if all ancestors are static.', function (assert) {
 
     assert.expect(5);
 
@@ -82,7 +82,7 @@ TestSuite.modules.push(function () {
 
   });
 
-  QUnit.test('#critical: Fixed element\'s containing block should be the closest transformed ancestor or window.', function (assert) {
+  QUnit.test('Fixed element\'s containing block should be the closest transformed ancestor or window.', function (assert) {
 
     assert.expect(5);
 
@@ -166,6 +166,53 @@ TestSuite.modules.push(function () {
 
     inst.setStyles(fixture, {position: 'static'});
     assert.strictEqual(mezr.containingBlock(element), transformLeaksFixed ? window : fixture);
+
+  });
+
+  QUnit.test('Sticky element\'s containing block should be the closest scrolling ancestor element or window if no scrolling ancestor element is found', function (assert) {
+
+    var stickyPosition = function () {
+      var el = document.createElement('div');
+      el.style.cssText = "position:sticky;";
+      if (el.style.position.indexOf('sticky') > -1) {
+        return 'sticky';
+      }
+      el.style.cssText = "position:-webkit-sticky;";
+      if (el.style.position.indexOf('sticky') > -1) {
+        return '-webkit-sticky';
+      }
+      return null;
+    }();
+
+    assert.expect(stickyPosition ? 5 : 0);
+
+    if (stickyPosition) {
+
+      inst.setStyles(document.documentElement, {position: 'fixed'});
+      inst.setStyles(document.body, {position: 'relative'});
+      inst.setStyles(fixture, {position: 'absolute'});
+      inst.setStyles(element, {position: stickyPosition});
+
+      // When there are no scrolling ancestor elements
+      assert.strictEqual(mezr.containingBlock(element), window);
+
+      // When ancestor element has overflow:scroll
+      inst.setStyles(document.body, {overflow: 'scroll'});
+      assert.strictEqual(mezr.containingBlock(element), document.body);
+
+      // When ancestor element has overflow:auto
+      inst.setStyles(document.body, {overflow: 'auto'});
+      assert.strictEqual(mezr.containingBlock(element), document.body);
+
+      // When parent element has overflow:scroll
+      inst.setStyles(fixture, {overflow: 'scroll'});
+      assert.strictEqual(mezr.containingBlock(element), fixture);
+
+      // When parent element has overflow:auto
+      inst.setStyles(fixture, {overflow: 'auto'});
+      assert.strictEqual(mezr.containingBlock(element), fixture);
+
+    }
 
   });
 

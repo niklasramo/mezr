@@ -5,21 +5,6 @@
  * Released under the MIT license
  */
 
-/*
-TODO
-****
-- [x] getStaticoffset should return same results for position:sticky as for
-      position:static.
-- [x] getContainingBlock should return the closest scrolling ancestor for
-      position:sticky
-- [-] Fix typos in docs.
-- [ ] Faster overlap check.
-- [ ] Make tinier and faster!
-- [ ] Add some unit tests for the position:sticky cases.
-- [ ] Website.
-
- */
-
 (function (global, factory) {
 
   if (typeof define === 'function' && define.amd) {
@@ -89,9 +74,10 @@ TODO
   // Get the primary supported transform property.
   settings.transform = getSupportedTransform();
 
-  // Do transformed elements leak fixed elements? According W3C specification
-  // (about transform rendering) a transformed element should contain fixed
-  // elements, but not every browser follows the spec. So we need to test it.
+  // Check if transformed elements leak fixed elements? According W3C
+  // specification (about transform rendering) a transformed element should
+  // contain fixed elements, but not every browser follows the spec. So we need
+  // to test it.
   settings.transformLeaksFixed = doesTransformLeakFixed();
 
   /**
@@ -103,6 +89,9 @@ TODO
    * Returns the width of an element in pixels. Accepts also the window object
    * (for getting the viewport width) and the document object (for getting the
    * document width) in place of element.
+   *
+   * @example
+   * mezr.width(elemA, 'content');
    *
    * @public
    * @param {(Document|Element|Window)} el
@@ -124,6 +113,9 @@ TODO
    * Returns the height of an element in pixels. Accepts also the window object
    * (for getting the viewport height) and the document object (for getting the
    * document height) in place of element.
+   *
+   * @example
+   * mezr.height(elemA, 'content');
    *
    * @public
    * @param {(Document|Element|Window)} el
@@ -286,6 +278,12 @@ TODO
    * - Root element and body element are considered as equals with all other
    *   elements and are treated equally with all other elements.
    *
+   * @example
+   * mezr.containingBlock(elemA);
+   *
+   * @example
+   * mezr.containingBlock(elemA, 'fixed');
+   *
    * @public
    * @param {(Document|Element|Window)} el
    * @param {String} [fakePosition]
@@ -364,7 +362,7 @@ TODO
     else if (position === 'sticky' || position === '-webkit-sticky') {
 
       scrollProps = ['overflow', 'overflow-y', 'overflow-x'];
-      parent = element.parentNode;
+      parent = el.parentNode;
       el = null;
 
       while (!el && parent && parent !== doc) {
@@ -399,6 +397,15 @@ TODO
    * other cases the function returns the distance in pixels (fractional)
    * between the the two elements/rectangles.
    *
+   * @example
+   * mezr.distance(elemA, elemB);
+   *
+   * @example
+   * mezr.distance([elemA, 'padding'], [elemB, 'margin']);
+
+   * @example
+   * mezr.distance(elemA, {left: 34, top: 56, width: 100, height: 200});
+   *
    * @public
    * @param {(Array|Document|Element|Window|Rectangle)} a
    * @param {(Array|Document|Element|Window|Rectangle)} b
@@ -418,6 +425,17 @@ TODO
    * intersection area's dimensions and offsets. If the intersection area exists
    * the function returns an object containing the intersection area's
    * dimensions and offsets. Otherwise null is returned.
+   *
+   * @example
+   * mezr.intersection(elemA, elemB);
+   *
+   * @example
+   * mezr.intersection(elemA, [elemB, 'padding'], {
+   *   left: 0,
+   *   top: 10,
+   *   width: 100,
+   *   height: 200
+   * });
    *
    * @public
    * @param {...(Array|Document|Element|Window|Rectangle)} el
@@ -449,14 +467,20 @@ TODO
   /**
    * Calculate how much an element overflows another element per each side.
    *
+   * @example
+   * mezr.overflow(elemA, elemB);
+   *
+   * @example
+   * mezr.overflow(elemA, [elemB, 'padding']);
+   *
    * @public
-   * @param {(Array|Document|Element|Window|Rectangle)} elemA
-   * @param {(Array|Document|Element|Window|Rectangle)} elemB
+   * @param {(Array|Document|Element|Window|Rectangle)} elA
+   * @param {(Array|Document|Element|Window|Rectangle)} elB
    * @returns {Overflow}
    */
-  function getOverflow(elemA, elemB) {
+  function getOverflow(elA, elB) {
 
-    var ret = getOverlap(elemB, elemA);
+    var ret = getOverlap(elB, elA);
 
     return {
       left: -ret.left,
@@ -470,6 +494,28 @@ TODO
   /**
    * Calculate an element's position (left/top CSS properties) when positioned
    * relative to another element, window or the document.
+   *
+   * @example
+   * var newElementPosition = mezr.place({
+   *   element: [elemA, 'content'],
+   *   target: [elemB, 'margin'],
+   *   position: 'left top center center',
+   *   offsetX: -5,
+   *   offsetY: '50%',
+   *   contain: {
+   *     within: [elemC, 'padding'],
+   *     onOverflow: {
+   *       left: 'forcepush',
+   *       right: 'push',
+   *       top: 'none',
+   *       bottom: 'push'
+   *     }
+   *   },
+   *   adjust: function (position, data) {
+   *     position.left -= 1;
+   *     position.top += 1;
+   *   }
+   * });
    *
    * @public
    * @param {PlaceOptions} [options]
@@ -779,13 +825,13 @@ TODO
    * Set inline styles to an element.
    *
    * @private
-   * @param {Element} element
+   * @param {Element} el
    * @param {Object} styles
    */
-  function setStyles(element, styles) {
+  function setStyles(el, styles) {
 
     Object.keys(styles).forEach(function (styleName) {
-      element.style[styleName] = styles[styleName];
+      el.style[styleName] = styles[styleName];
     });
 
   }
@@ -794,14 +840,14 @@ TODO
    * Calculates how much element overlaps another element from each side.
    *
    * @private
-   * @param {(Array|Document|Element|Window|Rectangle)} a
-   * @param {(Array|Document|Element|Window|Rectangle)} b
+   * @param {(Array|Document|Element|Window|Rectangle)} elA
+   * @param {(Array|Document|Element|Window|Rectangle)} elB
    * @returns {Overlap}
    */
-  function getOverlap(a, b) {
+  function getOverlap(elA, elB) {
 
-    var aRect = getSanitizedRect(a);
-    var bRect = getSanitizedRect(b);
+    var aRect = getSanitizedRect(elA);
+    var bRect = getSanitizedRect(elB);
 
     return {
       left: aRect.left - bRect.left,
@@ -819,15 +865,15 @@ TODO
    * offsets. Otherwise null is returned.
    *
    * @private
-   * @param {(Array|Document|Element|Window|Rectangle)} a
-   * @param {(Array|Document|Element|Window|Rectangle)} b
+   * @param {(Array|Document|Element|Window|Rectangle)} elA
+   * @param {(Array|Document|Element|Window|Rectangle)} elB
    * @returns {?RectangleExtended}
    */
-  function getIntersection(a, b) {
+  function getIntersection(elA, elB) {
 
     var ret = {};
-    var aRect = getSanitizedRect(a);
-    var bRect = getSanitizedRect(b);
+    var aRect = getSanitizedRect(elA);
+    var bRect = getSanitizedRect(elB);
     var overlap = getOverlap(aRect, bRect);
     var intWidth = max(aRect.width + min(overlap.left, 0) + min(overlap.right, 0), 0);
     var intHeight = max(aRect.height + min(overlap.top, 0) + min(overlap.bottom, 0), 0);
@@ -867,21 +913,21 @@ TODO
    * function assumes that the rectangles do not intersect.
    *
    * @private
-   * @param {Rectangle} a
-   * @param {Rectangle} b
+   * @param {Rectangle} rectA
+   * @param {Rectangle} rectB
    * @returns {Number}
    */
-  function getDistanceBetweenRects(a, b) {
+  function getDistanceBetweenRects(rectA, rectB) {
 
     var ret = 0;
-    var aLeft = a.left;
-    var aRight = aLeft + b.width;
-    var aTop = a.top;
-    var aBottom = aTop + b.height;
-    var bLeft = b.left;
-    var bRight = bLeft + b.width;
-    var bTop = b.top;
-    var bBottom = bTop + b.height;
+    var aLeft = rectA.left;
+    var aRight = aLeft + rectA.width;
+    var aTop = rectA.top;
+    var aBottom = aTop + rectA.height;
+    var bLeft = rectB.left;
+    var bRight = bLeft + rectB.width;
+    var bTop = rectB.top;
+    var bBottom = bTop + rectB.height;
 
     // Calculate shortest corner distance
     if ((bLeft > aRight || bRight < aLeft) && (bTop > aBottom || bBottom < aTop)) {

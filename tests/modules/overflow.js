@@ -6,7 +6,7 @@ TestSuite.modules.push(function () {
   var container = this.fixture;
   var element = this.element;
 
-  QUnit.test('#critical: Should return data on how how much element overflows container from each side.', function (assert) {
+  QUnit.test('Should return data on how how much element overflows container from each side.', function (assert) {
 
     assert.expect(4);
 
