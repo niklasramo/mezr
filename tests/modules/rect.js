@@ -11,7 +11,7 @@ TestSuite.modules.push(function () {
   var anchor = this.anchor;
   var container = this.container;
 
-  QUnit.test('Should match the results of mezr.width(), mezr.height and mezr.offset().', function (assert) {
+  QUnit.test('Should match the results of mezr.width(), mezr.height() and mezr.offset().', function (assert) {
 
     assert.expect(36);
 

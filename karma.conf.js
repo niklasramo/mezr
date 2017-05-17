@@ -59,6 +59,24 @@ module.exports = function (config) {
         base: 'SauceLabs',
         browserName: 'MicrosoftEdge',
         version: 'latest'
+      },
+      slIE11: {
+        base: 'SauceLabs',
+        browserName: 'internet explorer',
+        platform: 'Windows 7',
+        version: '11.0'
+      },
+      slIE10: {
+        base: 'SauceLabs',
+        browserName: 'internet explorer',
+        platform: 'Windows 7',
+        version: '10.0'
+      },
+      slIE9: {
+        base: 'SauceLabs',
+        browserName: 'internet explorer',
+        platform: 'Windows 7',
+        version: '9.0'
       }
     }
   });

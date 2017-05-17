@@ -518,7 +518,7 @@
    * });
    *
    * @public
-   * @param {PlaceOptions} [options]
+   * @param {PlaceOptions} options
    * @returns {PlaceData}
    */
   function getPlace(options) {
