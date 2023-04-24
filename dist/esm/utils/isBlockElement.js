@@ -1,0 +1,1 @@
+import{getStyle}from"../getStyle.js";export function isBlockElement(t){const e=getStyle(t,"display");if("none"!==e)return"inline"!==e&&"contents"!==e}

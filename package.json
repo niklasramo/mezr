@@ -1,6 +1,6 @@
 {
   "name": "mezr",
-  "version": "0.6.2",
+  "version": "1.0.0-alpha",
   "description": "Measure and compare the dimensions and distances of DOM elements.",
   "keywords": [
     "dom",
@@ -24,26 +24,101 @@
     "type": "git",
     "url": "git@github.com:niklasramo/mezr.git"
   },
-  "main": "mezr.js",
+  "type": "module",
+  "source": "./src/index.ts",
+  "umd:main": "./dist/umd/mezr.js",
+  "umd:types": "./dist/umd/mezr.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js",
+      "default": "./dist/esm/index.js"
+    },
+    "./getContainingBlock": {
+      "import": "./dist/esm/getContainingBlock.js",
+      "require": "./dist/cjs/getContainingBlock.js",
+      "default": "./dist/esm/getContainingBlock.js"
+    },
+    "./getDistance": {
+      "import": "./dist/esm/getDistance.js",
+      "require": "./dist/cjs/getDistance.js",
+      "default": "./dist/esm/getDistance.js"
+    },
+    "./getHeight": {
+      "import": "./dist/esm/getHeight.js",
+      "require": "./dist/cjs/getHeight.js",
+      "default": "./dist/esm/getHeight.js"
+    },
+    "./getIntersection": {
+      "import": "./dist/esm/getIntersection.js",
+      "require": "./dist/cjs/getIntersection.js",
+      "default": "./dist/esm/getIntersection.js"
+    },
+    "./getOffset": {
+      "import": "./dist/esm/getOffset.js",
+      "require": "./dist/cjs/getOffset.js",
+      "default": "./dist/esm/getOffset.js"
+    },
+    "./getOffsetParent": {
+      "import": "./dist/esm/getOffsetParent.js",
+      "require": "./dist/cjs/getOffsetParent.js",
+      "default": "./dist/esm/getOffsetParent.js"
+    },
+    "./getOverflow": {
+      "import": "./dist/esm/getOverflow.js",
+      "require": "./dist/cjs/getOverflow.js",
+      "default": "./dist/esm/getOverflow.js"
+    },
+    "./getRect": {
+      "import": "./dist/esm/getRect.js",
+      "require": "./dist/cjs/getRect.js",
+      "default": "./dist/esm/getRect.js"
+    },
+    "./getWidth": {
+      "import": "./dist/esm/getWidth.js",
+      "require": "./dist/cjs/getWidth.js",
+      "default": "./dist/esm/getWidth.js"
+    }
+  },
+  "files": [
+    "src",
+    "dist",
+    "package.json",
+    "README.md",
+    "LICENSE.md"
+  ],
   "scripts": {
-    "test": "gulp"
+    "test": "npm run ts-check && karma start karma.conf.cjs",
+    "build": "npm run del-dist && npm run ts-check && npm run format && rollup -c && npm run ts-build-esm && npm run ts-build-cjs && npm run minify && npm run size",
+    "ts-build-esm": "tsc --declaration --module nodenext --moduleResolution nodenext --outDir ./dist/esm",
+    "ts-build-cjs": "tsc --declaration --module commonjs --moduleResolution node --outDir ./dist/cjs",
+    "ts-check": "tsc --noEmit",
+    "del-dist": "del ./dist",
+    "format": "prettier --write ./src/",
+    "size": "for file in ./dist/**/*.js; do echo $file && gzip-size $file --include-original; done;",
+    "minify": "npm run minify-d1 && npm run minify-d2",
+    "minify-d1": "for file in ./dist/**/*.js; do terser $file -o $file -c -m --comments false; done;",
+    "minify-d2": "for file in ./dist/**/**/*.js; do terser $file -o $file -c -m --comments false; done;"
   },
   "devDependencies": {
-    "dotenv": "^4.0.0",
-    "gulp": "^3.9.1",
-    "gulp-eslint": "^3.0.1",
-    "gulp-rename": "^1.2.2",
-    "gulp-size": "^2.1.0",
-    "gulp-uglify": "^2.1.2",
-    "gulp-util": "^3.0.8",
-    "karma": "^1.7.0",
-    "karma-chrome-launcher": "^2.0.0",
-    "karma-firefox-launcher": "^1.0.1",
-    "karma-qunit": "^1.2.1",
-    "karma-sauce-launcher": "^1.1.0",
-    "karma-story-reporter": "^0.3.1",
-    "qunitjs": "^2.3.2",
-    "rimraf": "^2.6.1",
-    "run-sequence": "^1.2.2"
+    "@rollup/plugin-typescript": "11.1.0",
+    "@types/chai": "4.3.4",
+    "@types/mocha": "10.0.1",
+    "chai": "4.3.7",
+    "del-cli": "5.0.0",
+    "dotenv": "16.0.3",
+    "gzip-size-cli": "5.1.0",
+    "karma": "6.4.2",
+    "karma-browserstack-launcher": "1.6.0",
+    "karma-chrome-launcher": "3.2.0",
+    "karma-mocha": "2.0.1",
+    "karma-mocha-reporter": "2.2.5",
+    "mocha": "10.2.0",
+    "prettier": "2.8.8",
+    "rollup": "3.21.0",
+    "rollup-plugin-dts": "5.3.0",
+    "terser": "5.17.1",
+    "tslib": "2.5.0",
+    "typescript": "5.0.4"
   }
 }
