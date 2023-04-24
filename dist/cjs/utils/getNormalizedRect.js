@@ -1,0 +1,1 @@
+"use strict";Object.defineProperty(exports,"__esModule",{value:!0}),exports.getNormalizedRect=void 0;const getRect_js_1=require("../getRect.js"),isRectObject_js_1=require("./isRectObject.js");function getNormalizedRect(e){return(0,isRectObject_js_1.isRectObject)(e)?e:(0,getRect_js_1.getRect)(e)}exports.getNormalizedRect=getNormalizedRect;

@@ -1,8 +1,0 @@
-language: node_js
-node_js:
-  - "6"
-env:
-  global:
-    - secure: bDVeC8Sy6fC7OOG+Q27G2aZ6Yjcn5s3A+5ZgNQbpnV46Dq7+9nP+69KqtHsfUaDiunDA6n6CdvOXdWNG66nHMUE36nZg13h+mRHHxKehXcJN1QAbY9ZEXplCeAXDlTAsO54H3R9Cp8OmRMNtUC47MgygkmZqDDud+3iMyFqT+9U=
-    - secure: lzqfZleLwkf8OHvADsLidmOY0l1yQZZ0iqEn2XI5/pgBwfUbEXp00ysvhy6/+wbcpn7Y7lM9q955V1b0igYQ9Z8mY3KvdSsNfvF/HZFkgLNuaMaYZ2tCKUjdL5gI8N5yYW3e91EoDnQs8B9alqTnwuwilqVjz2SUuZBe50i/loE=
-  email: false
