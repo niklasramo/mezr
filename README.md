@@ -1,14 +1,14 @@
 # Mezr
 
-Mezr is a lightweight JavaScript utility library for measuring and comparing the dimensions and positions of HTML DOM elements in modern browsers.
+Mezr is a lightweight utility library for measuring and comparing the dimensions and positions of DOM elements in modern browsers.
 
-**Features**
-
-- Modular, all the public methods are provided as production-ready stand-alone modules.
-- Simple and ergonomic API which reduces boilerplate code a lot.
-- Fast, all the methods are built with performance in mind.
-- Full type safety.
-- No dependencies.
+- 📦 **Modular**, all the public methods are provided as production-ready stand-alone modules.
+- 🧩 **Simple API**, which reduces boilerplate code a lot.
+- ⚡ **Fast**, built with performance in mind.
+- 🤖 **Extensively tested** to produce stable results across all modern browsers.
+- 🦺 **Type-safe**, written fully in Typescript.
+- 🍭 **No runtime dependencies**, no need to worry about peer dependencies.
+- 💝 **Free and open source**, MIT Licensed.
 
 ## Getting started
 
@@ -156,24 +156,24 @@ getOverflow([elemA, 'content'], [elemB, 'margin']);
 - [getIntersection()](#getintersection)
 - [getOverflow()](#getoverflow)
 - [getContainingBlock()](#getcontainingblock)
-- [getOffsetParent()](#getoffsetparent)
+- [getPositionRoot()](#getpositionroot)
 
 ### getWidth()
 
 Returns the width of an element in pixels. Accepts also the window object (for getting the viewport width) and the document object (for getting the width of the whole document).
 
-**Type**
+**Syntax**
 
 ```ts
 type DomRectElementArea = 'content' | 'padding' | 'scroll' | 'border' | 'margin';
 
 type getWidth = (
-  element: HTMLElement | Document | Window,
+  element: Element | Document | Window,
   area: DomRectElementArea = 'border'
 ) => number;
 ```
 
-**Arguments**
+**Parameters**
 
 - **element**
   - The element which's width we want to measure. Accepts any DOM element, a document object or a window object.
@@ -225,18 +225,18 @@ getWidth(elem, 'margin');
 
 Returns the height of an element in pixels. Accepts also the window object (for getting the viewport height) and the document object (for getting the height of the whole document).
 
-**Type**
+**Syntax**
 
 ```ts
 type DomRectElementArea = 'content' | 'padding' | 'scroll' | 'border' | 'margin';
 
 type getHeight = (
-  element: HTMLElement | Document | Window,
+  element: Element | Document | Window,
   area: DomRectElementArea = 'border'
 ) => number;
 ```
 
-**Arguments**
+**Parameters**
 
 - **element**
   - The element which's height we want to measure. Accepts any DOM element, a document object or a window object.
@@ -288,10 +288,10 @@ getHeight(elem, 'margin');
 
 Returns the element's offset from another element, window or document.
 
-**Type**
+**Syntax**
 
 ```ts
-type DomRectElement = HTMLElement | Document | Window;
+type DomRectElement = Element | Document | Window;
 
 type DomRectElementArea = 'content' | 'padding' | 'scroll' | 'border' | 'margin';
 
@@ -301,7 +301,7 @@ type getOffset = (
 ) => { left: number; top: number };
 ```
 
-**Arguments**
+**Parameters**
 
 - **element**
   - The element which's offset we want to compute from the offset root (the second argument).
@@ -344,10 +344,10 @@ getOffset([elem, 'content'], [otherElem, 'margin']);
 
 Returns an object containing the provided element's dimensions and offsets. This is basically a helper method for calculating an element's dimensions and offsets simultaneously. Mimics the native [getBoundingClientRect](https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect) method with the added bonus of allowing to define the area edge of the element, and also the element from which the offset is measured.
 
-**Type**
+**Syntax**
 
 ```ts
-type DomRectElement = HTMLElement | Document | Window;
+type DomRectElement = Element | Document | Window;
 
 type DomRectElementArea = 'content' | 'padding' | 'scroll' | 'border' | 'margin';
 
@@ -364,7 +364,7 @@ type getRect = (
 };
 ```
 
-**Arguments**
+**Parameters**
 
 - **element**
   - The element which's dimensions and offsets we want to compute from the offset root (the second argument).
@@ -403,7 +403,7 @@ getRect([elem, 'padding'], [anotherElem, 'margin']);
 Returns the distance between two elements (in pixels) or `null` if the elements overlap.
 
 ```ts
-type DomRectElement = HTMLElement | Document | Window;
+type DomRectElement = Element | Document | Window;
 
 type DomRectElementArea = 'content' | 'padding' | 'scroll' | 'border' | 'margin';
 
@@ -413,7 +413,7 @@ type getDistance = (
 ) => number | null;
 ```
 
-**Arguments**
+**Parameters**
 
 - **elementA**
 - **elementB**
@@ -437,10 +437,10 @@ getDistance([elemA, 'content'], [elemB, 'scroll']);
 
 Measure the intersection area of two elements. Returns an object containing the intersection area dimensions and offsets if the elements overlap, otherwise returns `null`.
 
-**Type**
+**Syntax**
 
 ```ts
-type DomRectElement = HTMLElement | Document | Window;
+type DomRectElement = Element | Document | Window;
 
 type DomRectElementArea = 'content' | 'padding' | 'scroll' | 'border' | 'margin';
 
@@ -457,7 +457,7 @@ type getDistance = (
 } | null;
 ```
 
-**Arguments**
+**Parameters**
 
 - **elementA**
 - **elementB**
@@ -481,10 +481,10 @@ getIntersection([elemA, 'content'], [elemB, 'scroll']);
 
 Measure how much an element overflows another element per each side.
 
-**Type**
+**Syntax**
 
 ```ts
-type DomRectElement = HTMLElement | Document | Window;
+type DomRectElement = Element | Document | Window;
 
 type DomRectElementArea = 'content' | 'padding' | 'scroll' | 'border' | 'margin';
 
@@ -499,7 +499,7 @@ type getDistance = (
 };
 ```
 
-**Arguments**
+**Parameters**
 
 - **elementA**
 - **elementB**
@@ -525,18 +525,18 @@ getOverflow([elemA, 'content'], [elemB, 'scroll']);
 
 Returns the element's [containing block](https://developer.mozilla.org/en-US/docs/Web/CSS/Containing_block#identifying_the_containing_block). In case the containing block could not be computed `null` will be returned.
 
-**Type**
+**Syntax**
 
 ```ts
 type getContainingBlock = (element: HTMLElement, position?: string) => HTMLElement | Window | null;
 ```
 
-**Arguments**
+**Parameters**
 
 - **element**
-  - Accepts any DOM element.
+  - Accepts any HTML DOM element.
 - **position**
-  - An optional argument which allows you to forcefully provide the element's position value for te calculations. If this argument is omitted the element's position will be automatically read from the element.
+  - An optional argument which allows you to forcefully provide the element's position value for the calculations. If this argument is omitted the element's position will be automatically read from the element.
 
 **Examples**
 
@@ -548,6 +548,40 @@ getContainingBlock(elem);
 
 // Get element's containing block as if it were a fixed element.
 getContainingBlock(elem, 'fixed');
+```
+
+### getPositionRoot()
+
+Returns the element's position root, which in this specific case means the closest ancestor element/document/window, that the target element's left/right/top/bottom CSS properties are relative to. If the position root can't be computed (e.g. the element's or one of it's ancestors' `display` is `none`) or the element is not affected by left/right/top/bottom CSS properties (e.g. static elements) `null` will be returned.
+
+Sticky elements are considered as static elements and always return `null`, although in reality they are always not static.
+
+**Syntax**
+
+```ts
+type getPositionRoot = (
+  element: HTMLElement,
+  position?: string
+) => HTMLElement | Document | Window | null;
+```
+
+**Parameters**
+
+- **element**
+  - Accepts any HTML DOM element.
+- **position**
+  - An optional argument which allows you to forcefully provide the element's position value for the calculations. If this argument is omitted the element's position will be automatically read from the element.
+
+**Examples**
+
+```ts
+import { getPositionRoot } from 'mezr/getPositionRoot';
+
+// Get element's position root.
+getPositionRoot(elem);
+
+// Get element's position root as if it were a fixed element.
+getPositionRoot(elem, 'fixed');
 ```
 
 ## License

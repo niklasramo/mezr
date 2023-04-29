@@ -1,23 +1,26 @@
 import { BOX_AREA } from './constants.js';
 import { DomRectElementArea } from './types.js';
-import { getStyleAsFloat } from './getStyleAsFloat.js';
+import { getStyle } from './getStyle.js';
 import { isDocumentElement } from './isDocumentElement.js';
+import { getBcr } from './bcr.js';
 
-export function getElementWidth(el: HTMLElement, area: DomRectElementArea = 'border') {
-  let { width } = el.getBoundingClientRect();
+export function getElementWidth(el: Element, area: DomRectElementArea = 'border') {
+  let { width } = getBcr(el);
 
   if (area === BOX_AREA.border) {
     return width;
   }
 
+  const style = getStyle(el);
+
   if (area === BOX_AREA.margin) {
-    width += Math.max(0, getStyleAsFloat(el, 'margin-left'));
-    width += Math.max(0, getStyleAsFloat(el, 'margin-right'));
+    width += Math.max(0, parseFloat(style.marginLeft) || 0);
+    width += Math.max(0, parseFloat(style.marginRight) || 0);
     return width;
   }
 
-  const borderLeft = getStyleAsFloat(el, 'border-left');
-  const borderRight = getStyleAsFloat(el, 'border-right');
+  const borderLeft = parseFloat(style.borderLeftWidth) || 0;
+  const borderRight = parseFloat(style.borderRightWidth) || 0;
 
   width -= borderLeft;
   width -= borderRight;
@@ -40,8 +43,8 @@ export function getElementWidth(el: HTMLElement, area: DomRectElementArea = 'bor
     return width;
   }
 
-  width -= getStyleAsFloat(el, 'padding-left');
-  width -= getStyleAsFloat(el, 'padding-right');
+  width -= parseFloat(style.paddingLeft) || 0;
+  width -= parseFloat(style.paddingRight) || 0;
 
   return width;
 }

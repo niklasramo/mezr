@@ -1,23 +1,26 @@
 import { BOX_AREA } from './constants.js';
 import { DomRectElementArea } from './types.js';
-import { getStyleAsFloat } from './getStyleAsFloat.js';
+import { getStyle } from './getStyle.js';
 import { isDocumentElement } from './isDocumentElement.js';
+import { getBcr } from './bcr.js';
 
-export function getElementHeight(el: HTMLElement, area: DomRectElementArea = 'border') {
-  let { height } = el.getBoundingClientRect();
+export function getElementHeight(el: Element, area: DomRectElementArea = 'border') {
+  let { height } = getBcr(el);
 
   if (area === BOX_AREA.border) {
     return height;
   }
 
+  const style = getStyle(el);
+
   if (area === BOX_AREA.margin) {
-    height += Math.max(0, getStyleAsFloat(el, 'margin-top'));
-    height += Math.max(0, getStyleAsFloat(el, 'margin-bottom'));
+    height += Math.max(0, parseFloat(style.marginTop) || 0);
+    height += Math.max(0, parseFloat(style.marginBottom) || 0);
     return height;
   }
 
-  const borderTop = getStyleAsFloat(el, 'border-top');
-  const borderBottom = getStyleAsFloat(el, 'border-bottom');
+  const borderTop = parseFloat(style.borderTopWidth) || 0;
+  const borderBottom = parseFloat(style.borderBottomWidth) || 0;
 
   height -= borderTop;
   height -= borderBottom;
@@ -43,8 +46,8 @@ export function getElementHeight(el: HTMLElement, area: DomRectElementArea = 'bo
     return height;
   }
 
-  height -= getStyleAsFloat(el, 'padding-top');
-  height -= getStyleAsFloat(el, 'padding-bottom');
+  height -= parseFloat(style.paddingTop) || 0;
+  height -= parseFloat(style.paddingBottom) || 0;
 
   return height;
 }

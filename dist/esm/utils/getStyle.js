@@ -1,0 +1,1 @@
+const STYLE_DECLARATION_CACHE=new WeakMap;export function getStyle(e){var t;let C=null===(t=STYLE_DECLARATION_CACHE.get(e))||void 0===t?void 0:t.deref();return C||(C=window.getComputedStyle(e,null),STYLE_DECLARATION_CACHE.set(e,new WeakRef(C))),C}

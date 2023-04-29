@@ -9,7 +9,7 @@ export type Rect = {
   bottom: number;
 };
 
-export type DomRectElement = HTMLElement | Document | Window;
+export type DomRectElement = Element | Document | Window;
 
 export type DomRectElementArea = keyof typeof BOX_AREA;
 

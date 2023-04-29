@@ -1,1 +1,0 @@
-import{getStyle}from"../getStyle.js";export function getStyleAsFloat(t,e){return parseFloat(getStyle(t,e))||0}

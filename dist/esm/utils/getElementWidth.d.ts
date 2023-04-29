@@ -1,2 +1,2 @@
 import { DomRectElementArea } from './types.js';
-export declare function getElementWidth(el: HTMLElement, area?: DomRectElementArea): number;
+export declare function getElementWidth(el: Element, area?: DomRectElementArea): number;
