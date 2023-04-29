@@ -175,12 +175,13 @@ type getWidth = (
 
 **Parameters**
 
-- **element**
-  - The element which's width we want to measure. Accepts any DOM element, a document object or a window object.
-- **area**
-  - Defines which edge (content, padding, scroll, border, margin) of the element is considered as it's outer edge.
-  - For `window` and `document` objects this argument behaves a bit differently since they cannot have any paddings, borders or margins. Only `"content"` (without vertical scrollbar's width) and `"scroll"` (with vertical scrollbar's width) are effective values. `"padding"` is normalized to `"content"` while `"border"` and `"margin"` are normalized to `"scroll"`.
-  - Optional, defaults to `"border"`.
+1. **element**
+   - The element which's width we want to measure.
+   - Accepts any HTML/SVG element, a document object or a window object.
+2. **area**
+   - Defines which edge (content, padding, scroll, border, margin) of the element is considered as it's outer edge.
+   - For `window` and `document` objects this argument behaves a bit differently since they cannot have any paddings, borders or margins. Only `"content"` (without vertical scrollbar's width) and `"scroll"` (with vertical scrollbar's width) are effective values. `"padding"` is normalized to `"content"` while `"border"` and `"margin"` are normalized to `"scroll"`.
+   - Optional, defaults to `"border"`.
 
 **Examples**
 
@@ -238,12 +239,13 @@ type getHeight = (
 
 **Parameters**
 
-- **element**
-  - The element which's height we want to measure. Accepts any DOM element, a document object or a window object.
-- **area**
-  - Defines which edge (content, padding, scroll, border, margin) of the element is considered as it's outer edge.
-  - For `window` and `document` objects this argument behaves a bit differently since they cannot have any paddings, borders or margins. Only `"content"` (without horizontal scrollbar's height) and `"scroll"` (with horizontal scrollbar's height) are effective values. `"padding"` is normalized to `"content"` while `"border"` and `"margin"` are normalized to `"scroll"`.
-  - Optional, defaults to `"border"`.
+1. **element**
+   - The element which's height we want to measure.
+   - Accepts any HTML/SVG element, a document object or a window object.
+2. **area**
+   - Defines which edge (content, padding, scroll, border, margin) of the element is considered as it's outer edge.
+   - For `window` and `document` objects this argument behaves a bit differently since they cannot have any paddings, borders or margins. Only `"content"` (without horizontal scrollbar's height) and `"scroll"` (with horizontal scrollbar's height) are effective values. `"padding"` is normalized to `"content"` while `"border"` and `"margin"` are normalized to `"scroll"`.
+   - Optional, defaults to `"border"`.
 
 **Examples**
 
@@ -303,11 +305,15 @@ type getOffset = (
 
 **Parameters**
 
-- **element**
-  - The element which's offset we want to compute from the offset root (the second argument).
-- **offsetRoot**
-  - Defines which edge (content, padding, scroll, border, margin) of the element is considered as its outer edge. Optional.
-  - Optional, defaults to the first argument's closest document.
+1. **element**
+   - The element which's offset we want to compute from the offset root (the second argument).
+   - Accepts any HTML/SVG element, a document object or a window object. Alternatively you can also provide an array where the first item is the element and the second item is the area edge (`"content"`, `"padding"`, `"scroll"`, `"border"`, `"margin"`).
+   - By default the provided element's area edge is considered to be `"border"`.
+2. **offsetRoot**
+   - The element from which the offset is computed to the target element (first argument).
+   - Accepts any HTML/SVG element, a document object or a window object. Alternatively you can also provide an array where the first item is the element and the second item is the area edge (`"content"`, `"padding"`, `"scroll"`, `"border"`, `"margin"`).
+   - By default the provided element's area edge is considered to be `"border"`.
+   - Optional, defaults to the first argument's closest document.
 
 **Examples**
 
@@ -366,11 +372,15 @@ type getRect = (
 
 **Parameters**
 
-- **element**
-  - The element which's dimensions and offsets we want to compute from the offset root (the second argument).
-- **offsetRoot**
-  - The element from which to compute the offset from.
-  - Optional, defaults to the first argument's closest document.
+1. **element**
+   - The element which's dimensions and offsets we want to compute from the offset root (the second argument).
+   - Accepts any HTML/SVG element, a document object or a window object. Alternatively you can also provide an array where the first item is the element and the second item is the area edge (`"content"`, `"padding"`, `"scroll"`, `"border"`, `"margin"`).
+   - By default the provided element's area edge is considered to be `"border"`.
+2. **offsetRoot**
+   - The element from which to compute the offset from.
+   - Accepts any HTML/SVG element, a document object or a window object. Alternatively you can also provide an array where the first item is the element and the second item is the area edge (`"content"`, `"padding"`, `"scroll"`, `"border"`, `"margin"`).
+   - By default the provided element's area edge is considered to be `"border"`.
+   - Optional, defaults to the first argument's closest document.
 
 **Examples**
 
@@ -415,8 +425,12 @@ type getDistance = (
 
 **Parameters**
 
-- **elementA**
-- **elementB**
+1. **elementA**
+   - Accepts any HTML/SVG element, a document object or a window object. Alternatively you can also provide an array where the first item is the element and the second item is the area edge (`"content"`, `"padding"`, `"scroll"`, `"border"`, `"margin"`).
+   - By default the provided element's area edge is considered to be `"border"`.
+2. **elementB**
+   - Accepts any HTML/SVG element, a document object or a window object. Alternatively you can also provide an array where the first item is the element and the second item is the area edge (`"content"`, `"padding"`, `"scroll"`, `"border"`, `"margin"`).
+   - By default the provided element's area edge is considered to be `"border"`.
 
 **Examples**
 
@@ -459,8 +473,12 @@ type getDistance = (
 
 **Parameters**
 
-- **elementA**
-- **elementB**
+1. **elementA**
+   - Accepts any HTML/SVG element, a document object or a window object. Alternatively you can also provide an array where the first item is the element and the second item is the area edge (`"content"`, `"padding"`, `"scroll"`, `"border"`, `"margin"`).
+   - By default the provided element's area edge is considered to be `"border"`.
+2. **elementB**
+   - Accepts any HTML/SVG element, a document object or a window object. Alternatively you can also provide an array where the first item is the element and the second item is the area edge (`"content"`, `"padding"`, `"scroll"`, `"border"`, `"margin"`).
+   - By default the provided element's area edge is considered to be `"border"`.
 
 **Examples**
 
@@ -501,8 +519,12 @@ type getDistance = (
 
 **Parameters**
 
-- **elementA**
-- **elementB**
+1. **elementA**
+   - Accepts any HTML/SVG element, a document object or a window object. Alternatively you can also provide an array where the first item is the element and the second item is the area edge (`"content"`, `"padding"`, `"scroll"`, `"border"`, `"margin"`).
+   - By default the provided element's area edge is considered to be `"border"`.
+2. **elementB**
+   - Accepts any HTML/SVG element, a document object or a window object. Alternatively you can also provide an array where the first item is the element and the second item is the area edge (`"content"`, `"padding"`, `"scroll"`, `"border"`, `"margin"`).
+   - By default the provided element's area edge is considered to be `"border"`.
 
 **Examples**
 
@@ -533,10 +555,10 @@ type getContainingBlock = (element: HTMLElement, position?: string) => HTMLEleme
 
 **Parameters**
 
-- **element**
-  - Accepts any HTML DOM element.
-- **position**
-  - An optional argument which allows you to forcefully provide the element's position value for the calculations. If this argument is omitted the element's position will be automatically read from the element.
+1. **element**
+   - Accepts any HTML element.
+2. **position**
+   - An optional argument which allows you to forcefully provide the element's position value for the calculations. If this argument is omitted the element's position will be automatically read from the element.
 
 **Examples**
 
@@ -567,10 +589,10 @@ type getPositionRoot = (
 
 **Parameters**
 
-- **element**
-  - Accepts any HTML DOM element.
-- **position**
-  - An optional argument which allows you to forcefully provide the element's position value for the calculations. If this argument is omitted the element's position will be automatically read from the element.
+1. **element**
+   - Accepts any HTML element.
+2. **position**
+   - An optional argument which allows you to forcefully provide the element's position value for the calculations. If this argument is omitted the element's position will be automatically read from the element.
 
 **Examples**
 
