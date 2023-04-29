@@ -1,4 +1,5 @@
-import { getStyleAsFloat } from './getStyleAsFloat.js';
+import { getStyle } from './getStyle.js';
+import { getBcr } from './bcr.js';
 import { isDocument } from './isDocument.js';
 import { isWindow } from './isWindow.js';
 import { DomRectElement, DomRectElementArea } from './types.js';
@@ -22,19 +23,18 @@ export function getOffsetFromDocument(
   }
 
   if (isWindow(element)) {
-    offset.left = element.scrollX || 0;
-    offset.top = element.scrollY || 0;
+    offset.left += element.scrollX || 0;
+    offset.top += element.scrollY || 0;
     return offset;
   }
 
   const win = element.ownerDocument.defaultView;
-  const rect = element.getBoundingClientRect();
-
   if (win) {
-    offset.left = win.scrollX || 0;
-    offset.top = win.scrollY || 0;
+    offset.left += win.scrollX || 0;
+    offset.top += win.scrollY || 0;
   }
 
+  const rect = getBcr(element);
   offset.left += rect.left;
   offset.top += rect.top;
 
@@ -42,20 +42,23 @@ export function getOffsetFromDocument(
     return offset;
   }
 
+  const style = getStyle(element);
+
   if (area === 'margin') {
-    offset.left -= Math.max(0, getStyleAsFloat(element, 'margin-left'));
-    offset.top -= Math.max(0, getStyleAsFloat(element, 'margin-top'));
+    offset.left -= Math.max(0, parseFloat(style.marginLeft) || 0);
+    offset.top -= Math.max(0, parseFloat(style.marginTop) || 0);
     return offset;
   }
+
+  offset.left += parseFloat(style.borderLeftWidth) || 0;
+  offset.top += parseFloat(style.borderTopWidth) || 0;
 
   if (area === 'scroll' || area === 'padding') {
-    offset.left += getStyleAsFloat(element, 'border-left-width');
-    offset.top += getStyleAsFloat(element, 'border-top-width');
     return offset;
   }
 
-  offset.left += getStyleAsFloat(element, 'padding-left');
-  offset.top += getStyleAsFloat(element, 'padding-top');
+  offset.left += parseFloat(style.paddingLeft) || 0;
+  offset.top += parseFloat(style.paddingTop) || 0;
 
   return offset;
 }

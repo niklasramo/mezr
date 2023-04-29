@@ -1,4 +1,4 @@
-import { getStyle } from './getStyle.js';
+import { getStyle } from './utils/getStyle.js';
 import { isContainingBlockForFixedElement } from './utils/isContainingBlockForFixedElement.js';
 import { isContainingBlockForAbsoluteElement } from './utils/isContainingBlockForAbsoluteElement.js';
 import { isBlockElement } from './utils/isBlockElement.js';
@@ -17,7 +17,7 @@ export function getContainingBlock(element: HTMLElement, position?: string) {
 
   // Get element's current position value if a position is not provided.
   if (!position) {
-    position = getStyle(element, 'position');
+    position = getStyle(element).position;
   }
 
   switch (position) {

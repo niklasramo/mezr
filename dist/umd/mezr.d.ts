@@ -1,4 +1,4 @@
-declare function getContainingBlock(element: HTMLElement, position?: string): HTMLElement | (Window & typeof globalThis) | null;
+declare function getContainingBlock(element: HTMLElement, position?: string): (Window & typeof globalThis) | HTMLElement | null;
 
 declare const BOX_AREA: {
     readonly content: "content";
@@ -16,7 +16,7 @@ type Rect = {
     right: number;
     bottom: number;
 };
-type DomRectElement = HTMLElement | Document | Window;
+type DomRectElement = Element | Document | Window;
 type DomRectElementArea = keyof typeof BOX_AREA;
 type DomRectArray = [DomRectElement, DomRectElementArea];
 
@@ -38,7 +38,7 @@ declare function getOffset(element: Rect | DomRectElement | DomRectArray, offset
     top: number;
 };
 
-declare function getPositionRoot(element: HTMLElement, position?: string): HTMLElement | (Window & typeof globalThis) | Document | null;
+declare function getPositionRoot(element: HTMLElement, position?: string): (Window & typeof globalThis) | Document | HTMLElement | null;
 
 declare function getOverflow(elementA: Rect | DomRectElement | DomRectArray, elementB: Rect | DomRectElement | DomRectArray): {
     left: number;
@@ -56,7 +56,7 @@ declare function getRect(element: Rect | DomRectElement | DomRectArray, offsetRo
     height: number;
 };
 
-declare function getStyle(element: HTMLElement, propertyName: string): string;
+declare function getStyle(element: Element): CSSStyleDeclaration;
 
 declare function getWidth(element: DomRectElement, area?: DomRectElementArea): number;
 

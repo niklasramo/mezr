@@ -1,7 +1,7 @@
-import { getStyle } from '../getStyle.js';
+import { getStyle } from './getStyle.js';
 
 export function isBlockElement(element: HTMLElement) {
-  const display = getStyle(element, 'display');
+  const { display } = getStyle(element);
 
   // If the display is "none" let's return undefined to indicate that we can't
   // determine if it's a block element or an inline element.

@@ -59,15 +59,15 @@
       "require": "./dist/cjs/getOffset.js",
       "default": "./dist/esm/getOffset.js"
     },
-    "./getOffsetParent": {
-      "import": "./dist/esm/getOffsetParent.js",
-      "require": "./dist/cjs/getOffsetParent.js",
-      "default": "./dist/esm/getOffsetParent.js"
-    },
     "./getOverflow": {
       "import": "./dist/esm/getOverflow.js",
       "require": "./dist/cjs/getOverflow.js",
       "default": "./dist/esm/getOverflow.js"
+    },
+    "./getPositionRoot": {
+      "import": "./dist/esm/getPositionRoot.js",
+      "require": "./dist/cjs/getPositionRoot.js",
+      "default": "./dist/esm/getPositionRoot.js"
     },
     "./getRect": {
       "import": "./dist/esm/getRect.js",

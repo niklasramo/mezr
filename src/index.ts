@@ -14,6 +14,4 @@ export * from './getOverflow.js';
 
 export * from './getRect.js';
 
-export * from './getStyle.js';
-
 export * from './getWidth.js';

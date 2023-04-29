@@ -1,5 +1,5 @@
 import { IS_SAFARI } from './constants.js';
-import { getStyle } from '../getStyle.js';
+import { getStyle } from './getStyle.js';
 import { isBlockElement } from './isBlockElement.js';
 
 export function isContainingBlockForFixedElement(element: HTMLElement) {
@@ -7,20 +7,22 @@ export function isContainingBlockForFixedElement(element: HTMLElement) {
   const isBlock = isBlockElement(element);
   if (!isBlock) return isBlock;
 
+  const style = getStyle(element);
+
   // If the element is transformed it is a containing block.
-  const transform = getStyle(element, 'transform');
+  const { transform } = style;
   if (transform && transform !== 'none') {
     return true;
   }
 
   // If the element has perspective it is a containing block.
-  const perspective = getStyle(element, 'perspective');
+  const { perspective } = style;
   if (perspective && perspective !== 'none') {
     return true;
   }
 
   // If the element has backdrop-filter it is a containing block.
-  const backdropFilter = getStyle(element, 'backdrop-filter');
+  const { backdropFilter } = style;
   if (backdropFilter && backdropFilter !== 'none') {
     return true;
   }
@@ -29,7 +31,7 @@ export function isContainingBlockForFixedElement(element: HTMLElement) {
   // containing block.
   // Note: this feature does not exist on Safari yet, so this check might
   // break when they start supporting it (depending on how they implement it).
-  const contentVisibility = getStyle(element, 'content-visibility');
+  const { contentVisibility } = style;
   if (contentVisibility && contentVisibility === 'auto') {
     return true;
   }
@@ -39,7 +41,7 @@ export function isContainingBlockForFixedElement(element: HTMLElement) {
   // shorthands which include either "paint" or "layout".
   // Note: this feature does not exist on Safari yet, so this check might
   // break when they start supporting it (depending on how they implement it).
-  const contain = getStyle(element, 'contain');
+  const { contain } = style;
   if (
     contain &&
     (contain === 'strict' ||
@@ -56,14 +58,14 @@ export function isContainingBlockForFixedElement(element: HTMLElement) {
   // include at the moment, so let's do it quick and dirty.
   if (!IS_SAFARI) {
     // If the element has a CSS filter applied it is a containing block.
-    const filter = getStyle(element, 'filter');
+    const { filter } = style;
     if (filter && filter !== 'none') {
       return true;
     }
 
     // If the element's will-change style has "transform" or "perspective" it is
     // a containing block.
-    const willChange = getStyle(element, 'will-change');
+    const { willChange } = style;
     if (
       willChange &&
       (willChange.indexOf('transform') > -1 ||
