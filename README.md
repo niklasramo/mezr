@@ -156,7 +156,7 @@ getOverflow([elemA, 'content'], [elemB, 'margin']);
 - [getIntersection()](#getintersection)
 - [getOverflow()](#getoverflow)
 - [getContainingBlock()](#getcontainingblock)
-- [getPositionRoot()](#getpositionroot)
+- [getOffsetParent()](#getoffsetparent)
 
 ### getWidth()
 
@@ -572,16 +572,16 @@ getContainingBlock(elem);
 getContainingBlock(elem, 'fixed');
 ```
 
-### getPositionRoot()
+### getOffsetParent()
 
-Returns the element's position root, which in this specific case means the closest ancestor element/document/window, that the target element's left/right/top/bottom CSS properties are relative to. If the position root can't be computed (e.g. the element's or one of it's ancestors' `display` is `none`) or the element is not affected by left/right/top/bottom CSS properties (e.g. static elements) `null` will be returned.
+Returns the element's offset parent (**not** to be mistaken with the native [`element.offsetParent`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/offsetParent)), which in this specific case means the closest ancestor element/document/window, that the target element's left/right/top/bottom CSS properties are relative to. If the offset parent can't be computed (e.g. the element's or one of it's ancestors' `display` is `none`) or the element is not affected by left/right/top/bottom CSS properties (e.g. static elements) `null` will be returned.
 
-Sticky elements are considered as static elements and always return `null`, although in reality they are always not static.
+Due to the dynamic nature of sticky elements they are considered as static elements in this method's scope and always return `null`.
 
 **Syntax**
 
 ```ts
-type getPositionRoot = (
+type getOffsetParent = (
   element: HTMLElement,
   position?: string
 ) => HTMLElement | Document | Window | null;
@@ -597,13 +597,13 @@ type getPositionRoot = (
 **Examples**
 
 ```ts
-import { getPositionRoot } from 'mezr/getPositionRoot';
+import { getOffsetParent } from 'mezr/getOffsetParent';
 
-// Get element's position root.
-getPositionRoot(elem);
+// Get element's offset parent.
+getOffsetParent(elem);
 
-// Get element's position root as if it were a fixed element.
-getPositionRoot(elem, 'fixed');
+// Get element's offset parent as if it were a fixed element.
+getOffsetParent(elem, 'fixed');
 ```
 
 ## License

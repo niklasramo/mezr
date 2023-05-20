@@ -21,24 +21,18 @@ export default [
     output: [{ file: pkg['umd:types'], format: 'umd' }],
     plugins: [dts()],
   },
-  // Build tests.
-  /*
+  // Build browser test suite.
   {
-    input: './tests/src/tests.ts',
+    input: './tests/src/index.ts',
     output: [
       {
-        file: './tests/dist/tests.node.js',
-        format: 'es',
-      },
-      {
-        file: './tests/dist/tests.browser.js',
+        file: './tests/dist/index.js',
         format: 'umd',
         name: `${pkg.name}_testsuite`,
-        globals: { chai: 'chai', eventti: 'eventti', tikki: 'tikki' },
+        globals: { chai: 'chai' },
       },
     ],
-    external: ['chai', 'eventti', 'tikki'],
+    external: ['chai'],
     plugins: [typescript()],
   },
-  */
 ];

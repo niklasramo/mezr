@@ -1,1 +1,0 @@
-export function isDocument(n){return n instanceof Document}

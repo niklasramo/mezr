@@ -1,1 +1,0 @@
-import{getStyle}from"./getStyle.js";import{isContainingBlockForFixedElement}from"./isContainingBlockForFixedElement.js";export function isContainingBlockForAbsoluteElement(t){return"static"!==getStyle(t).position||isContainingBlockForFixedElement(t)}

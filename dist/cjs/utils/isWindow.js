@@ -1,1 +1,0 @@
-"use strict";function isWindow(i){return i instanceof Window}Object.defineProperty(exports,"__esModule",{value:!0}),exports.isWindow=void 0,exports.isWindow=isWindow;

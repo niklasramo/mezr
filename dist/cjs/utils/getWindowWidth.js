@@ -1,1 +1,0 @@
-"use strict";function getWindowWidth(t,e=!1){return e?t.innerWidth:t.document.documentElement.clientWidth}Object.defineProperty(exports,"__esModule",{value:!0}),exports.getWindowWidth=void 0,exports.getWindowWidth=getWindowWidth;

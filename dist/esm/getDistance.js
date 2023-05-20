@@ -1,1 +1,0 @@
-import{doRectsOverlap}from"./utils/doRectsOverlap.js";import{getDistanceBetweenRects}from"./utils/getDistanceBetweenRects.js";import{getNormalizedRect}from"./utils/getNormalizedRect.js";export function getDistance(e,t){const s=getNormalizedRect(e),c=getNormalizedRect(t);return doRectsOverlap(s,c)?null:getDistanceBetweenRects(s,c)}

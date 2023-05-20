@@ -1,1 +1,0 @@
-export function getDocumentHeight(e,t=!1){if(t){const t=e.defaultView,n=t?t.innerHeight-e.documentElement.clientHeight:0;return Math.max(e.documentElement.scrollHeight+n,e.body.scrollHeight+n,t?t.innerHeight:0)}return Math.max(e.documentElement.scrollHeight,e.body.scrollHeight,e.documentElement.clientHeight)}

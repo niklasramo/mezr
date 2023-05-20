@@ -8,7 +8,7 @@ export * from './getIntersection.js';
 
 export * from './getOffset.js';
 
-export * from './getPositionRoot.js';
+export * from './getOffsetParent.js';
 
 export * from './getOverflow.js';
 

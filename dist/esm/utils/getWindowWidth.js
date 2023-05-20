@@ -1,1 +1,0 @@
-export function getWindowWidth(t,n=!1){return n?t.innerWidth:t.document.documentElement.clientWidth}
