@@ -1,0 +1,1 @@
+import{getDistanceBetweenRects}from"./utils/getDistanceBetweenRects.js";import{getNormalizedRect}from"./utils/getNormalizedRect.js";export function getDistance(e,t){const c=getNormalizedRect(e),i=getNormalizedRect(t);return getDistanceBetweenRects(c,i)}

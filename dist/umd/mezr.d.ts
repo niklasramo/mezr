@@ -38,7 +38,7 @@ declare function getOffset(element: Rect | DomRectElement | DomRectArray, offset
     top: number;
 };
 
-declare function getPositionRoot(element: HTMLElement, position?: string): (Window & typeof globalThis) | Document | HTMLElement | null;
+declare function getOffsetParent(element: HTMLElement, position?: string): (Window & typeof globalThis) | Document | HTMLElement | null;
 
 declare function getOverflow(elementA: Rect | DomRectElement | DomRectArray, elementB: Rect | DomRectElement | DomRectArray): {
     left: number;
@@ -56,8 +56,6 @@ declare function getRect(element: Rect | DomRectElement | DomRectArray, offsetRo
     height: number;
 };
 
-declare function getStyle(element: Element): CSSStyleDeclaration;
-
 declare function getWidth(element: DomRectElement, area?: DomRectElementArea): number;
 
-export { getContainingBlock, getDistance, getHeight, getIntersection, getOffset, getOverflow, getPositionRoot, getRect, getStyle, getWidth };
+export { getContainingBlock, getDistance, getHeight, getIntersection, getOffset, getOffsetParent, getOverflow, getRect, getWidth };

@@ -1,1 +1,0 @@
-"use strict";function doRectsOverlap(t,e){return!(t.right<=e.left||e.right<=t.left||t.bottom<=e.top||e.bottom<=t.top)}Object.defineProperty(exports,"__esModule",{value:!0}),exports.doRectsOverlap=void 0,exports.doRectsOverlap=doRectsOverlap;

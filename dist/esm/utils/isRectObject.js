@@ -1,1 +1,0 @@
-export function isRectObject(t){return(null==t?void 0:t.constructor)===Object}

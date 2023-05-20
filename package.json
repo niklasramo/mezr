@@ -59,15 +59,15 @@
       "require": "./dist/cjs/getOffset.js",
       "default": "./dist/esm/getOffset.js"
     },
+    "./getOffsetParent": {
+      "import": "./dist/esm/getOffsetParent.js",
+      "require": "./dist/cjs/getOffsetParent.js",
+      "default": "./dist/esm/getOffsetParent.js"
+    },
     "./getOverflow": {
       "import": "./dist/esm/getOverflow.js",
       "require": "./dist/cjs/getOverflow.js",
       "default": "./dist/esm/getOverflow.js"
-    },
-    "./getPositionRoot": {
-      "import": "./dist/esm/getPositionRoot.js",
-      "require": "./dist/cjs/getPositionRoot.js",
-      "default": "./dist/esm/getPositionRoot.js"
     },
     "./getRect": {
       "import": "./dist/esm/getRect.js",
@@ -88,23 +88,26 @@
     "LICENSE.md"
   ],
   "scripts": {
-    "test": "npm run ts-check && karma start karma.conf.cjs",
+    "test": "npm run ts-check && npm run test-browserstack",
+    "test-local": "karma start karma.chrome-local.cjs",
+    "test-browserstack": "karma start karma.browserstack.ts",
     "build": "npm run del-dist && npm run ts-check && npm run format && rollup -c && npm run ts-build-esm && npm run ts-build-cjs && npm run minify && npm run size",
     "ts-build-esm": "tsc --declaration --module nodenext --moduleResolution nodenext --outDir ./dist/esm",
     "ts-build-cjs": "tsc --declaration --module commonjs --moduleResolution node --outDir ./dist/cjs",
     "ts-check": "tsc --noEmit",
-    "del-dist": "del ./dist",
-    "format": "prettier --write ./src/",
+    "del-dist": "del ./dist && del ./tests/dist",
+    "format": "prettier --write ./src/ && prettier --write ./tests/src/",
     "size": "for file in ./dist/**/*.js; do echo $file && gzip-size $file --include-original; done;",
-    "minify": "npm run minify-d1 && npm run minify-d2",
-    "minify-d1": "for file in ./dist/**/*.js; do terser $file -o $file -c -m --comments false; done;",
-    "minify-d2": "for file in ./dist/**/**/*.js; do terser $file -o $file -c -m --comments false; done;"
+    "minify": "npm run minify-1 && npm run minify-2",
+    "minify-1": "for file in ./dist/**/*.js; do terser $file -o $file -c -m --comments false; done;",
+    "minify-2": "for file in ./dist/**/**/*.js; do terser $file -o $file -c -m --comments false; done;"
   },
   "devDependencies": {
-    "@rollup/plugin-typescript": "11.1.0",
-    "@types/chai": "4.3.4",
+    "@rollup/plugin-typescript": "11.1.1",
+    "@types/chai": "4.3.5",
     "@types/mocha": "10.0.1",
     "chai": "4.3.7",
+    "csstype": "3.1.2",
     "del-cli": "5.0.0",
     "dotenv": "16.0.3",
     "gzip-size-cli": "5.1.0",
@@ -115,10 +118,10 @@
     "karma-mocha-reporter": "2.2.5",
     "mocha": "10.2.0",
     "prettier": "2.8.8",
-    "rollup": "3.21.0",
+    "rollup": "3.22.0",
     "rollup-plugin-dts": "5.3.0",
-    "terser": "5.17.1",
-    "tslib": "2.5.0",
+    "terser": "5.17.4",
+    "tslib": "2.5.2",
     "typescript": "5.0.4"
   }
 }

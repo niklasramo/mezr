@@ -1,5 +1,5 @@
 import { getStyle } from './getStyle.js';
-import { getBcr } from './bcr.js';
+import { getBcr } from './bcrUtils.js';
 import { isDocument } from './isDocument.js';
 import { isWindow } from './isWindow.js';
 import { DomRectElement, DomRectElementArea } from './types.js';

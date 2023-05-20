@@ -1,1 +1,0 @@
-export function doRectsOverlap(t,o){return!(t.right<=o.left||o.right<=t.left||t.bottom<=o.top||o.bottom<=t.top)}

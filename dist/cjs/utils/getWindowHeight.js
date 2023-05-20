@@ -1,1 +1,0 @@
-"use strict";function getWindowHeight(e,t=!1){return t?e.innerHeight:e.document.documentElement.clientHeight}Object.defineProperty(exports,"__esModule",{value:!0}),exports.getWindowHeight=void 0,exports.getWindowHeight=getWindowHeight;

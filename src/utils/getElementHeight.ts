@@ -2,16 +2,16 @@ import { BOX_AREA } from './constants.js';
 import { DomRectElementArea } from './types.js';
 import { getStyle } from './getStyle.js';
 import { isDocumentElement } from './isDocumentElement.js';
-import { getBcr } from './bcr.js';
+import { getBcr } from './bcrUtils.js';
 
-export function getElementHeight(el: Element, area: DomRectElementArea = 'border') {
-  let { height } = getBcr(el);
+export function getElementHeight(element: Element, area: DomRectElementArea = 'border') {
+  let { height } = getBcr(element);
 
   if (area === BOX_AREA.border) {
     return height;
   }
 
-  const style = getStyle(el);
+  const style = getStyle(element);
 
   if (area === BOX_AREA.margin) {
     height += Math.max(0, parseFloat(style.marginTop) || 0);
@@ -19,27 +19,24 @@ export function getElementHeight(el: Element, area: DomRectElementArea = 'border
     return height;
   }
 
-  const borderTop = parseFloat(style.borderTopWidth) || 0;
-  const borderBottom = parseFloat(style.borderBottomWidth) || 0;
-
-  height -= borderTop;
-  height -= borderBottom;
+  height -= parseFloat(style.borderTopWidth) || 0;
+  height -= parseFloat(style.borderBottomWidth) || 0;
 
   if (area === BOX_AREA.scroll) {
     return height;
   }
 
-  if (isDocumentElement(el)) {
-    const doc = el.ownerDocument;
+  if (isDocumentElement(element)) {
+    const doc = element.ownerDocument;
     const win = doc.defaultView;
     if (win) {
       height -= win.innerHeight - doc.documentElement.clientHeight;
     }
   } else {
-    height -= Math.max(
-      0,
-      Math.round(height) - Math.round(el.clientHeight + borderTop + borderBottom)
-    );
+    const sbSize = Math.round(height) - element.clientHeight;
+    if (sbSize > 0) {
+      height -= sbSize;
+    }
   }
 
   if (area === BOX_AREA.padding) {

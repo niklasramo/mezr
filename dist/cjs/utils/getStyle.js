@@ -1,1 +1,0 @@
-"use strict";Object.defineProperty(exports,"__esModule",{value:!0}),exports.getStyle=void 0;const STYLE_DECLARATION_CACHE=new WeakMap;function getStyle(e){var t;let l=null===(t=STYLE_DECLARATION_CACHE.get(e))||void 0===t?void 0:t.deref();return l||(l=window.getComputedStyle(e,null),STYLE_DECLARATION_CACHE.set(e,new WeakRef(l))),l}exports.getStyle=getStyle;

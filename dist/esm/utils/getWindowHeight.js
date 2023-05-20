@@ -1,1 +1,0 @@
-export function getWindowHeight(e,t=!1){return t?e.innerHeight:e.document.documentElement.clientHeight}
