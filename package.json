@@ -28,56 +28,48 @@
   "source": "./src/index.ts",
   "umd:main": "./dist/umd/mezr.js",
   "umd:types": "./dist/umd/mezr.d.ts",
+  "main": "./dist/esm/index.js",
+  "types": "./dist/esm/index.d.ts",
   "exports": {
     ".": {
       "import": "./dist/esm/index.js",
-      "require": "./dist/cjs/index.js",
-      "default": "./dist/esm/index.js"
+      "require": "./dist/cjs/index.js"
     },
     "./getContainingBlock": {
       "import": "./dist/esm/getContainingBlock.js",
-      "require": "./dist/cjs/getContainingBlock.js",
-      "default": "./dist/esm/getContainingBlock.js"
+      "require": "./dist/cjs/getContainingBlock.js"
     },
     "./getDistance": {
       "import": "./dist/esm/getDistance.js",
-      "require": "./dist/cjs/getDistance.js",
-      "default": "./dist/esm/getDistance.js"
+      "require": "./dist/cjs/getDistance.js"
     },
     "./getHeight": {
       "import": "./dist/esm/getHeight.js",
-      "require": "./dist/cjs/getHeight.js",
-      "default": "./dist/esm/getHeight.js"
+      "require": "./dist/cjs/getHeight.js"
     },
     "./getIntersection": {
       "import": "./dist/esm/getIntersection.js",
-      "require": "./dist/cjs/getIntersection.js",
-      "default": "./dist/esm/getIntersection.js"
+      "require": "./dist/cjs/getIntersection.js"
     },
     "./getOffset": {
       "import": "./dist/esm/getOffset.js",
-      "require": "./dist/cjs/getOffset.js",
-      "default": "./dist/esm/getOffset.js"
+      "require": "./dist/cjs/getOffset.js"
     },
     "./getOffsetParent": {
       "import": "./dist/esm/getOffsetParent.js",
-      "require": "./dist/cjs/getOffsetParent.js",
-      "default": "./dist/esm/getOffsetParent.js"
+      "require": "./dist/cjs/getOffsetParent.js"
     },
     "./getOverflow": {
       "import": "./dist/esm/getOverflow.js",
-      "require": "./dist/cjs/getOverflow.js",
-      "default": "./dist/esm/getOverflow.js"
+      "require": "./dist/cjs/getOverflow.js"
     },
     "./getRect": {
       "import": "./dist/esm/getRect.js",
-      "require": "./dist/cjs/getRect.js",
-      "default": "./dist/esm/getRect.js"
+      "require": "./dist/cjs/getRect.js"
     },
     "./getWidth": {
       "import": "./dist/esm/getWidth.js",
-      "require": "./dist/cjs/getWidth.js",
-      "default": "./dist/esm/getWidth.js"
+      "require": "./dist/cjs/getWidth.js"
     }
   },
   "files": [
@@ -88,28 +80,28 @@
     "LICENSE.md"
   ],
   "scripts": {
+    "build": "npm run del-dist && npm run ts-check && npm run format && npm run build-esm && npm run build-cjs && npm run build-umd && npm run build-tests && npm run minify && npm run size",
+    "build-esm": "tsc --project tsconfig.build-esm.json",
+    "build-cjs": "tsc --project tsconfig.build-cjs.json",
+    "build-umd": "rollup --config rollup.config.build-umd.ts --configPlugin typescript",
+    "build-tests": "rollup --config rollup.config.build-tests.ts --configPlugin typescript",
+    "del-dist": "del ./dist && del ./tests/dist",
+    "format": "prettier --write --no-error-on-unmatched-pattern \"./**/*.{js,ts,jsx,tsx,css,html,json,md,yml}\"",
+    "minify": "find ./dist -name '*.js' -exec terser {} -o {} -c -m --comments false \\;",
+    "size": "find ./dist/umd -name 'mezr.js' -exec echo {} \\; -exec gzip-size {} --include-original \\;",
     "test": "npm run ts-check && npm run test-browserstack",
     "test-local": "karma start karma.chrome-local.cjs",
     "test-browserstack": "karma start karma.browserstack.ts",
-    "build": "npm run del-dist && npm run ts-check && npm run format && rollup -c && npm run ts-build-esm && npm run ts-build-cjs && npm run minify && npm run size",
-    "ts-build-esm": "tsc --declaration --module nodenext --moduleResolution nodenext --outDir ./dist/esm",
-    "ts-build-cjs": "tsc --declaration --module commonjs --moduleResolution node --outDir ./dist/cjs",
-    "ts-check": "tsc --noEmit",
-    "del-dist": "del ./dist && del ./tests/dist",
-    "format": "prettier --write ./src/ && prettier --write ./tests/src/",
-    "size": "for file in ./dist/**/*.js; do echo $file && gzip-size $file --include-original; done;",
-    "minify": "npm run minify-1 && npm run minify-2",
-    "minify-1": "for file in ./dist/**/*.js; do terser $file -o $file -c -m --comments false; done;",
-    "minify-2": "for file in ./dist/**/**/*.js; do terser $file -o $file -c -m --comments false; done;"
+    "ts-check": "tsc --noEmit"
   },
   "devDependencies": {
-    "@rollup/plugin-typescript": "11.1.1",
+    "@rollup/plugin-typescript": "11.1.2",
     "@types/chai": "4.3.5",
     "@types/mocha": "10.0.1",
     "chai": "4.3.7",
     "csstype": "3.1.2",
     "del-cli": "5.0.0",
-    "dotenv": "16.0.3",
+    "dotenv": "16.3.1",
     "gzip-size-cli": "5.1.0",
     "karma": "6.4.2",
     "karma-browserstack-launcher": "1.6.0",
@@ -117,11 +109,11 @@
     "karma-mocha": "2.0.1",
     "karma-mocha-reporter": "2.2.5",
     "mocha": "10.2.0",
-    "prettier": "2.8.8",
-    "rollup": "3.22.0",
-    "rollup-plugin-dts": "5.3.0",
-    "terser": "5.17.4",
-    "tslib": "2.5.2",
-    "typescript": "5.0.4"
+    "prettier": "3.0.1",
+    "rollup": "3.28.0",
+    "rollup-plugin-dts": "5.3.1",
+    "terser": "5.19.2",
+    "tslib": "2.6.1",
+    "typescript": "5.1.6"
   }
 }

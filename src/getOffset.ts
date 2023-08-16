@@ -5,7 +5,7 @@ import { Rect, DomRectElement, DomRectArray } from './utils/types.js';
 
 export function getOffset(
   element: Rect | DomRectElement | DomRectArray,
-  offsetRoot?: Rect | DomRectElement | DomRectArray
+  offsetRoot?: Rect | DomRectElement | DomRectArray,
 ) {
   const offset = isRectObject(element)
     ? { left: element.left, top: element.top }

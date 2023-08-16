@@ -169,7 +169,7 @@ type DomRectElementArea = 'content' | 'padding' | 'scroll' | 'border' | 'margin'
 
 type getWidth = (
   element: Element | Document | Window,
-  area: DomRectElementArea = 'border'
+  area: DomRectElementArea = 'border',
 ) => number;
 ```
 
@@ -233,7 +233,7 @@ type DomRectElementArea = 'content' | 'padding' | 'scroll' | 'border' | 'margin'
 
 type getHeight = (
   element: Element | Document | Window,
-  area: DomRectElementArea = 'border'
+  area: DomRectElementArea = 'border',
 ) => number;
 ```
 
@@ -299,7 +299,7 @@ type DomRectElementArea = 'content' | 'padding' | 'scroll' | 'border' | 'margin'
 
 type getOffset = (
   element: DomRectElement | [DomRectElement, DomRectElementArea],
-  offsetRoot?: DomRectElement | [DomRectElement, DomRectElementArea]
+  offsetRoot?: DomRectElement | [DomRectElement, DomRectElementArea],
 ) => { left: number; top: number };
 ```
 
@@ -359,7 +359,7 @@ type DomRectElementArea = 'content' | 'padding' | 'scroll' | 'border' | 'margin'
 
 type getRect = (
   element: DomRectElement | [DomRectElement, DomRectElementArea],
-  offsetRoot?: DomRectElement | [DomRectElement, DomRectElementArea]
+  offsetRoot?: DomRectElement | [DomRectElement, DomRectElementArea],
 ) => {
   width: number;
   height: number;
@@ -419,7 +419,7 @@ type DomRectElementArea = 'content' | 'padding' | 'scroll' | 'border' | 'margin'
 
 type getDistance = (
   elementA: DomRectElement | [DomRectElement, DomRectElementArea],
-  elementB: DomRectElement | [DomRectElement, DomRectElementArea]
+  elementB: DomRectElement | [DomRectElement, DomRectElementArea],
 ) => number | null;
 ```
 
@@ -460,7 +460,7 @@ type DomRectElementArea = 'content' | 'padding' | 'scroll' | 'border' | 'margin'
 
 type getDistance = (
   elementA: DomRectElement | [DomRectElement, DomRectElementArea],
-  elementB: DomRectElement | [DomRectElement, DomRectElementArea]
+  elementB: DomRectElement | [DomRectElement, DomRectElementArea],
 ) => {
   width: number;
   height: number;
@@ -508,7 +508,7 @@ type DomRectElementArea = 'content' | 'padding' | 'scroll' | 'border' | 'margin'
 
 type getDistance = (
   elementA: DomRectElement | [DomRectElement, DomRectElementArea],
-  elementB: DomRectElement | [DomRectElement, DomRectElementArea]
+  elementB: DomRectElement | [DomRectElement, DomRectElementArea],
 ) => {
   left: number;
   right: number;
@@ -583,7 +583,7 @@ Due to the dynamic nature of sticky elements they are considered as static eleme
 ```ts
 type getOffsetParent = (
   element: HTMLElement,
-  position?: string
+  position?: string,
 ) => HTMLElement | Document | Window | null;
 ```
 

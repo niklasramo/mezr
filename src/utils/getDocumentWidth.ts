@@ -5,13 +5,13 @@ export function getDocumentWidth(doc: Document, includeScrollbar = false) {
     return Math.max(
       doc.documentElement.scrollWidth + scrollbarSize,
       doc.body.scrollWidth + scrollbarSize,
-      win ? win.innerWidth : 0
+      win ? win.innerWidth : 0,
     );
   } else {
     return Math.max(
       doc.documentElement.scrollWidth,
       doc.body.scrollWidth,
-      doc.documentElement.clientWidth
+      doc.documentElement.clientWidth,
     );
   }
 }

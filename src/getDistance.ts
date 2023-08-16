@@ -10,7 +10,7 @@ import { DomRectElement, DomRectArray, Rect } from './utils/types.js';
  */
 export function getDistance(
   elementA: Rect | DomRectElement | DomRectArray,
-  elementB: Rect | DomRectElement | DomRectArray
+  elementB: Rect | DomRectElement | DomRectArray,
 ) {
   const rectA = getNormalizedRect(elementA);
   const rectB = getNormalizedRect(elementB);

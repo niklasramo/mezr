@@ -1,0 +1,1 @@
+export function getDocumentWidth(t,e=!1){if(e){const e=t.defaultView,n=e?e.innerWidth-t.documentElement.clientWidth:0;return Math.max(t.documentElement.scrollWidth+n,t.body.scrollWidth+n,e?e.innerWidth:0)}return Math.max(t.documentElement.scrollWidth,t.body.scrollWidth,t.documentElement.clientWidth)}

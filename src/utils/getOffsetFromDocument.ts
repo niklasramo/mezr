@@ -11,7 +11,7 @@ import { DomRectElement, DomRectElementArea } from './types.js';
  */
 export function getOffsetFromDocument(
   element: DomRectElement,
-  area: DomRectElementArea = 'border'
+  area: DomRectElementArea = 'border',
 ) {
   const offset = {
     left: 0,

@@ -31,6 +31,7 @@ export function isContainingBlockForFixedElement(element: HTMLElement) {
   // containing block.
   // Note: this feature does not exist on Safari yet, so this check might
   // break when they start supporting it (depending on how they implement it).
+  // @ts-ignore
   const { contentVisibility } = style;
   if (contentVisibility && contentVisibility === 'auto') {
     return true;

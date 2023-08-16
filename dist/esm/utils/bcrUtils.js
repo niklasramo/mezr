@@ -1,0 +1,1 @@
+let cachedElem=null,cachedRect=null;export function getBcr(c){return c===cachedElem?cachedRect:c.getBoundingClientRect()}export function cacheBcr(c){cachedElem=c,cachedRect=c.getBoundingClientRect()}export function clearBcrCache(){cachedElem=cachedRect=null}

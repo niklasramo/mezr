@@ -1,0 +1,1 @@
+export function isDocumentElement(e){return e instanceof HTMLHtmlElement}

@@ -3,7 +3,7 @@ import { Rect, DomRectElement, DomRectArray } from './utils/types.js';
 
 export function getIntersection(
   elementA: Rect | DomRectElement | DomRectArray,
-  elementB: Rect | DomRectElement | DomRectArray
+  elementB: Rect | DomRectElement | DomRectArray,
 ) {
   const rectA = getNormalizedRect(elementA);
   const rectB = getNormalizedRect(elementB);

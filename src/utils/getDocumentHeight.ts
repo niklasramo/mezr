@@ -5,13 +5,13 @@ export function getDocumentHeight(doc: Document, includeScrollbar = false) {
     return Math.max(
       doc.documentElement.scrollHeight + scrollbarSize,
       doc.body.scrollHeight + scrollbarSize,
-      win ? win.innerHeight : 0
+      win ? win.innerHeight : 0,
     );
   } else {
     return Math.max(
       doc.documentElement.scrollHeight,
       doc.body.scrollHeight,
-      doc.documentElement.clientHeight
+      doc.documentElement.clientHeight,
     );
   }
 }
