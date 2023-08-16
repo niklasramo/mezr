@@ -2,12 +2,12 @@ import { getWidth } from './getWidth.js';
 import { getHeight } from './getHeight.js';
 import { getOffset } from './getOffset.js';
 import { isRectObject } from './utils/isRectObject.js';
-import { cacheBcr, clearBcrCache } from 'utils/bcrUtils.js';
+import { cacheBcr, clearBcrCache } from './utils/bcrUtils.js';
 import { Rect, DomRectElement, DomRectArray } from './utils/types.js';
 
 export function getRect(
   element: Rect | DomRectElement | DomRectArray,
-  offsetRoot?: Rect | DomRectElement | DomRectArray
+  offsetRoot?: Rect | DomRectElement | DomRectArray,
 ) {
   let width = 0;
   let height = 0;

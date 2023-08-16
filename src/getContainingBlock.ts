@@ -43,7 +43,7 @@ export function getContainingBlock(element: HTMLElement, position?: string) {
         const isContainingBlock = isFixed
           ? isContainingBlockForFixedElement(containingBlock)
           : isContainingBlockForAbsoluteElement(containingBlock);
-        if (isContainingBlock === true) return element;
+        if (isContainingBlock === true) return containingBlock;
         if (isContainingBlock === undefined) return null;
         containingBlock = containingBlock.parentElement;
       }

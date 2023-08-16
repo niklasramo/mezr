@@ -1,0 +1,1 @@
+"use strict";function isDocumentElement(e){return e instanceof HTMLHtmlElement}Object.defineProperty(exports,"__esModule",{value:!0}),exports.isDocumentElement=void 0,exports.isDocumentElement=isDocumentElement;

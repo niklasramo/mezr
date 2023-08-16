@@ -1,0 +1,1 @@
+export function getDistanceBetweenPoints(t,e,n,o){return Math.sqrt(Math.pow(n-t,2)+Math.pow(o-e,2))}

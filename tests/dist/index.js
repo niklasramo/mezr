@@ -20,8 +20,7 @@
         return new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
     }
     function afterTest() {
-        var _a;
-        (_a = document.getElementById('default-page-styles')) === null || _a === void 0 ? void 0 : _a.remove();
+        document.getElementById('default-page-styles')?.remove();
         document.documentElement.removeAttribute('style');
         document.body.removeAttribute('style');
     }
@@ -31,16 +30,21 @@
     };
     function createTestElement(styles = {}) {
         const el = document.createElement('div');
-        Object.assign(el.style, Object.assign(Object.assign({}, defaultStyles), styles));
+        Object.assign(el.style, { ...defaultStyles, ...styles });
         document.body.appendChild(el);
         return el;
     }
 
     const STYLE_DECLARATION_CACHE = new WeakMap();
+    /**
+     * Returns element's CSS Style Declaration. Caches reference to the declaration
+     * object weakly for faster access.
+     */
     function getStyle(element) {
-        var _a;
-        let styleDeclaration = (_a = STYLE_DECLARATION_CACHE.get(element)) === null || _a === void 0 ? void 0 : _a.deref();
+        let styleDeclaration = STYLE_DECLARATION_CACHE.get(element)?.deref();
         if (!styleDeclaration) {
+            // TODO: should we use element.ownderDocument.defaultView instead? Test
+            // if this works.
             styleDeclaration = window.getComputedStyle(element, null);
             STYLE_DECLARATION_CACHE.set(element, new WeakRef(styleDeclaration));
         }
@@ -69,14 +73,23 @@
         [BOX_AREA.margin]: true,
     };
 
+    /**
+     * Check if the current value is a document element.
+     */
     function isDocumentElement(value) {
         return value instanceof HTMLHtmlElement;
     }
 
+    /**
+     * Check if the current value is a window.
+     */
     function isWindow(value) {
         return value instanceof Window;
     }
 
+    /**
+     * Check if the current value is a document.
+     */
     function isDocument(value) {
         return value instanceof Document;
     }
@@ -219,9 +232,14 @@
     }
 
     function isRectObject(value) {
-        return (value === null || value === void 0 ? void 0 : value.constructor) === Object;
+        return value?.constructor === Object;
     }
 
+    /**
+     * Returns the element's (or window's) document offset, which in practice
+     * means the vertical and horizontal distance between the element's northwest
+     * corner and the document's northwest corner.
+     */
     function getOffsetFromDocument(element, area = 'border') {
         const offset = {
             left: 0,
@@ -303,8 +321,13 @@
         }
         const offset = getOffset(element, offsetRoot);
         clearBcrCache();
-        return Object.assign(Object.assign({ width,
-            height }, offset), { right: offset.left + width, bottom: offset.top + height });
+        return {
+            width,
+            height,
+            ...offset,
+            right: offset.left + width,
+            bottom: offset.top + height,
+        };
     }
 
     function getScrollbarSizes() {
@@ -342,28 +365,34 @@
             });
             expectedWidth = elWidth;
             expectedHeight = elHeight;
+            // "content"
             chai.assert.strictEqual(getWidth(document, 'content'), expectedWidth, 'getWidth(document, "content")');
             chai.assert.strictEqual(getHeight(document, 'content'), expectedHeight, 'getHeight(document, "content")');
             chai.assert.strictEqual(getRect([document, 'content']).width, expectedWidth, 'getRect([document, "content"]).width');
             chai.assert.strictEqual(getRect([document, 'content']).height, expectedHeight, 'getRect([document, "content"]).height');
+            // "padding"
             chai.assert.strictEqual(getWidth(document, 'padding'), expectedWidth, 'getWidth(document, "padding")');
             chai.assert.strictEqual(getHeight(document, 'padding'), expectedHeight, 'getHeight(document, "padding")');
             chai.assert.strictEqual(getRect([document, 'padding']).width, expectedWidth, 'getRect([document, "padding"]).width');
             chai.assert.strictEqual(getRect([document, 'padding']).height, expectedHeight, 'getRect([document, "padding"]).height');
             expectedWidth = elWidth + window.innerWidth - document.documentElement.clientWidth;
             expectedHeight = elHeight + window.innerHeight - document.documentElement.clientHeight;
+            // "scroll"
             chai.assert.strictEqual(getWidth(document, 'scroll'), expectedWidth, 'getWidth(document, "scroll")');
             chai.assert.strictEqual(getHeight(document, 'scroll'), expectedHeight, 'getHeight(document, "padding")');
             chai.assert.strictEqual(getRect([document, 'scroll']).width, expectedWidth, 'getRect([document, "scroll"]).width');
             chai.assert.strictEqual(getRect([document, 'scroll']).height, expectedHeight, 'getRect([document, "scroll"]).height');
+            // "border"
             chai.assert.strictEqual(getWidth(document, 'border'), expectedWidth, 'getWidth(document, "border")');
             chai.assert.strictEqual(getHeight(document, 'border'), expectedHeight, 'getHeight(document, "border")');
             chai.assert.strictEqual(getRect([document, 'border']).width, expectedWidth, 'getRect([document, "border"]).width');
             chai.assert.strictEqual(getRect([document, 'border']).height, expectedHeight, 'getRect([document, "border"]).height');
+            // ""
             chai.assert.strictEqual(getWidth(document), expectedWidth, 'getWidth(document)');
             chai.assert.strictEqual(getHeight(document), expectedHeight, 'getHeight(document)');
             chai.assert.strictEqual(getRect(document).width, expectedWidth, 'getRect(document).width');
             chai.assert.strictEqual(getRect(document).height, expectedHeight, 'getRect(document).height');
+            // "margin"
             chai.assert.strictEqual(getWidth(document, 'margin'), expectedWidth, 'width - "margin"');
             chai.assert.strictEqual(getHeight(document, 'margin'), expectedHeight, 'height - "margin"');
             chai.assert.strictEqual(getRect([document, 'margin']).width, expectedWidth, 'getRect([document, "margin"]).width');
@@ -373,13 +402,16 @@
         it(`should measure the window's width and height`, function () {
             let expectedWidth = 0;
             let expectedHeight = 0;
+            // Force root scrollbar to be visible.
             document.documentElement.style.overflow = 'scroll';
+            // Without scrollbar.
             expectedWidth = document.documentElement.clientWidth;
             expectedHeight = document.documentElement.clientHeight;
             chai.assert.strictEqual(getWidth(window, 'content'), expectedWidth, 'width - "content"');
             chai.assert.strictEqual(getWidth(window, 'padding'), expectedWidth, 'width - "padding"');
             chai.assert.strictEqual(getHeight(window, 'content'), expectedHeight, 'height - "content"');
             chai.assert.strictEqual(getHeight(window, 'padding'), expectedHeight, 'height - "padding"');
+            // With scrollbar.
             expectedWidth = window.innerWidth;
             expectedHeight = window.innerHeight;
             chai.assert.strictEqual(getWidth(window), expectedWidth, 'width - ""');

@@ -32,44 +32,44 @@ describe('dimensions: getWidth() and getHeight()', () => {
     assert.strictEqual(
       getWidth(document, 'content'),
       expectedWidth,
-      'getWidth(document, "content")'
+      'getWidth(document, "content")',
     );
     assert.strictEqual(
       getHeight(document, 'content'),
       expectedHeight,
-      'getHeight(document, "content")'
+      'getHeight(document, "content")',
     );
     assert.strictEqual(
       getRect([document, 'content']).width,
       expectedWidth,
-      'getRect([document, "content"]).width'
+      'getRect([document, "content"]).width',
     );
     assert.strictEqual(
       getRect([document, 'content']).height,
       expectedHeight,
-      'getRect([document, "content"]).height'
+      'getRect([document, "content"]).height',
     );
 
     // "padding"
     assert.strictEqual(
       getWidth(document, 'padding'),
       expectedWidth,
-      'getWidth(document, "padding")'
+      'getWidth(document, "padding")',
     );
     assert.strictEqual(
       getHeight(document, 'padding'),
       expectedHeight,
-      'getHeight(document, "padding")'
+      'getHeight(document, "padding")',
     );
     assert.strictEqual(
       getRect([document, 'padding']).width,
       expectedWidth,
-      'getRect([document, "padding"]).width'
+      'getRect([document, "padding"]).width',
     );
     assert.strictEqual(
       getRect([document, 'padding']).height,
       expectedHeight,
-      'getRect([document, "padding"]).height'
+      'getRect([document, "padding"]).height',
     );
 
     expectedWidth = elWidth + window.innerWidth - document.documentElement.clientWidth;
@@ -80,17 +80,17 @@ describe('dimensions: getWidth() and getHeight()', () => {
     assert.strictEqual(
       getHeight(document, 'scroll'),
       expectedHeight,
-      'getHeight(document, "padding")'
+      'getHeight(document, "padding")',
     );
     assert.strictEqual(
       getRect([document, 'scroll']).width,
       expectedWidth,
-      'getRect([document, "scroll"]).width'
+      'getRect([document, "scroll"]).width',
     );
     assert.strictEqual(
       getRect([document, 'scroll']).height,
       expectedHeight,
-      'getRect([document, "scroll"]).height'
+      'getRect([document, "scroll"]).height',
     );
 
     // "border"
@@ -98,17 +98,17 @@ describe('dimensions: getWidth() and getHeight()', () => {
     assert.strictEqual(
       getHeight(document, 'border'),
       expectedHeight,
-      'getHeight(document, "border")'
+      'getHeight(document, "border")',
     );
     assert.strictEqual(
       getRect([document, 'border']).width,
       expectedWidth,
-      'getRect([document, "border"]).width'
+      'getRect([document, "border"]).width',
     );
     assert.strictEqual(
       getRect([document, 'border']).height,
       expectedHeight,
-      'getRect([document, "border"]).height'
+      'getRect([document, "border"]).height',
     );
 
     // ""
@@ -123,12 +123,12 @@ describe('dimensions: getWidth() and getHeight()', () => {
     assert.strictEqual(
       getRect([document, 'margin']).width,
       expectedWidth,
-      'getRect([document, "margin"]).width'
+      'getRect([document, "margin"]).width',
     );
     assert.strictEqual(
       getRect([document, 'margin']).height,
       expectedHeight,
-      'getRect([document, "margin"]).height'
+      'getRect([document, "margin"]).height',
     );
 
     el.remove();

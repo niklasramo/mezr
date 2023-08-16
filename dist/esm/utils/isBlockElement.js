@@ -1,0 +1,1 @@
+import{getStyle}from"./getStyle.js";export function isBlockElement(e){switch(getStyle(e).display){case"none":return;case"inline":case"contents":return!1;default:return!0}}

@@ -1,0 +1,1 @@
+export function isRectObject(t){return t?.constructor===Object}
