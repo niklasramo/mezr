@@ -2,10 +2,9 @@ import { BOX_AREA } from './constants.js';
 import { DomRectElementArea } from './types.js';
 import { getStyle } from './getStyle.js';
 import { isDocumentElement } from './isDocumentElement.js';
-import { getBcr } from './bcrUtils.js';
 
-export function getElementWidth(element: Element, area: DomRectElementArea = 'border') {
-  let { width } = getBcr(element);
+export function getElementWidth(element: Element, area: DomRectElementArea = BOX_AREA.border) {
+  let { width } = element.getBoundingClientRect();
 
   if (area === BOX_AREA.border) {
     return width;

@@ -1,5 +1,5 @@
+import { BOX_AREA } from './constants.js';
 import { getStyle } from './getStyle.js';
-import { getBcr } from './bcrUtils.js';
 import { isDocument } from './isDocument.js';
 import { isWindow } from './isWindow.js';
 import { DomRectElement, DomRectElementArea } from './types.js';
@@ -11,7 +11,7 @@ import { DomRectElement, DomRectElementArea } from './types.js';
  */
 export function getOffsetFromDocument(
   element: DomRectElement,
-  area: DomRectElementArea = 'border',
+  area: DomRectElementArea = BOX_AREA.border,
 ) {
   const offset = {
     left: 0,
@@ -34,17 +34,17 @@ export function getOffsetFromDocument(
     offset.top += win.scrollY || 0;
   }
 
-  const rect = getBcr(element);
+  const rect = element.getBoundingClientRect();
   offset.left += rect.left;
   offset.top += rect.top;
 
-  if (area === 'border') {
+  if (area === BOX_AREA.border) {
     return offset;
   }
 
   const style = getStyle(element);
 
-  if (area === 'margin') {
+  if (area === BOX_AREA.margin) {
     offset.left -= Math.max(0, parseFloat(style.marginLeft) || 0);
     offset.top -= Math.max(0, parseFloat(style.marginTop) || 0);
     return offset;
@@ -53,7 +53,7 @@ export function getOffsetFromDocument(
   offset.left += parseFloat(style.borderLeftWidth) || 0;
   offset.top += parseFloat(style.borderTopWidth) || 0;
 
-  if (area === 'scroll' || area === 'padding') {
+  if (area === BOX_AREA.scroll || area === BOX_AREA.padding) {
     return offset;
   }
 
