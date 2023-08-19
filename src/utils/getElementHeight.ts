@@ -2,10 +2,9 @@ import { BOX_AREA } from './constants.js';
 import { DomRectElementArea } from './types.js';
 import { getStyle } from './getStyle.js';
 import { isDocumentElement } from './isDocumentElement.js';
-import { getBcr } from './bcrUtils.js';
 
-export function getElementHeight(element: Element, area: DomRectElementArea = 'border') {
-  let { height } = getBcr(element);
+export function getElementHeight(element: Element, area: DomRectElementArea = BOX_AREA.border) {
+  let { height } = element.getBoundingClientRect();
 
   if (area === BOX_AREA.border) {
     return height;

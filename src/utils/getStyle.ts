@@ -9,8 +9,6 @@ export function getStyle(element: Element) {
     STYLE_DECLARATION_CACHE.get(element)?.deref();
 
   if (!styleDeclaration) {
-    // TODO: should we use element.ownderDocument.defaultView instead? Test
-    // if this works.
     styleDeclaration = window.getComputedStyle(element, null);
     STYLE_DECLARATION_CACHE.set(element, new WeakRef(styleDeclaration));
   }
