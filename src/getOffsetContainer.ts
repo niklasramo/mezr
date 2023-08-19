@@ -3,16 +3,15 @@ import { getContainingBlock } from './getContainingBlock.js';
 import { isWindow } from './utils/isWindow.js';
 
 /**
- * Returns the element's offset parent (not to be mistaken with the native
- * element.offsetParent), which in this specific case means the closest ancestor
+ * Returns the element's offset container, meaning the closest
  * element/document/window, that the target element's left/right/top/bottom CSS
- * properties are relative to.
+ * properties are rooted to.
  */
-export function getOffsetParent(element: HTMLElement, position?: string) {
+export function getOffsetContainer(element: HTMLElement, position?: string) {
   const style = getStyle(element);
 
-  // If the element's display is "none" or "contents" the element's "left",
-  // "top", "right" and "bottom" properties do not have any effect.
+  // If the element's display is "none" or "contents" the element's
+  // left/top/right/bottom properties do not have any effect.
   const { display } = style;
   if (display === 'none' || display === 'contents') {
     return null;
@@ -24,19 +23,19 @@ export function getOffsetParent(element: HTMLElement, position?: string) {
   }
 
   switch (position) {
-    // Relative element's offset parent is always the element itself.
+    // Relative element's offset container is always the element itself.
     case 'relative': {
       return element;
     }
 
-    // Fixed element's offset parent is always it's containing block.
+    // Fixed element's offset container is always it's containing block.
     case 'fixed': {
       return getContainingBlock(element, position);
     }
 
-    // Absolute element's offset parent is always it's containing block, except
-    // that it's root containing block is not window (as with fixed), but
-    // document instead.
+    // Absolute element's offset container is always it's containing block,
+    // except when the containing block is window in which case we return the
+    // element's owner document instead.
     case 'absolute': {
       const containingBlock = getContainingBlock(element, position);
       return isWindow(containingBlock) ? element.ownerDocument : containingBlock;

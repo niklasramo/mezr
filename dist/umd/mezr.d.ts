@@ -1,5 +1,9 @@
 /**
- * Returns the element's containing block:
+ * Returns the element's containing block, meaning the ancestor element which
+ * the target element's percentage-based
+ * width/height/left/right/top/bottom/padding/margin properties are relative to
+ * (i.e the final pixel amount of the those percentage-based properties is
+ * computed based on the containing block's widht/height).
  * https://developer.mozilla.org/en-US/docs/Web/CSS/Containing_block#identifying_the_containing_block
  */
 declare function getContainingBlock(element: HTMLElement, position?: string): (Window & typeof globalThis) | HTMLElement | null;
@@ -49,12 +53,11 @@ declare function getOffset(element: Rect | DomRectElement | DomRectArray, offset
 };
 
 /**
- * Returns the element's offset parent (not to be mistaken with the native
- * element.offsetParent), which in this specific case means the closest ancestor
+ * Returns the element's offset container, meaning the closest
  * element/document/window, that the target element's left/right/top/bottom CSS
- * properties are relative to.
+ * properties are rooted to.
  */
-declare function getOffsetParent(element: HTMLElement, position?: string): (Window & typeof globalThis) | Document | HTMLElement | null;
+declare function getOffsetContainer(element: HTMLElement, position?: string): (Window & typeof globalThis) | Document | HTMLElement | null;
 
 /**
  * Calculate how much elementA overflows elementB per each side.
@@ -77,4 +80,4 @@ declare function getRect(element: Rect | DomRectElement | DomRectArray, offsetRo
 
 declare function getWidth(element: DomRectElement, area?: DomRectElementArea): number;
 
-export { getContainingBlock, getDistance, getHeight, getIntersection, getOffset, getOffsetParent, getOverflow, getRect, getWidth };
+export { getContainingBlock, getDistance, getHeight, getIntersection, getOffset, getOffsetContainer, getOverflow, getRect, getWidth };
