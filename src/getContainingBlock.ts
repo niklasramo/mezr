@@ -5,7 +5,11 @@ import { isBlockElement } from './utils/isBlockElement.js';
 import { isDocumentElement } from './utils/isDocumentElement.js';
 
 /**
- * Returns the element's containing block:
+ * Returns the element's containing block, meaning the ancestor element which
+ * the target element's percentage-based
+ * width/height/left/right/top/bottom/padding/margin properties are relative to
+ * (i.e the final pixel amount of the those percentage-based properties is
+ * computed based on the containing block's widht/height).
  * https://developer.mozilla.org/en-US/docs/Web/CSS/Containing_block#identifying_the_containing_block
  */
 export function getContainingBlock(element: HTMLElement, position?: string) {

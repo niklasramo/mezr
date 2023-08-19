@@ -55,9 +55,9 @@
       "import": "./dist/esm/getOffset.js",
       "require": "./dist/cjs/getOffset.js"
     },
-    "./getOffsetParent": {
-      "import": "./dist/esm/getOffsetParent.js",
-      "require": "./dist/cjs/getOffsetParent.js"
+    "./getOffsetContainer": {
+      "import": "./dist/esm/getOffsetContainer.js",
+      "require": "./dist/cjs/getOffsetContainer.js"
     },
     "./getOverflow": {
       "import": "./dist/esm/getOverflow.js",

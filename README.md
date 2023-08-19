@@ -156,7 +156,7 @@ getOverflow([elemA, 'content'], [elemB, 'margin']);
 - [getIntersection()](#getintersection)
 - [getOverflow()](#getoverflow)
 - [getContainingBlock()](#getcontainingblock)
-- [getOffsetParent()](#getoffsetparent)
+- [getOffsetContainer()](#getoffsetcontainer)
 
 ### getWidth()
 
@@ -572,16 +572,16 @@ getContainingBlock(elem);
 getContainingBlock(elem, 'fixed');
 ```
 
-### getOffsetParent()
+### getOffsetContainer()
 
-Returns the element's offset parent (**not** to be mistaken with the native [`element.offsetParent`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/offsetParent)), which in this specific case means the closest ancestor element/document/window, that the target element's left/right/top/bottom CSS properties are relative to. If the offset parent can't be computed (e.g. the element's or one of it's ancestors' `display` is `none`) or the element is not affected by left/right/top/bottom CSS properties (e.g. static elements) `null` will be returned.
+Returns the element's offset container, meaning the closest element/document/window, that the target element's left/right/top/bottom CSS properties are rooted to. If the offset container can't be computed (e.g. the element's or one of it's ancestors' `display` is `none`) or the element is not affected by left/right/top/bottom CSS properties (e.g. static elements) `null` will be returned.
 
 Due to the dynamic nature of sticky elements they are considered as static elements in this method's scope and always return `null`.
 
 **Syntax**
 
 ```ts
-type getOffsetParent = (
+type getOffsetContainer = (
   element: HTMLElement,
   position?: string,
 ) => HTMLElement | Document | Window | null;
@@ -597,13 +597,13 @@ type getOffsetParent = (
 **Examples**
 
 ```ts
-import { getOffsetParent } from 'mezr/getOffsetParent';
+import { getOffsetContainer } from 'mezr/getOffsetContainer';
 
-// Get element's offset parent.
-getOffsetParent(elem);
+// Get element's offset container.
+getOffsetContainer(elem);
 
-// Get element's offset parent as if it were a fixed element.
-getOffsetParent(elem, 'fixed');
+// Get element's offset container as if it were a fixed element.
+getOffsetContainer(elem, 'fixed');
 ```
 
 ## License
