@@ -2,7 +2,8 @@ import { getNormalizedRect } from './utils/getNormalizedRect.js';
 import { DomRectElement, DomRectArray, Rect } from './utils/types.js';
 
 /**
- * Calculate how much elementA overflows elementB per each side.
+ * Calculate how much elementA overflows elementB per each side. Negative value
+ * indicates overflow.
  */
 export function getOverflow(
   elementA: Rect | DomRectElement | DomRectArray,

@@ -497,7 +497,7 @@ getIntersection([elemA, 'content'], [elemB, 'scroll']);
 
 ### getOverflow()
 
-Measure how much an element overflows another element per each side.
+Measure how much an element overflows another element per each side. Returns an object containing the overflow values. Note that the overflow values are reported even if the elements don't overlap.
 
 **Syntax**
 
@@ -531,9 +531,8 @@ type getDistance = (
 ```ts
 import { getOverflow } from 'mezr/getOverflow';
 
-// Measure how much elemA overflows elemB per each side. For example, if the
-// returned object's left property value is positive it means that elemA
-// overflows elemB by that much on elemB's left side.
+// Measure how much elemA overflows elemB per each side. Negative value
+// indicates that elemA overflows elemB by that much from that side.
 getOverflow(elemA, elemB);
 
 // Measure elem overflows windown per each side.
