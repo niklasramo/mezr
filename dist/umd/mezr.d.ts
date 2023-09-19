@@ -60,7 +60,8 @@ declare function getOffset(element: Rect | DomRectElement | DomRectArray, offset
 declare function getOffsetContainer(element: HTMLElement, position?: string): (Window & typeof globalThis) | Document | HTMLElement | null;
 
 /**
- * Calculate how much elementA overflows elementB per each side.
+ * Calculate how much elementA overflows elementB per each side. Negative value
+ * indicates overflow.
  */
 declare function getOverflow(elementA: Rect | DomRectElement | DomRectArray, elementB: Rect | DomRectElement | DomRectArray): {
     left: number;

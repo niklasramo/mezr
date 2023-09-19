@@ -43,8 +43,6 @@
     function getStyle(element) {
         let styleDeclaration = STYLE_DECLARATION_CACHE.get(element)?.deref();
         if (!styleDeclaration) {
-            // TODO: should we use element.ownderDocument.defaultView instead? Test
-            // if this works.
             styleDeclaration = window.getComputedStyle(element, null);
             STYLE_DECLARATION_CACHE.set(element, new WeakRef(styleDeclaration));
         }
@@ -109,21 +107,8 @@
         }
     }
 
-    let cachedElem = null;
-    let cachedRect = null;
-    function getBcr(element) {
-        return element === cachedElem ? cachedRect : element.getBoundingClientRect();
-    }
-    function cacheBcr(element) {
-        cachedElem = element;
-        cachedRect = element.getBoundingClientRect();
-    }
-    function clearBcrCache() {
-        cachedElem = cachedRect = null;
-    }
-
-    function getElementWidth(element, area = 'border') {
-        let { width } = getBcr(element);
+    function getElementWidth(element, area = BOX_AREA.border) {
+        let { width } = element.getBoundingClientRect();
         if (area === BOX_AREA.border) {
             return width;
         }
@@ -159,7 +144,7 @@
         return width;
     }
 
-    function getWidth(element, area = 'border') {
+    function getWidth(element, area = BOX_AREA.border) {
         if (isWindow(element)) {
             return getWindowWidth(element, INCLUDE_SCROLLBAR[area]);
         }
@@ -184,8 +169,8 @@
         }
     }
 
-    function getElementHeight(element, area = 'border') {
-        let { height } = getBcr(element);
+    function getElementHeight(element, area = BOX_AREA.border) {
+        let { height } = element.getBoundingClientRect();
         if (area === BOX_AREA.border) {
             return height;
         }
@@ -221,7 +206,7 @@
         return height;
     }
 
-    function getHeight(element, area = 'border') {
+    function getHeight(element, area = BOX_AREA.border) {
         if (isWindow(element)) {
             return getWindowHeight(element, INCLUDE_SCROLLBAR[area]);
         }
@@ -240,7 +225,7 @@
      * means the vertical and horizontal distance between the element's northwest
      * corner and the document's northwest corner.
      */
-    function getOffsetFromDocument(element, area = 'border') {
+    function getOffsetFromDocument(element, area = BOX_AREA.border) {
         const offset = {
             left: 0,
             top: 0,
@@ -258,21 +243,21 @@
             offset.left += win.scrollX || 0;
             offset.top += win.scrollY || 0;
         }
-        const rect = getBcr(element);
+        const rect = element.getBoundingClientRect();
         offset.left += rect.left;
         offset.top += rect.top;
-        if (area === 'border') {
+        if (area === BOX_AREA.border) {
             return offset;
         }
         const style = getStyle(element);
-        if (area === 'margin') {
+        if (area === BOX_AREA.margin) {
             offset.left -= Math.max(0, parseFloat(style.marginLeft) || 0);
             offset.top -= Math.max(0, parseFloat(style.marginTop) || 0);
             return offset;
         }
         offset.left += parseFloat(style.borderLeftWidth) || 0;
         offset.top += parseFloat(style.borderTopWidth) || 0;
-        if (area === 'scroll' || area === 'padding') {
+        if (area === BOX_AREA.scroll || area === BOX_AREA.padding) {
             return offset;
         }
         offset.left += parseFloat(style.paddingLeft) || 0;
@@ -306,21 +291,14 @@
             height = element.height;
         }
         else if (Array.isArray(element)) {
-            if (element[0] instanceof Element) {
-                cacheBcr(element[0]);
-            }
             width = getWidth(element[0], element[1]);
             height = getHeight(element[0], element[1]);
         }
         else {
-            if (element instanceof Element) {
-                cacheBcr(element);
-            }
             width = getWidth(element);
             height = getHeight(element);
         }
         const offset = getOffset(element, offsetRoot);
-        clearBcrCache();
         return {
             width,
             height,
