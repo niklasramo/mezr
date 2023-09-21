@@ -16,21 +16,30 @@
     `;
             document.head.appendChild(styleSheet);
         }
-        window.scrollTo(0, 0);
+        window.scrollTo({
+            top: 0,
+            left: 0,
+            behavior: 'instant',
+        });
         return new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
     }
     function afterTest() {
         document.getElementById('default-page-styles')?.remove();
         document.documentElement.removeAttribute('style');
         document.body.removeAttribute('style');
+        while (document.body.firstChild) {
+            document.body.removeChild(document.body.firstChild);
+        }
+        window.scrollTo({
+            top: 0,
+            left: 0,
+            behavior: 'instant',
+        });
     }
 
-    const defaultStyles = {
-        backgroundColor: 'red',
-    };
     function createTestElement(styles = {}) {
         const el = document.createElement('div');
-        Object.assign(el.style, { ...defaultStyles, ...styles });
+        Object.assign(el.style, { ...styles });
         document.body.appendChild(el);
         return el;
     }
@@ -283,31 +292,6 @@
         return offset;
     }
 
-    function getRect(element, offsetRoot) {
-        let width = 0;
-        let height = 0;
-        if (isRectObject(element)) {
-            width = element.width;
-            height = element.height;
-        }
-        else if (Array.isArray(element)) {
-            width = getWidth(element[0], element[1]);
-            height = getHeight(element[0], element[1]);
-        }
-        else {
-            width = getWidth(element);
-            height = getHeight(element);
-        }
-        const offset = getOffset(element, offsetRoot);
-        return {
-            width,
-            height,
-            ...offset,
-            right: offset.left + width,
-            bottom: offset.top + height,
-        };
-    }
-
     function getScrollbarSizes() {
         const el = document.createElement('div');
         Object.assign(el.style, {
@@ -325,138 +309,601 @@
         };
     }
 
-    describe('dimensions: getWidth() and getHeight()', () => {
+    const { width: sbWidth } = getScrollbarSizes();
+    describe('getWidth()', function () {
         beforeEach(beforeTest);
         afterEach(afterTest);
-        const { width: sbWidth, height: sbHeight } = getScrollbarSizes();
-        it(`should measure the document's width and height`, function () {
+        describe('document', function () {
             const elWidth = 10000;
             const elHeight = 10000;
-            let expectedWidth = 0;
-            let expectedHeight = 0;
-            const el = createTestElement({
-                position: 'absolute',
-                left: '0px',
-                top: '0px',
-                width: `${elWidth}px`,
-                height: `${elHeight}px`,
+            beforeEach(function () {
+                createTestElement({
+                    position: 'absolute',
+                    left: '0px',
+                    top: '0px',
+                    width: `${elWidth}px`,
+                    height: `${elHeight}px`,
+                });
             });
-            expectedWidth = elWidth;
-            expectedHeight = elHeight;
-            // "content"
-            chai.assert.strictEqual(getWidth(document, 'content'), expectedWidth, 'getWidth(document, "content")');
-            chai.assert.strictEqual(getHeight(document, 'content'), expectedHeight, 'getHeight(document, "content")');
-            chai.assert.strictEqual(getRect([document, 'content']).width, expectedWidth, 'getRect([document, "content"]).width');
-            chai.assert.strictEqual(getRect([document, 'content']).height, expectedHeight, 'getRect([document, "content"]).height');
-            // "padding"
-            chai.assert.strictEqual(getWidth(document, 'padding'), expectedWidth, 'getWidth(document, "padding")');
-            chai.assert.strictEqual(getHeight(document, 'padding'), expectedHeight, 'getHeight(document, "padding")');
-            chai.assert.strictEqual(getRect([document, 'padding']).width, expectedWidth, 'getRect([document, "padding"]).width');
-            chai.assert.strictEqual(getRect([document, 'padding']).height, expectedHeight, 'getRect([document, "padding"]).height');
-            expectedWidth = elWidth + window.innerWidth - document.documentElement.clientWidth;
-            expectedHeight = elHeight + window.innerHeight - document.documentElement.clientHeight;
-            // "scroll"
-            chai.assert.strictEqual(getWidth(document, 'scroll'), expectedWidth, 'getWidth(document, "scroll")');
-            chai.assert.strictEqual(getHeight(document, 'scroll'), expectedHeight, 'getHeight(document, "padding")');
-            chai.assert.strictEqual(getRect([document, 'scroll']).width, expectedWidth, 'getRect([document, "scroll"]).width');
-            chai.assert.strictEqual(getRect([document, 'scroll']).height, expectedHeight, 'getRect([document, "scroll"]).height');
-            // "border"
-            chai.assert.strictEqual(getWidth(document, 'border'), expectedWidth, 'getWidth(document, "border")');
-            chai.assert.strictEqual(getHeight(document, 'border'), expectedHeight, 'getHeight(document, "border")');
-            chai.assert.strictEqual(getRect([document, 'border']).width, expectedWidth, 'getRect([document, "border"]).width');
-            chai.assert.strictEqual(getRect([document, 'border']).height, expectedHeight, 'getRect([document, "border"]).height');
-            // ""
-            chai.assert.strictEqual(getWidth(document), expectedWidth, 'getWidth(document)');
-            chai.assert.strictEqual(getHeight(document), expectedHeight, 'getHeight(document)');
-            chai.assert.strictEqual(getRect(document).width, expectedWidth, 'getRect(document).width');
-            chai.assert.strictEqual(getRect(document).height, expectedHeight, 'getRect(document).height');
-            // "margin"
-            chai.assert.strictEqual(getWidth(document, 'margin'), expectedWidth, 'width - "margin"');
-            chai.assert.strictEqual(getHeight(document, 'margin'), expectedHeight, 'height - "margin"');
-            chai.assert.strictEqual(getRect([document, 'margin']).width, expectedWidth, 'getRect([document, "margin"]).width');
-            chai.assert.strictEqual(getRect([document, 'margin']).height, expectedHeight, 'getRect([document, "margin"]).height');
-            el.remove();
+            it('should measure content width', function () {
+                chai.assert.strictEqual(getWidth(document, 'content'), elWidth);
+            });
+            it('should measure padding width', function () {
+                chai.assert.strictEqual(getWidth(document, 'padding'), elWidth);
+            });
+            it('should measure scroll width', function () {
+                const expectedWidth = elWidth + window.innerWidth - document.documentElement.clientWidth;
+                chai.assert.strictEqual(getWidth(document, 'scroll'), expectedWidth);
+            });
+            it('should measure default width', function () {
+                const expectedWidth = elWidth + window.innerWidth - document.documentElement.clientWidth;
+                chai.assert.strictEqual(getWidth(document), expectedWidth, 'default');
+            });
+            it('should measure border width', function () {
+                const expectedWidth = elWidth + window.innerWidth - document.documentElement.clientWidth;
+                chai.assert.strictEqual(getWidth(document, 'border'), expectedWidth, 'border');
+            });
+            it('should measure margin width', function () {
+                const expectedWidth = elWidth + window.innerWidth - document.documentElement.clientWidth;
+                chai.assert.strictEqual(getWidth(document, 'margin'), expectedWidth);
+            });
         });
-        it(`should measure the window's width and height`, function () {
-            let expectedWidth = 0;
-            let expectedHeight = 0;
-            // Force root scrollbar to be visible.
-            document.documentElement.style.overflow = 'scroll';
-            // Without scrollbar.
-            expectedWidth = document.documentElement.clientWidth;
-            expectedHeight = document.documentElement.clientHeight;
-            chai.assert.strictEqual(getWidth(window, 'content'), expectedWidth, 'width - "content"');
-            chai.assert.strictEqual(getWidth(window, 'padding'), expectedWidth, 'width - "padding"');
-            chai.assert.strictEqual(getHeight(window, 'content'), expectedHeight, 'height - "content"');
-            chai.assert.strictEqual(getHeight(window, 'padding'), expectedHeight, 'height - "padding"');
-            // With scrollbar.
-            expectedWidth = window.innerWidth;
-            expectedHeight = window.innerHeight;
-            chai.assert.strictEqual(getWidth(window), expectedWidth, 'width - ""');
-            chai.assert.strictEqual(getWidth(window, 'scroll'), expectedWidth, 'width - "scroll"');
-            chai.assert.strictEqual(getWidth(window, 'border'), expectedWidth, 'width - "border"');
-            chai.assert.strictEqual(getWidth(window, 'margin'), expectedWidth, 'width - "margin"');
-            chai.assert.strictEqual(getHeight(window), expectedHeight, 'height - ""');
-            chai.assert.strictEqual(getHeight(window, 'scroll'), expectedHeight, 'height - "scroll"');
-            chai.assert.strictEqual(getHeight(window, 'border'), expectedHeight, 'height - "border"');
-            chai.assert.strictEqual(getHeight(window, 'margin'), expectedHeight, 'height - "margin"');
+        describe('window', function () {
+            it('should measure width without scrollbar', function () {
+                document.documentElement.style.overflow = 'scroll';
+                const expectedWidth = document.documentElement.clientWidth;
+                chai.assert.strictEqual(getWidth(window, 'content'), expectedWidth, 'content');
+                chai.assert.strictEqual(getWidth(window, 'padding'), expectedWidth, 'padding');
+            });
+            it('should measure width with scrollbar', function () {
+                const expectedWidth = window.innerWidth;
+                chai.assert.strictEqual(getWidth(window, 'scroll'), expectedWidth, 'scroll');
+                chai.assert.strictEqual(getWidth(window), expectedWidth, 'default');
+                chai.assert.strictEqual(getWidth(window, 'border'), expectedWidth, 'border');
+                chai.assert.strictEqual(getWidth(window, 'margin'), expectedWidth, 'margin');
+            });
         });
-        it(`should measure element's width and height`, function () {
-            const width = 50;
-            const height = 50;
+        describe('element', function () {
+            const testElementDimensions = (boxSizing) => {
+                let el;
+                const width = 50;
+                const height = 50;
+                const paddingLeft = 1;
+                const paddingRight = 2;
+                const paddingTop = 1;
+                const paddingBottom = 2;
+                const borderWidthRight = 3;
+                const borderWidthLeft = 4;
+                const borderWidthTop = 3;
+                const borderWidthBottom = 4;
+                const marginLeft = 5;
+                const marginRight = 6;
+                const marginTop = 5;
+                const marginBottom = 6;
+                beforeEach(function () {
+                    el = createTestElement({
+                        boxSizing: boxSizing,
+                        width: `${width}px`,
+                        height: `${height}px`,
+                        paddingLeft: `${paddingLeft}px`,
+                        paddingRight: `${paddingRight}px`,
+                        paddingTop: `${paddingTop}px`,
+                        paddingBottom: `${paddingBottom}px`,
+                        borderLeft: `${borderWidthLeft}px solid #000`,
+                        borderRight: `${borderWidthRight}px solid #000`,
+                        borderTop: `${borderWidthTop}px solid #000`,
+                        borderBottom: `${borderWidthBottom}px solid #000`,
+                        marginLeft: `${marginLeft}px`,
+                        marginRight: `${marginRight}px`,
+                        marginTop: `${marginTop}px`,
+                        marginBottom: `${marginBottom}px`,
+                        overflow: 'scroll',
+                    });
+                });
+                it(`should measure content width for ${boxSizing}`, function () {
+                    const expectedWidth = boxSizing === 'content-box'
+                        ? width - sbWidth
+                        : width - sbWidth - paddingLeft - paddingRight - borderWidthLeft - borderWidthRight;
+                    chai.assert.equal(getWidth(el, 'content'), expectedWidth, `content - ${boxSizing}`);
+                });
+                it(`should measure padding width for ${boxSizing}`, function () {
+                    const expectedWidth = boxSizing === 'content-box'
+                        ? width - sbWidth + paddingLeft + paddingRight
+                        : width - sbWidth - borderWidthLeft - borderWidthRight;
+                    chai.assert.equal(getWidth(el, 'padding'), expectedWidth, `padding - ${boxSizing}`);
+                });
+                it(`should measure scroll width for ${boxSizing}`, function () {
+                    const expectedWidth = boxSizing === 'content-box'
+                        ? width + paddingLeft + paddingRight
+                        : width - borderWidthLeft - borderWidthRight;
+                    chai.assert.equal(getWidth(el, 'scroll'), expectedWidth, `scroll - ${boxSizing}`);
+                });
+                it(`should measure default width for ${boxSizing}`, function () {
+                    const expectedWidth = boxSizing === 'content-box'
+                        ? width + paddingLeft + paddingRight + borderWidthLeft + borderWidthRight
+                        : width;
+                    chai.assert.equal(getWidth(el), expectedWidth, `default - ${boxSizing}`);
+                });
+                it(`should measure border width for ${boxSizing}`, function () {
+                    const expectedWidth = boxSizing === 'content-box'
+                        ? width + paddingLeft + paddingRight + borderWidthLeft + borderWidthRight
+                        : width;
+                    chai.assert.equal(getWidth(el, 'border'), expectedWidth, `border - ${boxSizing}`);
+                });
+                it(`should measure margin width for ${boxSizing}`, function () {
+                    const expectedWidth = boxSizing === 'content-box'
+                        ? width +
+                            paddingLeft +
+                            paddingRight +
+                            borderWidthLeft +
+                            borderWidthRight +
+                            marginLeft +
+                            marginRight
+                        : width + marginLeft + marginRight;
+                    chai.assert.equal(getWidth(el, 'margin'), expectedWidth, `margin - ${boxSizing}`);
+                });
+            };
+            describe('content-box', function () {
+                testElementDimensions('content-box');
+            });
+            describe('border-box', function () {
+                testElementDimensions('border-box');
+            });
+        });
+    });
+
+    const { height: sbHeight } = getScrollbarSizes();
+    describe('getHeight()', function () {
+        beforeEach(beforeTest);
+        afterEach(afterTest);
+        describe('document', function () {
+            const elWidth = 10000;
+            const elHeight = 10000;
+            beforeEach(function () {
+                createTestElement({
+                    position: 'absolute',
+                    left: '0px',
+                    top: '0px',
+                    width: `${elWidth}px`,
+                    height: `${elHeight}px`,
+                });
+            });
+            it('should measure content height', function () {
+                chai.assert.strictEqual(getHeight(document, 'content'), elHeight);
+            });
+            it('should measure padding height', function () {
+                chai.assert.strictEqual(getHeight(document, 'padding'), elHeight);
+            });
+            it('should measure scroll height', function () {
+                const expectedHeight = elHeight + window.innerHeight - document.documentElement.clientHeight;
+                chai.assert.strictEqual(getHeight(document, 'scroll'), expectedHeight);
+            });
+            it('should measure default height', function () {
+                const expectedHeight = elHeight + window.innerHeight - document.documentElement.clientHeight;
+                chai.assert.strictEqual(getHeight(document), expectedHeight, 'default');
+            });
+            it('should measure border height', function () {
+                const expectedHeight = elHeight + window.innerHeight - document.documentElement.clientHeight;
+                chai.assert.strictEqual(getHeight(document, 'border'), expectedHeight, 'border');
+            });
+            it('should measure margin height', function () {
+                const expectedHeight = elHeight + window.innerHeight - document.documentElement.clientHeight;
+                chai.assert.strictEqual(getHeight(document, 'margin'), expectedHeight);
+            });
+        });
+        describe('window', function () {
+            it('should measure height without scrollbar', function () {
+                document.documentElement.style.overflow = 'scroll';
+                const expectedHeight = document.documentElement.clientHeight;
+                chai.assert.strictEqual(getHeight(window, 'content'), expectedHeight, 'content');
+                chai.assert.strictEqual(getHeight(window, 'padding'), expectedHeight, 'padding');
+            });
+            it('should measure height with scrollbar', function () {
+                const expectedHeight = window.innerHeight;
+                chai.assert.strictEqual(getHeight(window, 'scroll'), expectedHeight, 'scroll');
+                chai.assert.strictEqual(getHeight(window), expectedHeight, 'default');
+                chai.assert.strictEqual(getHeight(window, 'border'), expectedHeight, 'border');
+                chai.assert.strictEqual(getHeight(window, 'margin'), expectedHeight, 'margin');
+            });
+        });
+        describe('element', function () {
+            const testElementDimensions = (boxSizing) => {
+                let el;
+                const width = 50;
+                const height = 50;
+                const paddingLeft = 1;
+                const paddingRight = 2;
+                const paddingTop = 1;
+                const paddingBottom = 2;
+                const borderWidthRight = 3;
+                const borderWidthLeft = 4;
+                const borderWidthTop = 3;
+                const borderWidthBottom = 4;
+                const marginLeft = 5;
+                const marginRight = 6;
+                const marginTop = 5;
+                const marginBottom = 6;
+                beforeEach(function () {
+                    el = createTestElement({
+                        boxSizing: boxSizing,
+                        width: `${width}px`,
+                        height: `${height}px`,
+                        paddingLeft: `${paddingLeft}px`,
+                        paddingRight: `${paddingRight}px`,
+                        paddingTop: `${paddingTop}px`,
+                        paddingBottom: `${paddingBottom}px`,
+                        borderLeft: `${borderWidthLeft}px solid #000`,
+                        borderRight: `${borderWidthRight}px solid #000`,
+                        borderTop: `${borderWidthTop}px solid #000`,
+                        borderBottom: `${borderWidthBottom}px solid #000`,
+                        marginLeft: `${marginLeft}px`,
+                        marginRight: `${marginRight}px`,
+                        marginTop: `${marginTop}px`,
+                        marginBottom: `${marginBottom}px`,
+                        overflow: 'scroll',
+                    });
+                });
+                it(`should measure content height for ${boxSizing}`, function () {
+                    const expectedHeight = boxSizing === 'content-box'
+                        ? height - sbHeight
+                        : height - sbHeight - paddingTop - paddingBottom - borderWidthTop - borderWidthBottom;
+                    chai.assert.equal(getHeight(el, 'content'), expectedHeight, `content - ${boxSizing}`);
+                });
+                it(`should measure padding height for ${boxSizing}`, function () {
+                    const expectedHeight = boxSizing === 'content-box'
+                        ? height - sbHeight + paddingTop + paddingBottom
+                        : height - sbHeight - borderWidthTop - borderWidthBottom;
+                    chai.assert.equal(getHeight(el, 'padding'), expectedHeight, `padding - ${boxSizing}`);
+                });
+                it(`should measure scroll height for ${boxSizing}`, function () {
+                    const expectedHeight = boxSizing === 'content-box'
+                        ? height + paddingTop + paddingBottom
+                        : height - borderWidthTop - borderWidthBottom;
+                    chai.assert.equal(getHeight(el, 'scroll'), expectedHeight, `scroll - ${boxSizing}`);
+                });
+                it(`should measure default height for ${boxSizing}`, function () {
+                    const expectedHeight = boxSizing === 'content-box'
+                        ? height + paddingTop + paddingBottom + borderWidthTop + borderWidthBottom
+                        : height;
+                    chai.assert.equal(getHeight(el), expectedHeight, `default - ${boxSizing}`);
+                });
+                it(`should measure border height for ${boxSizing}`, function () {
+                    const expectedHeight = boxSizing === 'content-box'
+                        ? height + paddingTop + paddingBottom + borderWidthTop + borderWidthBottom
+                        : height;
+                    chai.assert.equal(getHeight(el, 'border'), expectedHeight, `border - ${boxSizing}`);
+                });
+                it(`should measure margin height for ${boxSizing}`, function () {
+                    const expectedHeight = boxSizing === 'content-box'
+                        ? height +
+                            paddingTop +
+                            paddingBottom +
+                            borderWidthTop +
+                            borderWidthBottom +
+                            marginLeft +
+                            marginRight
+                        : height + marginLeft + marginRight;
+                    chai.assert.equal(getHeight(el, 'margin'), expectedHeight, `margin - ${boxSizing}`);
+                });
+            };
+            describe('content-box', function () {
+                testElementDimensions('content-box');
+            });
+            describe('border-box', function () {
+                testElementDimensions('border-box');
+            });
+        });
+    });
+
+    describe('getOffset()', function () {
+        beforeEach(beforeTest);
+        afterEach(afterTest);
+        describe('document', function () {
+            it('should return correct offset without scrolling', function () {
+                const actual = getOffset(document);
+                const expected = { left: 0, top: 0 };
+                chai.assert.deepEqual(actual, expected);
+            });
+            it('should return correct offset with scrolling', function () {
+                createTestElement({
+                    width: 'calc(100vw + 200px)',
+                    height: 'calc(100vh + 200px)',
+                });
+                window.scrollTo({ left: 50, top: 100, behavior: 'instant' });
+                const actual = getOffset(document);
+                const expected = { left: 0, top: 0 };
+                chai.assert.deepEqual(actual, expected);
+            });
+        });
+        describe('window', function () {
+            it('should return correct offset without scrolling', function () {
+                const actual = getOffset(window);
+                const expected = { left: 0, top: 0 };
+                chai.assert.deepEqual(actual, expected);
+            });
+            it('should return correct offset with scrolling', function () {
+                createTestElement({
+                    width: 'calc(100vw + 200px)',
+                    height: 'calc(100vh + 200px)',
+                });
+                window.scrollTo({ left: 50, top: 100, behavior: 'instant' });
+                const actual = getOffset(window);
+                const expected = { left: 50, top: 100 };
+                chai.assert.deepEqual(actual, expected);
+            });
+        });
+        // TODO: Fix shitty math by ChatGPT!
+        describe('element', function () {
+            beforeEach(beforeTest);
+            afterEach(afterTest);
+            let elA;
+            let elB;
+            const width = 60;
+            const height = 70;
+            const left = 100;
+            const top = 200;
+            const scrollLeft = 300;
+            const scrollTop = 400;
             const paddingLeft = 1;
             const paddingRight = 2;
-            const paddingTop = 1;
-            const paddingBottom = 2;
-            const borderWidthRight = 3;
-            const borderWidthLeft = 4;
-            const borderWidthTop = 3;
-            const borderWidthBottom = 4;
-            const marginLeft = 5;
-            const marginRight = 6;
-            const marginTop = 5;
-            const marginBottom = 6;
-            const el = createTestElement({
-                boxSizing: 'content-box',
-                width: `${width}px`,
-                height: `${height}px`,
-                paddingLeft: `${paddingLeft}px`,
-                paddingRight: `${paddingRight}px`,
-                paddingTop: `${paddingTop}px`,
-                paddingBottom: `${paddingBottom}px`,
-                borderLeft: `${borderWidthLeft}px solid #000`,
-                borderRight: `${borderWidthRight}px solid #000`,
-                borderTop: `${borderWidthTop}px solid #000`,
-                borderBottom: `${borderWidthBottom}px solid #000`,
-                marginLeft: `${marginLeft}px`,
-                marginRight: `${marginRight}px`,
-                marginTop: `${marginTop}px`,
-                marginBottom: `${marginBottom}px`,
-                overflow: 'scroll',
+            const paddingTop = 3;
+            const paddingBottom = 4;
+            const borderLeft = 5;
+            const borderRight = 6;
+            const borderTop = 7;
+            const borderBottom = 8;
+            const marginLeft = 9;
+            const marginRight = 10;
+            const marginTop = 11;
+            const marginBottom = 12;
+            const elBContainerLeft = 75;
+            const elBContainerTop = 85;
+            beforeEach(function () {
+                // Make document scrollable.
+                document.body.style.position = 'relative';
+                document.body.style.overflow = 'auto';
+                document.body.style.width = '100vw';
+                document.body.style.height = '100vh';
+                // Add element to body, which is bigger than viewport.
+                createTestElement({
+                    position: 'absolute',
+                    left: '0px',
+                    top: '0px',
+                    width: 'calc(100vw + 1000px)',
+                    height: 'calc(100vh + 1000px)',
+                });
+                // Create eleemnt base styles.
+                const baseStyles = {
+                    position: 'absolute',
+                    boxSizing: 'content-box',
+                    left: `${left}px`,
+                    top: `${top}px`,
+                    width: `${width}px`,
+                    height: `${height}px`,
+                    paddingLeft: `${paddingLeft}px`,
+                    paddingRight: `${paddingRight}px`,
+                    paddingTop: `${paddingTop}px`,
+                    paddingBottom: `${paddingBottom}px`,
+                    borderLeft: `${borderLeft}px solid #000`,
+                    borderRight: `${borderRight}px solid #000`,
+                    borderTop: `${borderTop}px solid #000`,
+                    borderBottom: `${borderBottom}px solid #000`,
+                    marginLeft: `${marginLeft}px`,
+                    marginRight: `${marginRight}px`,
+                    marginTop: `${marginTop}px`,
+                    marginBottom: `${marginBottom}px`,
+                };
+                // Create element A.
+                elA = createTestElement({
+                    ...baseStyles,
+                });
+                // Create element B.
+                elB = createTestElement({
+                    ...baseStyles,
+                });
+                // Append element B to a container, which is offset from body.
+                createTestElement({
+                    position: 'absolute',
+                    left: `${elBContainerLeft}px`,
+                    top: `${elBContainerTop}px`,
+                }).appendChild(elB);
+                // Scroll the body.
+                window.scrollTo({
+                    left: scrollLeft,
+                    top: scrollTop,
+                    behavior: 'instant',
+                });
             });
-            const contentWidth = width - sbWidth;
-            chai.assert.equal(getWidth(el, 'content'), contentWidth, 'width - "content"');
-            const contentHeight = height - sbHeight;
-            chai.assert.equal(getHeight(el, 'content'), contentHeight, 'height - "content"');
-            const paddingWidth = contentWidth + paddingLeft + paddingRight;
-            chai.assert.equal(getWidth(el, 'padding'), paddingWidth, 'width - "padding"');
-            const paddingHeight = contentHeight + paddingTop + paddingBottom;
-            chai.assert.equal(getHeight(el, 'padding'), paddingHeight, 'height - "padding"');
-            const scrollWidth = paddingWidth + sbWidth;
-            chai.assert.equal(getWidth(el, 'scroll'), scrollWidth, 'width - "scroll"');
-            const scrollHeight = paddingHeight + sbHeight;
-            chai.assert.equal(getHeight(el, 'scroll'), scrollHeight, 'height - "scroll"');
-            const borderWidth = scrollWidth + borderWidthLeft + borderWidthRight;
-            chai.assert.equal(getWidth(el, 'border'), borderWidth, 'width - "border"');
-            chai.assert.equal(getWidth(el), borderWidth, 'width - ""');
-            const borderHeight = scrollHeight + borderWidthTop + borderWidthBottom;
-            chai.assert.equal(getHeight(el, 'border'), borderHeight, 'height - "border"');
-            chai.assert.equal(getHeight(el), borderHeight, 'height - ""');
-            const marginWidth = borderWidth + marginLeft + marginRight;
-            chai.assert.equal(getWidth(el, 'margin'), marginWidth, 'width - "margin"');
-            const marginHeight = borderHeight + marginTop + marginBottom;
-            chai.assert.equal(getHeight(el, 'margin'), marginHeight, 'height - "margin"');
-            el.remove();
+            describe('element -> document', function () {
+                it(`should measure element's content offset from document`, function () {
+                    const actual = getOffset([elA, 'content']);
+                    const expected = {
+                        left: left + marginLeft + borderLeft + paddingLeft,
+                        top: top + marginTop + borderTop + paddingTop,
+                    };
+                    chai.assert.deepStrictEqual(actual, expected);
+                });
+                it(`should measure element's padding offset from document`, function () {
+                    const actual = getOffset([elA, 'padding']);
+                    const expected = {
+                        left: left + marginLeft + borderLeft,
+                        top: top + marginTop + borderTop,
+                    };
+                    chai.assert.deepStrictEqual(actual, expected);
+                });
+                it(`should measure element's scroll offset from document`, function () {
+                    const actual = getOffset([elA, 'scroll']);
+                    const expected = {
+                        left: left + marginLeft + borderLeft,
+                        top: top + marginTop + borderTop,
+                    };
+                    chai.assert.deepStrictEqual(actual, expected);
+                });
+                it(`should measure element's border offset from document`, function () {
+                    const actual = getOffset([elA, 'border']);
+                    const expected = {
+                        left: left + marginLeft,
+                        top: top + marginTop,
+                    };
+                    chai.assert.deepStrictEqual(actual, expected);
+                });
+                it(`should measure element's margin offset from document`, function () {
+                    const actual = getOffset([elA, 'margin']);
+                    const expected = {
+                        left: left,
+                        top: top,
+                    };
+                    chai.assert.deepStrictEqual(actual, expected);
+                });
+            });
+            describe('element -> window', function () {
+                it(`should measure element's content offset from window`, function () {
+                    const actual = getOffset([elA, 'content'], window);
+                    const expected = {
+                        left: left + marginLeft + borderLeft + paddingLeft - scrollLeft,
+                        top: top + marginTop + borderTop + paddingTop - scrollTop,
+                    };
+                    chai.assert.deepStrictEqual(actual, expected);
+                });
+                it(`should measure element's padding offset from window`, function () {
+                    const actual = getOffset([elA, 'padding'], window);
+                    const expected = {
+                        left: left + marginLeft + borderLeft - scrollLeft,
+                        top: top + marginTop + borderTop - scrollTop,
+                    };
+                    chai.assert.deepStrictEqual(actual, expected);
+                });
+                it(`should measure element's scroll offset from window`, function () {
+                    const actual = getOffset([elA, 'scroll'], window);
+                    const expected = {
+                        left: left + marginLeft + borderLeft - scrollLeft,
+                        top: top + marginTop + borderTop - scrollTop,
+                    };
+                    chai.assert.deepStrictEqual(actual, expected);
+                });
+                it(`should measure element's default (border) offset from window`, function () {
+                    const actual = getOffset(elA, window);
+                    const expected = {
+                        left: left + marginLeft - scrollLeft,
+                        top: top + marginTop - scrollTop,
+                    };
+                    chai.assert.deepStrictEqual(actual, expected);
+                });
+                it(`should measure element's border offset from window`, function () {
+                    const actual = getOffset([elA, 'border'], window);
+                    const expected = {
+                        left: left + marginLeft - scrollLeft,
+                        top: top + marginTop - scrollTop,
+                    };
+                    chai.assert.deepStrictEqual(actual, expected);
+                });
+                it(`should measure element's margin offset from window`, function () {
+                    const actual = getOffset([elA, 'margin'], window);
+                    const expected = {
+                        left: left - scrollLeft,
+                        top: top - scrollTop,
+                    };
+                    chai.assert.deepStrictEqual(actual, expected);
+                });
+            });
+            describe('element -> element', function () {
+                it(`should measure content -> content offset`, function () {
+                    const actual = getOffset([elA, 'content'], [elB, 'content']);
+                    const expected = {
+                        left: -elBContainerLeft,
+                        top: -elBContainerTop,
+                    };
+                    chai.assert.deepStrictEqual(actual, expected);
+                });
+                it(`should measure content -> padding offset`, function () {
+                    const actual = getOffset([elA, 'content'], [elB, 'padding']);
+                    const expected = {
+                        left: paddingLeft - elBContainerLeft,
+                        top: paddingTop - elBContainerTop,
+                    };
+                    chai.assert.deepStrictEqual(actual, expected);
+                });
+                it(`should measure content -> scroll offset`, function () {
+                    const actual = getOffset([elA, 'content'], [elB, 'scroll']);
+                    const expected = {
+                        left: paddingLeft - elBContainerLeft,
+                        top: paddingTop - elBContainerTop,
+                    };
+                    chai.assert.deepStrictEqual(actual, expected);
+                });
+                it(`should measure content -> default (border) offset`, function () {
+                    const actual = getOffset([elA, 'content'], elB);
+                    const expected = {
+                        left: paddingLeft + borderLeft - elBContainerLeft,
+                        top: paddingTop + borderTop - elBContainerTop,
+                    };
+                    chai.assert.deepStrictEqual(actual, expected);
+                });
+                it(`should measure content -> border offset`, function () {
+                    const actual = getOffset([elA, 'content'], [elB, 'border']);
+                    const expected = {
+                        left: paddingLeft + borderLeft - elBContainerLeft,
+                        top: paddingTop + borderTop - elBContainerTop,
+                    };
+                    chai.assert.deepStrictEqual(actual, expected);
+                });
+                it(`should measure content -> margin offset`, function () {
+                    const actual = getOffset([elA, 'content'], [elB, 'margin']);
+                    const expected = {
+                        left: paddingLeft + borderLeft + marginLeft - elBContainerLeft,
+                        top: paddingTop + borderTop + marginTop - elBContainerTop,
+                    };
+                    chai.assert.deepStrictEqual(actual, expected);
+                });
+                it(`should measure padding -> content offset`, function () {
+                    const actual = getOffset([elA, 'padding'], [elB, 'content']);
+                    const expected = {
+                        left: -(elBContainerLeft + paddingLeft),
+                        top: -(elBContainerTop + paddingTop),
+                    };
+                    chai.assert.deepStrictEqual(actual, expected);
+                });
+                it(`should measure padding -> padding offset`, function () {
+                    const actual = getOffset([elA, 'padding'], [elB, 'padding']);
+                    const expected = {
+                        left: -elBContainerLeft,
+                        top: -elBContainerTop,
+                    };
+                    chai.assert.deepStrictEqual(actual, expected);
+                });
+                it(`should measure padding -> scroll offset`, function () {
+                    const actual = getOffset([elA, 'padding'], [elB, 'scroll']);
+                    const expected = {
+                        left: -elBContainerLeft,
+                        top: -elBContainerTop,
+                    };
+                    chai.assert.deepStrictEqual(actual, expected);
+                });
+                it(`should measure padding -> default (border) offset`, function () {
+                    const actual = getOffset([elA, 'padding'], elB);
+                    const expected = {
+                        left: borderLeft - elBContainerLeft,
+                        top: borderTop - elBContainerTop,
+                    };
+                    chai.assert.deepStrictEqual(actual, expected);
+                });
+                it(`should measure padding -> border offset`, function () {
+                    const actual = getOffset([elA, 'padding'], [elB, 'border']);
+                    const expected = {
+                        left: borderLeft - elBContainerLeft,
+                        top: borderTop - elBContainerTop,
+                    };
+                    chai.assert.deepStrictEqual(actual, expected);
+                });
+                it(`should measure padding -> margin offset`, function () {
+                    const actual = getOffset([elA, 'padding'], [elB, 'margin']);
+                    const expected = {
+                        left: borderLeft + marginLeft - elBContainerLeft,
+                        top: borderTop + marginTop - elBContainerTop,
+                    };
+                    chai.assert.deepStrictEqual(actual, expected);
+                });
+            });
         });
     });
 
