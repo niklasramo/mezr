@@ -45,7 +45,6 @@ describe('getOffset()', function () {
     });
   });
 
-  // TODO: Fix shitty math by ChatGPT!
   describe('element', function () {
     beforeEach(beforeTest);
     afterEach(afterTest);
@@ -240,7 +239,7 @@ describe('getOffset()', function () {
       });
     });
 
-    describe('element -> element', function () {
+    describe('element (content) -> element (all variations)', function () {
       it(`should measure content -> content offset`, function () {
         const actual = getOffset([elA, 'content'], [elB, 'content']);
         const expected = {
@@ -294,7 +293,9 @@ describe('getOffset()', function () {
         };
         assert.deepStrictEqual(actual, expected);
       });
+    });
 
+    describe('element (padding) -> element (all variations)', function () {
       it(`should measure padding -> content offset`, function () {
         const actual = getOffset([elA, 'padding'], [elB, 'content']);
         const expected = {
@@ -345,6 +346,174 @@ describe('getOffset()', function () {
         const expected = {
           left: borderLeft + marginLeft - elBContainerLeft,
           top: borderTop + marginTop - elBContainerTop,
+        };
+        assert.deepStrictEqual(actual, expected);
+      });
+    });
+
+    describe('element (scroll) -> element (all variations)', function () {
+      it(`should measure scroll -> content offset`, function () {
+        const actual = getOffset([elA, 'scroll'], [elB, 'content']);
+        const expected = {
+          left: -(elBContainerLeft + paddingLeft),
+          top: -(elBContainerTop + paddingTop),
+        };
+        assert.deepStrictEqual(actual, expected);
+      });
+
+      it(`should measure scroll -> padding offset`, function () {
+        const actual = getOffset([elA, 'scroll'], [elB, 'padding']);
+        const expected = {
+          left: -elBContainerLeft,
+          top: -elBContainerTop,
+        };
+        assert.deepStrictEqual(actual, expected);
+      });
+
+      it(`should measure scroll -> scroll offset`, function () {
+        const actual = getOffset([elA, 'scroll'], [elB, 'scroll']);
+        const expected = {
+          left: -elBContainerLeft,
+          top: -elBContainerTop,
+        };
+        assert.deepStrictEqual(actual, expected);
+      });
+
+      it(`should measure scroll -> default (border) offset`, function () {
+        const actual = getOffset([elA, 'scroll'], elB);
+        const expected = {
+          left: borderLeft - elBContainerLeft,
+          top: borderTop - elBContainerTop,
+        };
+        assert.deepStrictEqual(actual, expected);
+      });
+
+      it(`should measure scroll -> border offset`, function () {
+        const actual = getOffset([elA, 'scroll'], [elB, 'border']);
+        const expected = {
+          left: borderLeft - elBContainerLeft,
+          top: borderTop - elBContainerTop,
+        };
+        assert.deepStrictEqual(actual, expected);
+      });
+
+      it(`should measure scroll -> margin offset`, function () {
+        const actual = getOffset([elA, 'scroll'], [elB, 'margin']);
+        const expected = {
+          left: borderLeft + marginLeft - elBContainerLeft,
+          top: borderTop + marginTop - elBContainerTop,
+        };
+        assert.deepStrictEqual(actual, expected);
+      });
+    });
+
+    describe('element (border) -> element (all variations)', function () {
+      it(`should measure border -> content offset`, function () {
+        const actual = getOffset([elA, 'border'], [elB, 'content']);
+        const expected = {
+          left: -(elBContainerLeft + paddingLeft + borderLeft),
+          top: -(elBContainerTop + paddingTop + borderTop),
+        };
+        assert.deepStrictEqual(actual, expected);
+      });
+
+      it(`should measure border -> padding offset`, function () {
+        const actual = getOffset([elA, 'border'], [elB, 'padding']);
+        const expected = {
+          left: -(elBContainerLeft + borderLeft),
+          top: -(elBContainerTop + borderTop),
+        };
+        assert.deepStrictEqual(actual, expected);
+      });
+
+      it(`should measure border -> scroll offset`, function () {
+        const actual = getOffset([elA, 'border'], [elB, 'scroll']);
+        const expected = {
+          left: -(elBContainerLeft + borderLeft),
+          top: -(elBContainerTop + borderTop),
+        };
+        assert.deepStrictEqual(actual, expected);
+      });
+
+      it(`should measure border -> default (border) offset`, function () {
+        const actual = getOffset([elA, 'border'], elB);
+        const expected = {
+          left: -elBContainerLeft,
+          top: -elBContainerTop,
+        };
+        assert.deepStrictEqual(actual, expected);
+      });
+
+      it(`should measure border -> border offset`, function () {
+        const actual = getOffset([elA, 'border'], [elB, 'border']);
+        const expected = {
+          left: -elBContainerLeft,
+          top: -elBContainerTop,
+        };
+        assert.deepStrictEqual(actual, expected);
+      });
+
+      it(`should measure border -> margin offset`, function () {
+        const actual = getOffset([elA, 'border'], [elB, 'margin']);
+        const expected = {
+          left: marginLeft - elBContainerLeft,
+          top: marginTop - elBContainerTop,
+        };
+        assert.deepStrictEqual(actual, expected);
+      });
+    });
+
+    describe('element (margin) -> element (all variations)', function () {
+      it(`should measure margin -> content offset`, function () {
+        const actual = getOffset([elA, 'margin'], [elB, 'content']);
+        const expected = {
+          left: -(elBContainerLeft + paddingLeft + borderLeft + marginLeft),
+          top: -(elBContainerTop + paddingTop + borderTop + marginTop),
+        };
+        assert.deepStrictEqual(actual, expected);
+      });
+
+      it(`should measure margin -> padding offset`, function () {
+        const actual = getOffset([elA, 'margin'], [elB, 'padding']);
+        const expected = {
+          left: -(elBContainerLeft + borderLeft + marginLeft),
+          top: -(elBContainerTop + borderTop + marginTop),
+        };
+        assert.deepStrictEqual(actual, expected);
+      });
+
+      it(`should measure margin -> scroll offset`, function () {
+        const actual = getOffset([elA, 'margin'], [elB, 'scroll']);
+        const expected = {
+          left: -(elBContainerLeft + borderLeft + marginLeft),
+          top: -(elBContainerTop + borderTop + marginTop),
+        };
+        assert.deepStrictEqual(actual, expected);
+      });
+
+      it(`should measure margin -> default (border) offset`, function () {
+        const actual = getOffset([elA, 'margin'], elB);
+        const expected = {
+          left: -(elBContainerLeft + marginLeft),
+          top: -(elBContainerTop + marginTop),
+        };
+        assert.deepStrictEqual(actual, expected);
+      });
+
+      it(`should measure margin -> border offset`, function () {
+        const actual = getOffset([elA, 'margin'], [elB, 'border']);
+        const expected = {
+          left: -(elBContainerLeft + marginLeft),
+          top: -(elBContainerTop + marginTop),
+        };
+        assert.deepStrictEqual(actual, expected);
+      });
+
+      it(`should measure margin -> margin offset`, function () {
+        const actual = getOffset([elA, 'margin'], [elB, 'margin']);
+        const expected = {
+          left: -elBContainerLeft,
+          top: -elBContainerTop,
         };
         assert.deepStrictEqual(actual, expected);
       });
