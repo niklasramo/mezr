@@ -71,7 +71,8 @@ export function isContainingBlockForFixedElement(element: HTMLElement) {
       willChange &&
       (willChange.indexOf('transform') > -1 ||
         willChange.indexOf('perspective') > -1 ||
-        willChange.indexOf('filter') > -1)
+        willChange.indexOf('filter') > -1 ||
+        willChange.indexOf('contain') > -1)
     ) {
       return true;
     }
