@@ -3,11 +3,35 @@ import { getStyle } from './getStyle.js';
 import { isBlockElement } from './isBlockElement.js';
 
 export function isContainingBlockForFixedElement(element: HTMLElement) {
-  // The element needs to be a block element to be a containing block.
+  const style = getStyle(element);
+
+  // If the element has any kind of filter applied or prepared via will-change
+  // it is a containing block, even if it's not a block element. Note that this
+  // does not apply to Safari, which interestingly does not create a containing
+  // block for elements with filters applied, even if they are block-level.
+  if (!IS_SAFARI) {
+    const { filter } = style;
+    if (filter && filter !== 'none') {
+      return true;
+    }
+
+    const { backdropFilter } = style;
+    if (backdropFilter && backdropFilter !== 'none') {
+      return true;
+    }
+
+    const { willChange } = style;
+    if (
+      willChange &&
+      (willChange.indexOf('filter') > -1 || willChange.indexOf('backdrop-filter') > -1)
+    ) {
+      return true;
+    }
+  }
+
+  // The rest of the checks require the element to be a block element.
   const isBlock = isBlockElement(element);
   if (!isBlock) return isBlock;
-
-  const style = getStyle(element);
 
   // If the element is transformed it is a containing block.
   const { transform } = style;
@@ -18,12 +42,6 @@ export function isContainingBlockForFixedElement(element: HTMLElement) {
   // If the element has perspective it is a containing block.
   const { perspective } = style;
   if (perspective && perspective !== 'none') {
-    return true;
-  }
-
-  // If the element has backdrop-filter it is a containing block.
-  const { backdropFilter } = style;
-  if (backdropFilter && backdropFilter !== 'none') {
     return true;
   }
 
@@ -40,8 +58,6 @@ export function isContainingBlockForFixedElement(element: HTMLElement) {
   // If the element's contain style includes "paint" or "layout" it is a
   // containing block. Note that the values "strict" and "content" are
   // shorthands which include either "paint" or "layout".
-  // Note: this feature does not exist on Safari yet, so this check might
-  // break when they start supporting it (depending on how they implement it).
   const { contain } = style;
   if (
     contain &&
@@ -53,29 +69,23 @@ export function isContainingBlockForFixedElement(element: HTMLElement) {
     return true;
   }
 
-  // The following checks are not needed for Safari.
-  // Note: it would be better to do actual feature tests instead of browser
-  // sniffing, but that's quite a lot of extra code which I'd prefer not to
-  // include at the moment, so let's do it quick and dirty.
-  if (!IS_SAFARI) {
-    // If the element has a CSS filter applied it is a containing block.
-    const { filter } = style;
-    if (filter && filter !== 'none') {
-      return true;
-    }
+  // Some will-change values cause the element to become a containing block
+  // for block-level elements.
+  const { willChange } = style;
+  if (
+    willChange &&
+    (willChange.indexOf('transform') > -1 ||
+      willChange.indexOf('perspective') > -1 ||
+      willChange.indexOf('contain') > -1)
+  ) {
+    return true;
+  }
 
-    // If the element's will-change style has "transform" or "perspective" it is
-    // a containing block.
-    const { willChange } = style;
-    if (
-      willChange &&
-      (willChange.indexOf('transform') > -1 ||
-        willChange.indexOf('perspective') > -1 ||
-        willChange.indexOf('filter') > -1 ||
-        willChange.indexOf('contain') > -1)
-    ) {
-      return true;
-    }
+  // For Safari we need to do this extra check here which we already did for
+  // other browsers above. Safari creates a containing block when will-change
+  // includes "filter" for block-level elements, but not for inline-level.
+  if (IS_SAFARI && willChange && willChange.indexOf('filter') > -1) {
+    return true;
   }
 
   return false;
