@@ -549,15 +549,26 @@ Returns the element's [containing block](https://developer.mozilla.org/en-US/doc
 **Syntax**
 
 ```ts
-type getContainingBlock = (element: HTMLElement, position?: string) => HTMLElement | Window | null;
+type getContainingBlock = (
+  element: HTMLElement,
+  options: { position?: string; skipDisplayNone?: boolean } = {},
+) => HTMLElement | Window | null;
 ```
 
 **Parameters**
 
 1. **element**
    - Accepts any HTML element.
-2. **position**
-   - An optional argument which allows you to forcefully provide the element's position value for the calculations. If this argument is omitted the element's position will be automatically read from the element.
+2. **options**
+   - Optional options object.
+   - **element**
+     - Forcefully provide the element's position value for the calculations. If not provided the element's position will be queried from the element.
+     - Accepts: `string`.
+     - Defaults to `""`.
+   - **skipDisplayNone**
+     - Defines how to treat `"display:none"` ancestor elements when computing the containing block in the specific scenarios where we need to know if an ancestor is a block or inline element. By default this is `false`, which means that `null` will be returned by the method in these scenarios, indicating that containing block could not be resolved. If set to `true` all the `"display:none"` ancestors will be treated as inline elements, meaning that they will be _skipped_ in these problematic scenarios.
+     - Accepts: `boolean`.
+     - Defaults to `false`.
 
 **Examples**
 
@@ -568,21 +579,25 @@ import { getContainingBlock } from 'mezr/getContainingBlock';
 getContainingBlock(elem);
 
 // Get element's containing block as if it were a fixed element.
-getContainingBlock(elem, 'fixed');
+getContainingBlock(elem, { position: 'fixed' });
+
+// Get element's containing block while treating all the "display:none"
+// ancestors as "display:inline" elements.
+getContainingBlock(elem, { skipDisplayNone: true }});
 ```
 
 ### getOffsetContainer()
 
-Returns the element's offset container, meaning the closest element/document/window, that the target element's left/right/top/bottom CSS properties are rooted to. If the offset container can't be computed (e.g. the element's or one of it's ancestors' `display` is `none`) or the element is not affected by left/right/top/bottom CSS properties (e.g. static elements) `null` will be returned.
+Returns the element's offset container, meaning the closest ancestor element/document/window that the target element's left/right/top/bottom CSS properties are rooted to. If the offset container can't be computed or the element is not affected by left/right/top/bottom CSS properties (e.g. static elements) `null` will be returned.
 
-Due to the dynamic nature of sticky elements they are considered as static elements in this method's scope and always return `null`.
+Due to the dynamic nature of sticky elements they are considered as static elements in this method's scope and will always return `null`.
 
 **Syntax**
 
 ```ts
 type getOffsetContainer = (
   element: HTMLElement,
-  position?: string,
+  options: { position?: string; skipDisplayNone?: boolean } = {},
 ) => HTMLElement | Document | Window | null;
 ```
 
@@ -590,8 +605,17 @@ type getOffsetContainer = (
 
 1. **element**
    - Accepts any HTML element.
-2. **position**
-   - An optional argument which allows you to forcefully provide the element's position value for the calculations. If this argument is omitted the element's position will be automatically read from the element.
+2. **options**
+   - Optional options object.
+   - Accepts the following optional properties:
+     - **element**
+       - Forcefully provide the element's position value for the calculations. If not provided the element's position will be queried from the element.
+       - Accepts: `string`.
+       - Defaults to `""`.
+     - **skipDisplayNone**
+       - Defines how to treat `"display:none"` ancestor elements when computing the offset container in the specific scenarios where we need to know if an ancestor is a block or inline element. By default this is `false`, which means that `null` will be returned by the method in these scenarios, indicating that offset container could not be resolved. If set to `true` all the `"display:none"` ancestors will be treated as inline elements, meaning that they will be _skipped_ in these problematic scenarios.
+       - Accepts: `boolean`.
+       - Defaults to `false`.
 
 **Examples**
 
@@ -602,7 +626,11 @@ import { getOffsetContainer } from 'mezr/getOffsetContainer';
 getOffsetContainer(elem);
 
 // Get element's offset container as if it were a fixed element.
-getOffsetContainer(elem, 'fixed');
+getOffsetContainer(elem, { position: 'fixed' });
+
+// Get element's offset container while treating all the "display:none"
+// ancestors as "display:inline" elements.
+getOffsetContainer(elem, { treatDisplayNoneAs: 'block' });
 ```
 
 ## License

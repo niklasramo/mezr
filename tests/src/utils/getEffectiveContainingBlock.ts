@@ -19,7 +19,7 @@ export function getEffectiveContainingBlock(
 
   const targetOriginalRect = target.getBoundingClientRect();
 
-  while (ancestor && ancestor !== document.documentElement) {
+  while (ancestor) {
     const ancestorOriginalRect = ancestor.getBoundingClientRect();
 
     // Check if the ancestor's dimensions match the expected dimensions based on
@@ -53,10 +53,15 @@ export function getEffectiveContainingBlock(
     ancestor = ancestor.parentElement;
   }
 
-  // If no matching ancestor is found, and the element is positioned as "fixed",
-  // return the window.
+  // If no matching ancestor is found, and the element is positioned as "fixed"
+  // or "absolute" and its dimensions match the expected dimensions based on the
+  // scaleFactor, then the element's containing block is the window.
   const { position } = window.getComputedStyle(element);
-  if (position === 'fixed' || position === 'absolute') {
+  if (
+    (position === 'fixed' || position === 'absolute') &&
+    Math.abs(window.innerWidth * scaleFactor - targetOriginalRect.width) < 0.1 &&
+    Math.abs(window.innerHeight * scaleFactor - targetOriginalRect.height) < 0.1
+  ) {
     return window;
   }
 

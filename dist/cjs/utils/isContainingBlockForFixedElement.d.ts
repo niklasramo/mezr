@@ -1,1 +1,1 @@
-export declare function isContainingBlockForFixedElement(element: HTMLElement): boolean | undefined;
+export declare function isContainingBlockForFixedElement(element: HTMLElement): boolean | null;

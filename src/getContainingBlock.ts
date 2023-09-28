@@ -12,17 +12,19 @@ import { isDocumentElement } from './utils/isDocumentElement.js';
  * computed based on the containing block's widht/height).
  * https://developer.mozilla.org/en-US/docs/Web/CSS/Containing_block#identifying_the_containing_block
  */
-export function getContainingBlock(element: HTMLElement, position?: string) {
-  // documentElement's containing block is always the window. It acually can't
-  // be set to inline-level display mode.
+export function getContainingBlock(
+  element: HTMLElement,
+  options: { position?: string; skipDisplayNone?: boolean } = {},
+) {
+  // Document element's containing block is always the window. It actually can't
+  // be set to "display:inline".
   if (isDocumentElement(element)) {
     return element.ownerDocument.defaultView;
   }
 
-  // Get element's current position value if a position is not provided.
-  if (!position) {
-    position = getStyle(element).position;
-  }
+  // Parse options.
+  const position = options.position || getStyle(element).position;
+  const { skipDisplayNone } = options;
 
   switch (position) {
     case 'static':
@@ -32,8 +34,8 @@ export function getContainingBlock(element: HTMLElement, position?: string) {
       let containingBlock = element.parentElement;
       while (containingBlock) {
         const isBlock = isBlockElement(containingBlock);
-        if (isBlock === true) return containingBlock;
-        if (isBlock === undefined) return null;
+        if (isBlock) return containingBlock;
+        if (isBlock === null && !skipDisplayNone) return null;
         containingBlock = containingBlock.parentElement;
       }
       return element.ownerDocument.documentElement;
@@ -48,7 +50,7 @@ export function getContainingBlock(element: HTMLElement, position?: string) {
           ? isContainingBlockForFixedElement(containingBlock)
           : isContainingBlockForAbsoluteElement(containingBlock);
         if (isContainingBlock === true) return containingBlock;
-        if (isContainingBlock === undefined) return null;
+        if (isContainingBlock === null && !skipDisplayNone) return null;
         containingBlock = containingBlock.parentElement;
       }
       return element.ownerDocument.defaultView;

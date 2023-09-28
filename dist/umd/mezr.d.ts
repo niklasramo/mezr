@@ -6,7 +6,10 @@
  * computed based on the containing block's widht/height).
  * https://developer.mozilla.org/en-US/docs/Web/CSS/Containing_block#identifying_the_containing_block
  */
-declare function getContainingBlock(element: HTMLElement, position?: string): (Window & typeof globalThis) | HTMLElement | null;
+declare function getContainingBlock(element: HTMLElement, options?: {
+    position?: string;
+    skipDisplayNone?: boolean;
+}): (Window & typeof globalThis) | HTMLElement | null;
 
 declare const BOX_AREA: {
     readonly content: "content";
@@ -57,7 +60,10 @@ declare function getOffset(element: Rect | DomRectElement | DomRectArray, offset
  * element/document/window, that the target element's left/right/top/bottom CSS
  * properties are rooted to.
  */
-declare function getOffsetContainer(element: HTMLElement, position?: string): (Window & typeof globalThis) | Document | HTMLElement | null;
+declare function getOffsetContainer(element: HTMLElement, options?: {
+    position?: string;
+    skipDisplayNone?: boolean;
+}): (Window & typeof globalThis) | Document | HTMLElement | null;
 
 /**
  * Calculate how much elementA overflows elementB per each side. Negative value

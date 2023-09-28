@@ -58,8 +58,8 @@
         return styleDeclaration;
     }
 
-    const IS_BROWSER = typeof window !== 'undefined' && typeof window.document !== 'undefined';
-    const IS_SAFARI = !!(IS_BROWSER &&
+    const IS_BROWSER$1 = typeof window !== 'undefined' && typeof window.document !== 'undefined';
+    const IS_SAFARI$1 = !!(IS_BROWSER$1 &&
         navigator.vendor &&
         navigator.vendor.indexOf('Apple') > -1 &&
         navigator.userAgent &&
@@ -82,26 +82,41 @@
 
     function isBlockElement(element) {
         switch (getStyle(element).display) {
-            // If the display is "none" let's return undefined to indicate that we can't
-            // determine if it's a block element.
             case 'none':
-                return undefined;
-            // If the display is "inline" or "contents" it's not a block element.
+                return null;
             case 'inline':
             case 'contents':
                 return false;
-            // In all other cases it's a block element.
             default:
                 return true;
         }
     }
 
     function isContainingBlockForFixedElement(element) {
-        // The element needs to be a block element to be a containing block.
+        const style = getStyle(element);
+        // If the element has any kind of filter applied or prepared via will-change
+        // it is a containing block, even if it's not a block element. Note that this
+        // does not apply to Safari, which interestingly does not create a containing
+        // block for elements with filters applied, even if they are block-level.
+        if (!IS_SAFARI$1) {
+            const { filter } = style;
+            if (filter && filter !== 'none') {
+                return true;
+            }
+            const { backdropFilter } = style;
+            if (backdropFilter && backdropFilter !== 'none') {
+                return true;
+            }
+            const { willChange } = style;
+            if (willChange &&
+                (willChange.indexOf('filter') > -1 || willChange.indexOf('backdrop-filter') > -1)) {
+                return true;
+            }
+        }
+        // The rest of the checks require the element to be a block element.
         const isBlock = isBlockElement(element);
         if (!isBlock)
             return isBlock;
-        const style = getStyle(element);
         // If the element is transformed it is a containing block.
         const { transform } = style;
         if (transform && transform !== 'none') {
@@ -110,11 +125,6 @@
         // If the element has perspective it is a containing block.
         const { perspective } = style;
         if (perspective && perspective !== 'none') {
-            return true;
-        }
-        // If the element has backdrop-filter it is a containing block.
-        const { backdropFilter } = style;
-        if (backdropFilter && backdropFilter !== 'none') {
             return true;
         }
         // If the element's content-visibility is "auto" or "hidden" it is a
@@ -129,8 +139,6 @@
         // If the element's contain style includes "paint" or "layout" it is a
         // containing block. Note that the values "strict" and "content" are
         // shorthands which include either "paint" or "layout".
-        // Note: this feature does not exist on Safari yet, so this check might
-        // break when they start supporting it (depending on how they implement it).
         const { contain } = style;
         if (contain &&
             (contain === 'strict' ||
@@ -139,26 +147,20 @@
                 contain.indexOf('layout') > -1)) {
             return true;
         }
-        // The following checks are not needed for Safari.
-        // Note: it would be better to do actual feature tests instead of browser
-        // sniffing, but that's quite a lot of extra code which I'd prefer not to
-        // include at the moment, so let's do it quick and dirty.
-        if (!IS_SAFARI) {
-            // If the element has a CSS filter applied it is a containing block.
-            const { filter } = style;
-            if (filter && filter !== 'none') {
-                return true;
-            }
-            // If the element's will-change style has "transform" or "perspective" it is
-            // a containing block.
-            const { willChange } = style;
-            if (willChange &&
-                (willChange.indexOf('transform') > -1 ||
-                    willChange.indexOf('perspective') > -1 ||
-                    willChange.indexOf('filter') > -1 ||
-                    willChange.indexOf('contain') > -1)) {
-                return true;
-            }
+        // Some will-change values cause the element to become a containing block
+        // for block-level elements.
+        const { willChange } = style;
+        if (willChange &&
+            (willChange.indexOf('transform') > -1 ||
+                willChange.indexOf('perspective') > -1 ||
+                willChange.indexOf('contain') > -1)) {
+            return true;
+        }
+        // For Safari we need to do this extra check here which we already did for
+        // other browsers above. Safari creates a containing block when will-change
+        // includes "filter" for block-level elements, but not for inline-level.
+        if (IS_SAFARI$1 && willChange && willChange.indexOf('filter') > -1) {
+            return true;
         }
         return false;
     }
@@ -188,16 +190,15 @@
      * computed based on the containing block's widht/height).
      * https://developer.mozilla.org/en-US/docs/Web/CSS/Containing_block#identifying_the_containing_block
      */
-    function getContainingBlock(element, position) {
-        // documentElement's containing block is always the window. It acually can't
-        // be set to inline-level display mode.
+    function getContainingBlock(element, options = {}) {
+        // Document element's containing block is always the window. It actually can't
+        // be set to "display:inline".
         if (isDocumentElement(element)) {
             return element.ownerDocument.defaultView;
         }
-        // Get element's current position value if a position is not provided.
-        if (!position) {
-            position = getStyle(element).position;
-        }
+        // Parse options.
+        const position = options.position || getStyle(element).position;
+        const { skipDisplayNone } = options;
         switch (position) {
             case 'static':
             case 'relative':
@@ -206,9 +207,9 @@
                 let containingBlock = element.parentElement;
                 while (containingBlock) {
                     const isBlock = isBlockElement(containingBlock);
-                    if (isBlock === true)
+                    if (isBlock)
                         return containingBlock;
-                    if (isBlock === undefined)
+                    if (isBlock === null && !skipDisplayNone)
                         return null;
                     containingBlock = containingBlock.parentElement;
                 }
@@ -224,7 +225,7 @@
                         : isContainingBlockForAbsoluteElement(containingBlock);
                     if (isContainingBlock === true)
                         return containingBlock;
-                    if (isContainingBlock === undefined)
+                    if (isContainingBlock === null && !skipDisplayNone)
                         return null;
                     containingBlock = containingBlock.parentElement;
                 }
@@ -1208,7 +1209,7 @@
         let target = element;
         let ancestor = target.parentElement;
         const targetOriginalRect = target.getBoundingClientRect();
-        while (ancestor && ancestor !== document.documentElement) {
+        while (ancestor) {
             const ancestorOriginalRect = ancestor.getBoundingClientRect();
             // Check if the ancestor's dimensions match the expected dimensions based on
             // the scaleFactor.
@@ -1235,37 +1236,132 @@
             // Move up the tree.
             ancestor = ancestor.parentElement;
         }
-        // If no matching ancestor is found, and the element is positioned as "fixed",
-        // return the window.
+        // If no matching ancestor is found, and the element is positioned as "fixed"
+        // or "absolute" and its dimensions match the expected dimensions based on the
+        // scaleFactor, then the element's containing block is the window.
         const { position } = window.getComputedStyle(element);
-        if (position === 'fixed' || position === 'absolute') {
+        if ((position === 'fixed' || position === 'absolute') &&
+            Math.abs(window.innerWidth * scaleFactor - targetOriginalRect.width) < 0.1 &&
+            Math.abs(window.innerHeight * scaleFactor - targetOriginalRect.height) < 0.1) {
             return window;
         }
         // If no matching ancestor is found, return null.
         return null;
     }
 
+    const IS_BROWSER = typeof window !== 'undefined' && typeof window.document !== 'undefined';
+    const IS_SAFARI = !!(IS_BROWSER &&
+        navigator.vendor &&
+        navigator.vendor.indexOf('Apple') > -1 &&
+        navigator.userAgent &&
+        navigator.userAgent.indexOf('CriOS') == -1 &&
+        navigator.userAgent.indexOf('FxiOS') == -1);
+
+    const specialCases = [
+        {
+            property: 'transform',
+            value: 'translateX(10px)',
+            containsInline: false,
+            containsBlock: true,
+        },
+        {
+            property: 'perspective',
+            value: '500px',
+            containsInline: false,
+            containsBlock: true,
+        },
+        {
+            property: 'contentVisibility',
+            value: 'auto',
+            containsInline: false,
+            containsBlock: !IS_SAFARI,
+        },
+        {
+            property: 'contain',
+            value: 'paint',
+            containsInline: false,
+            containsBlock: true,
+        },
+        {
+            property: 'contain',
+            value: 'layout',
+            containsInline: false,
+            containsBlock: true,
+        },
+        {
+            property: 'contain',
+            value: 'strict',
+            containsInline: false,
+            containsBlock: true,
+        },
+        {
+            property: 'contain',
+            value: 'content',
+            containsInline: false,
+            containsBlock: true,
+        },
+        {
+            property: 'willChange',
+            value: 'transform',
+            containsInline: false,
+            containsBlock: true,
+        },
+        {
+            property: 'willChange',
+            value: 'perspective',
+            containsInline: false,
+            containsBlock: true,
+        },
+        {
+            property: 'willChange',
+            value: 'contain',
+            containsInline: false,
+            containsBlock: true,
+        },
+        {
+            property: 'filter',
+            value: 'blur(5px)',
+            containsInline: !IS_SAFARI,
+            containsBlock: !IS_SAFARI,
+        },
+        {
+            property: 'backdropFilter',
+            value: 'blur(5px)',
+            containsInline: !IS_SAFARI,
+            containsBlock: !IS_SAFARI,
+        },
+        {
+            property: 'willChange',
+            value: 'filter',
+            containsInline: !IS_SAFARI,
+            containsBlock: true,
+        },
+        {
+            property: 'willChange',
+            value: 'backdrop-filter',
+            containsInline: !IS_SAFARI,
+            containsBlock: !IS_SAFARI,
+        },
+    ];
     describe('getContainingBlock()', function () {
         let el;
         let container;
         const scale = 0.5;
         beforeEach(function () {
             // Set the document's dimensions.
-            document.documentElement.style.width = '100vw';
-            document.documentElement.style.height = '100vh';
+            document.documentElement.style.width = '200vw';
+            document.documentElement.style.height = '200vh';
+            document.documentElement.style.overflow = 'hidden';
             // Set body's dimensions.
-            document.body.style.width = '200vw';
-            document.body.style.height = '200vh';
+            document.body.style.width = '300vw';
+            document.body.style.height = '300vh';
             // Create container element.
             container = createTestElement({
-                width: '300vw',
-                height: '300vh',
+                width: '400vw',
+                height: '500vh',
             });
             // Create target element.
             el = createTestElement({
-                position: 'absolute',
-                left: '0px',
-                top: '0px',
                 width: `${scale * 100}%`,
                 height: `${scale * 100}%`,
             });
@@ -1273,7 +1369,10 @@
             container.appendChild(el);
         });
         describe('absolute positioned element', function () {
-            it('should return window if no containing block element is found', function () {
+            beforeEach(function () {
+                el.style.position = 'absolute';
+            });
+            it('should return window if no containing block ancestor is found', function () {
                 const actual = getContainingBlock(el);
                 const computed = getEffectiveContainingBlock(el, 0.5);
                 const expected = window;
@@ -1281,7 +1380,8 @@
                 chai.assert.equal(actual, expected, 'matches expected containing block');
             });
             ['relative', 'absolute', 'fixed', 'sticky'].forEach((position) => {
-                it(`should return first block-level "${position}" positioned ancestor`, function () {
+                it(`should recognize block-level "position:${position}" ancestors`, function () {
+                    container.style.display = 'block';
                     container.style.position = position;
                     const actual = getContainingBlock(el);
                     const computed = getEffectiveContainingBlock(el, 0.5);
@@ -1289,40 +1389,293 @@
                     chai.assert.equal(actual, computed, 'matches computed containing block');
                     chai.assert.equal(actual, expected, 'matches expected containing block');
                 });
-                it(`should return first inline-level "${position}" positioned ancestor`, function () {
-                    container.style.position = position;
+                it(`should recognize inline-level "position:${position}" ancestors`, function () {
                     container.style.display = 'inline';
+                    container.style.position = position;
                     const actual = getContainingBlock(el);
                     const computed = getEffectiveContainingBlock(el, 0.5);
                     const expected = container;
                     chai.assert.equal(actual, computed, 'matches computed containing block');
                     chai.assert.equal(actual, expected, 'matches expected containing block');
+                });
+                it(`should recognize "display:none" "position:${position}" ancestors`, function () {
+                    container.style.display = 'none';
+                    container.style.position = position;
+                    const actual = getContainingBlock(el);
+                    const expected = container;
+                    chai.assert.equal(actual, expected);
                 });
             });
-            // Test cases where an ancestor is promoted to it's own compositor layer.
-            [
-                { property: 'transform', value: 'translateX(10px)' },
-                { property: 'perspective', value: '500px' },
-                { property: 'backdropFilter', value: 'blur(5px)' },
-                { property: 'contentVisibility', value: 'auto' },
-                { property: 'contain', value: 'paint' },
-                { property: 'contain', value: 'layout' },
-                { property: 'contain', value: 'strict' },
-                { property: 'contain', value: 'content' },
-                { property: 'filter', value: 'blur(5px)' },
-                { property: 'willChange', value: 'transform' },
-                { property: 'willChange', value: 'perspective' },
-                { property: 'willChange', value: 'filter' },
-                { property: 'willChange', value: 'contain' },
-            ].forEach(({ property, value }) => {
-                it(`should recognize containing block when ${property} is set to ${value}`, function () {
+            specialCases.forEach(({ property, value, containsInline }) => {
+                it(`should recognize block-level "position:static" "${property}:${value}" ancestors`, function () {
+                    container.style.display = 'block';
+                    container.style.position = 'static';
                     container.style[property] = value;
                     const actual = getContainingBlock(el);
                     const computed = getEffectiveContainingBlock(el, 0.5);
-                    // Note that here we only check the result agains computed, not against
-                    // expected, because the expected result depends on the browser's
-                    // implementation of the feature.
+                    chai.assert.equal(actual, computed);
+                });
+                if (containsInline) {
+                    it(`should recognize inline-level "position:static" "${property}:${value}" ancestors`, function () {
+                        container.style.display = 'inline';
+                        container.style.position = 'static';
+                        container.style[property] = value;
+                        const actual = getContainingBlock(el);
+                        const computed = getEffectiveContainingBlock(el, 0.5);
+                        chai.assert.equal(actual, computed);
+                    });
+                    it(`should recognize "display:none" "position:static" "${property}:${value}" ancestors by default`, function () {
+                        container.style.display = 'none';
+                        container.style.position = 'static';
+                        container.style[property] = value;
+                        const actual = getContainingBlock(el);
+                        const computed = getEffectiveContainingBlock(el, 0.5);
+                        const expected = container;
+                        chai.assert.equal(actual, computed, 'matches computed containing block');
+                        chai.assert.equal(actual, expected, 'matches expected containing block');
+                    });
+                    it(`should recognize "display:none" "position:static" "${property}:${value}" ancestors when skipDisplayNone option is false`, function () {
+                        container.style.display = 'none';
+                        container.style.position = 'static';
+                        container.style[property] = value;
+                        const actual = getContainingBlock(el, { skipDisplayNone: false });
+                        const computed = getEffectiveContainingBlock(el, 0.5);
+                        const expected = container;
+                        chai.assert.equal(actual, computed, 'matches computed containing block');
+                        chai.assert.equal(actual, expected, 'matches expected containing block');
+                    });
+                    it(`should recognize "display:none" "position:static" "${property}:${value}" ancestors when skipDisplayNone option is true`, function () {
+                        container.style.display = 'none';
+                        container.style.position = 'static';
+                        container.style[property] = value;
+                        const actual = getContainingBlock(el, { skipDisplayNone: true });
+                        const computed = getEffectiveContainingBlock(el, 0.5);
+                        const expected = container;
+                        chai.assert.equal(actual, computed, 'matches computed containing block');
+                        chai.assert.equal(actual, expected, 'matches expected containing block');
+                    });
+                }
+                else {
+                    it(`should not recognize inline-level "position:static" "${property}:${value}" ancestors`, function () {
+                        container.style.display = 'inline';
+                        container.style.position = 'static';
+                        container.style[property] = value;
+                        const actual = getContainingBlock(el);
+                        const computed = getEffectiveContainingBlock(el, 0.5);
+                        chai.assert.equal(actual, computed);
+                    });
+                    it(`should return null on "display:none" "position:static" "${property}:${value}" ancestors by default`, function () {
+                        container.style.display = 'none';
+                        container.style.position = 'static';
+                        container.style[property] = value;
+                        const actual = getContainingBlock(el);
+                        const expected = null;
+                        chai.assert.equal(actual, expected);
+                    });
+                    it(`should return null on "display:none" "position:static" "${property}:${value}" ancestors when skipDisplayNone option is false`, function () {
+                        container.style.display = 'none';
+                        container.style.position = 'static';
+                        container.style[property] = value;
+                        const actual = getContainingBlock(el, { skipDisplayNone: false });
+                        const expected = null;
+                        chai.assert.equal(actual, expected);
+                    });
+                    it(`should skip "display:none" "position:static" "${property}:${value}" ancestors when skipDisplayNone option is true`, function () {
+                        container.style.display = 'none';
+                        container.style.position = 'static';
+                        container.style[property] = value;
+                        const actual = getContainingBlock(el, { skipDisplayNone: true });
+                        const expected = window;
+                        chai.assert.equal(actual, expected);
+                    });
+                }
+            });
+            it(`should return null on "display:none" "position:static" ancestors by default`, function () {
+                container.style.display = 'none';
+                container.style.position = 'static';
+                const actual = getContainingBlock(el);
+                const expected = null;
+                chai.assert.equal(actual, expected);
+            });
+            it(`should skip "display:none" "position:static" ancestors when skipDisplayNone option is false`, function () {
+                container.style.display = 'none';
+                container.style.position = 'static';
+                const actual = getContainingBlock(el, { skipDisplayNone: false });
+                const expected = null;
+                chai.assert.equal(actual, expected);
+            });
+            it(`should skip "display:none" "position:static" ancestors when skipDisplayNone option is true`, function () {
+                container.style.display = 'none';
+                container.style.position = 'static';
+                const actual = getContainingBlock(el, { skipDisplayNone: true });
+                const expected = window;
+                chai.assert.equal(actual, expected);
+            });
+        });
+        describe('fixed element', function () {
+            beforeEach(function () {
+                el.style.position = 'fixed';
+            });
+            ['static', 'relative', 'absolute', 'fixed', 'sticky'].forEach((position) => {
+                it(`should not recognize block-level "position:${position}" ancestors`, function () {
+                    container.style.display = 'block';
+                    container.style.position = position;
+                    const actual = getContainingBlock(el);
+                    const computed = getEffectiveContainingBlock(el, 0.5);
+                    const expected = window;
                     chai.assert.equal(actual, computed, 'matches computed containing block');
+                    chai.assert.equal(actual, expected, 'matches expected containing block');
+                });
+                it(`should not recognize inline-level "position:${position}" ancestors`, function () {
+                    container.style.display = 'inline';
+                    container.style.position = position;
+                    const actual = getContainingBlock(el);
+                    const computed = getEffectiveContainingBlock(el, 0.5);
+                    const expected = window;
+                    chai.assert.equal(actual, computed, 'matches computed containing block');
+                    chai.assert.equal(actual, expected, 'matches expected containing block');
+                });
+                it(`should return null on "display:none" "position:${position}" ancestors by default`, function () {
+                    container.style.display = 'none';
+                    container.style.position = position;
+                    const actual = getContainingBlock(el);
+                    const expected = null;
+                    chai.assert.equal(actual, expected);
+                });
+                it(`should return null on "display:none" "position:${position}" ancestors when skipDisplayNone option is false`, function () {
+                    container.style.display = 'none';
+                    container.style.position = position;
+                    const actual = getContainingBlock(el, { skipDisplayNone: false });
+                    const expected = null;
+                    chai.assert.equal(actual, expected);
+                });
+                it(`should skip "display:none" "position:${position}" ancestors when skipDisplayNone option is true`, function () {
+                    container.style.display = 'none';
+                    container.style.position = position;
+                    const actual = getContainingBlock(el, { skipDisplayNone: true });
+                    const expected = window;
+                    chai.assert.equal(actual, expected);
+                });
+            });
+            specialCases.forEach(({ property, value, containsInline }) => {
+                it(`should recognize block-level "position:static" "${property}:${value}" ancestors`, function () {
+                    container.style.display = 'block';
+                    container.style.position = 'static';
+                    container.style[property] = value;
+                    const actual = getContainingBlock(el);
+                    const computed = getEffectiveContainingBlock(el, 0.5);
+                    chai.assert.equal(actual, computed);
+                });
+                if (containsInline) {
+                    it(`should recognize inline-level "position:static" "${property}:${value}" ancestors`, function () {
+                        container.style.display = 'inline';
+                        container.style.position = 'static';
+                        container.style[property] = value;
+                        const actual = getContainingBlock(el);
+                        const computed = getEffectiveContainingBlock(el, 0.5);
+                        chai.assert.equal(actual, computed);
+                    });
+                    it(`should recognize "display:none" "position:static" "${property}:${value}" ancestors by default`, function () {
+                        container.style.display = 'none';
+                        container.style.position = 'static';
+                        container.style[property] = value;
+                        const actual = getContainingBlock(el);
+                        const computed = getEffectiveContainingBlock(el, 0.5);
+                        const expected = container;
+                        chai.assert.equal(actual, computed, 'matches computed containing block');
+                        chai.assert.equal(actual, expected, 'matches expected containing block');
+                    });
+                    it(`should recognize "display:none" "position:static" "${property}:${value}" ancestors when skipDisplayNone option is false`, function () {
+                        container.style.display = 'none';
+                        container.style.position = 'static';
+                        container.style[property] = value;
+                        const actual = getContainingBlock(el, { skipDisplayNone: false });
+                        const computed = getEffectiveContainingBlock(el, 0.5);
+                        const expected = container;
+                        chai.assert.equal(actual, computed, 'matches computed containing block');
+                        chai.assert.equal(actual, expected, 'matches expected containing block');
+                    });
+                    it(`should recognize "display:none" "position:static" "${property}:${value}" ancestors when skipDisplayNone option is true`, function () {
+                        container.style.display = 'none';
+                        container.style.position = 'static';
+                        container.style[property] = value;
+                        const actual = getContainingBlock(el, { skipDisplayNone: true });
+                        const computed = getEffectiveContainingBlock(el, 0.5);
+                        const expected = container;
+                        chai.assert.equal(actual, computed, 'matches computed containing block');
+                        chai.assert.equal(actual, expected, 'matches expected containing block');
+                    });
+                }
+                else {
+                    it(`should not recognize inline-level "position:static" "${property}:${value}" ancestors`, function () {
+                        container.style.display = 'inline';
+                        container.style.position = 'static';
+                        container.style[property] = value;
+                        const actual = getContainingBlock(el);
+                        const computed = getEffectiveContainingBlock(el, 0.5);
+                        chai.assert.equal(actual, computed);
+                    });
+                    it(`should return null on "display:none" "position:static" "${property}:${value}" ancestors by default`, function () {
+                        container.style.display = 'none';
+                        container.style.position = 'static';
+                        container.style[property] = value;
+                        const actual = getContainingBlock(el);
+                        const expected = null;
+                        chai.assert.equal(actual, expected);
+                    });
+                    it(`should return null on "display:none" "position:static" "${property}:${value}" ancestors when skipDisplayNone option is false`, function () {
+                        container.style.display = 'none';
+                        container.style.position = 'static';
+                        container.style[property] = value;
+                        const actual = getContainingBlock(el, { skipDisplayNone: false });
+                        const expected = null;
+                        chai.assert.equal(actual, expected);
+                    });
+                    it(`should skip "display:none" "position:static" "${property}:${value}" ancestors when skipDisplayNone option is true`, function () {
+                        container.style.display = 'none';
+                        container.style.position = 'static';
+                        container.style[property] = value;
+                        const actual = getContainingBlock(el, { skipDisplayNone: true });
+                        const expected = window;
+                        chai.assert.equal(actual, expected);
+                    });
+                }
+            });
+        });
+        describe('static/relative/sticky element', function () {
+            ['static', 'relative', 'sticky'].forEach((position) => {
+                it(`${position}: should return document element if no other containing block ancestor is found`, function () {
+                    document.documentElement.style.display = 'inline';
+                    document.body.style.display = 'inline';
+                    container.style.display = 'inline';
+                    el.style.position = position;
+                    const actual = getContainingBlock(el);
+                    const computed = getEffectiveContainingBlock(el, 0.5);
+                    const expected = document.documentElement;
+                    chai.assert.equal(actual, computed, 'matches computed containing block');
+                    chai.assert.equal(actual, expected, 'matches expected containing block');
+                });
+                it(`${position}: should return the closest block-level element (1/2)`, function () {
+                    document.documentElement.style.display = 'block';
+                    document.body.style.display = 'block';
+                    container.style.display = 'block';
+                    el.style.position = position;
+                    const actual = getContainingBlock(el);
+                    const computed = getEffectiveContainingBlock(el, 0.5);
+                    const expected = container;
+                    chai.assert.equal(actual, computed, 'matches computed containing block');
+                    chai.assert.equal(actual, expected, 'matches expected containing block');
+                });
+                it(`${position}: should return the closest block-level element (2/2)`, function () {
+                    document.documentElement.style.display = 'block';
+                    document.body.style.display = 'block';
+                    container.style.display = 'inline';
+                    el.style.position = position;
+                    const actual = getContainingBlock(el);
+                    const computed = getEffectiveContainingBlock(el, 0.5);
+                    const expected = document.body;
+                    chai.assert.equal(actual, computed, 'matches computed containing block');
+                    chai.assert.equal(actual, expected, 'matches expected containing block');
                 });
             });
         });

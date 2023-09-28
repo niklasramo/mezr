@@ -1,1 +1,1 @@
-export declare function isBlockElement(element: HTMLElement): boolean | undefined;
+export declare function isBlockElement(element: HTMLElement): boolean | null;
