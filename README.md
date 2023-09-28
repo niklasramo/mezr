@@ -2,12 +2,12 @@
 
 Mezr is a lightweight utility library for measuring and comparing the dimensions and positions of DOM elements in modern browsers.
 
-- 📦 **Modular**, all the public methods are provided as production-ready stand-alone modules.
+- 📦 **Modular**, organized into clear independent modules.
 - 🧩 **Simple API**, which reduces boilerplate code a lot.
 - ⚡ **Fast**, built with performance in mind.
-- 🤖 **Extensively tested** to produce stable results across all modern browsers.
-- 🦺 **Type-safe**, written fully in Typescript.
-- 🍭 **No runtime dependencies**, no need to worry about peer dependencies.
+- 🤖 **Extensively tested** across all modern browsers.
+- 🦺 **Type-safety** provided by TypeScript.
+- 🍭 **No runtime dependencies**, just a boatload of dev dependencies.
 - 💝 **Free and open source**, MIT Licensed.
 
 ## Getting started
@@ -20,7 +20,7 @@ $ npm install mezr
 
 ### Import
 
-All the public API methods are provided as [CommonJS modules](./dist/cjs/) (CJS) and [ECMAScript modules](./dist/esm/) (ESM) individually via subpath [exports](./package.json#L31). This is nice because you only import the code you actually use without needing to worry about tree shaking.
+All the public API methods are provided as [CommonJS modules](./dist/cjs/) (CJS) and [ECMAScript modules](./dist/esm/) (ESM) individually via subpath [exports](./package.json#L31).
 
 ```ts
 import { getWidth } from 'mezr/getWidth';
@@ -546,6 +546,8 @@ getOverflow([elemA, 'content'], [elemB, 'scroll']);
 
 Returns the element's [containing block](https://developer.mozilla.org/en-US/docs/Web/CSS/Containing_block#identifying_the_containing_block). In case the containing block could not be computed `null` will be returned.
 
+This method is not something you need too often, but when you do you'll be happy that you stumbled upon this library. It's _very_ tricky to compute the containing block correctly while taking browser differences into account. This method does all the heavy lifting for you.
+
 **Syntax**
 
 ```ts
@@ -558,10 +560,11 @@ type getContainingBlock = (
 **Parameters**
 
 1. **element**
-   - Accepts any HTML element.
+   - The element which's containing block we want to compute.
+   - Accepts: `HTMLElement`.
 2. **options**
    - Optional options object.
-   - **element**
+   - **position**
      - Forcefully provide the element's position value for the calculations. If not provided the element's position will be queried from the element.
      - Accepts: `string`.
      - Defaults to `""`.
@@ -604,11 +607,12 @@ type getOffsetContainer = (
 **Parameters**
 
 1. **element**
-   - Accepts any HTML element.
+   - The element which's offset container we want to compute.
+   - Accepts: `HTMLElement`.
 2. **options**
    - Optional options object.
    - Accepts the following optional properties:
-     - **element**
+     - **position**
        - Forcefully provide the element's position value for the calculations. If not provided the element's position will be queried from the element.
        - Accepts: `string`.
        - Defaults to `""`.
