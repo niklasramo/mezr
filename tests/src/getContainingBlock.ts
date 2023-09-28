@@ -426,7 +426,7 @@ describe('getContainingBlock()', function () {
 
   describe('static/relative/sticky element', function () {
     ['static', 'relative', 'sticky'].forEach((position) => {
-      it(`${position}: should return document element if no other containing block ancestor is found`, function () {
+      it(`should return document element for "position:${position}" if no other containing block ancestor is found`, function () {
         document.documentElement.style.display = 'inline';
         document.body.style.display = 'inline';
         container.style.display = 'inline';
@@ -438,7 +438,7 @@ describe('getContainingBlock()', function () {
         assert.equal(actual, expected, 'matches expected containing block');
       });
 
-      it(`${position}: should return the closest block-level element (1/2)`, function () {
+      it(`should return the closest block-level element for "position:${position}" element (1/2)`, function () {
         document.documentElement.style.display = 'block';
         document.body.style.display = 'block';
         container.style.display = 'block';
@@ -450,7 +450,7 @@ describe('getContainingBlock()', function () {
         assert.equal(actual, expected, 'matches expected containing block');
       });
 
-      it(`${position}: should return the closest block-level element (2/2)`, function () {
+      it(`should return the closest block-level element for "position:${position}" element (2/2)`, function () {
         document.documentElement.style.display = 'block';
         document.body.style.display = 'block';
         container.style.display = 'inline';
