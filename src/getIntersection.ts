@@ -1,10 +1,7 @@
 import { getNormalizedRect } from './utils/getNormalizedRect.js';
-import { Rect, DomRectElement, DomRectArray } from './utils/types.js';
+import { BoxElementExtended } from './utils/types.js';
 
-export function getIntersection(
-  elementA: Rect | DomRectElement | DomRectArray,
-  elementB: Rect | DomRectElement | DomRectArray,
-) {
+export function getIntersection(elementA: BoxElementExtended, elementB: BoxElementExtended) {
   const rectA = getNormalizedRect(elementA);
   const rectB = getNormalizedRect(elementB);
 

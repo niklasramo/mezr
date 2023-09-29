@@ -65,7 +65,7 @@ getWidth(elem);
 getHeight(elem);
 // equals elem.getBoundingClientRect().height
 
-// The second argument defines element's area edge.
+// The second argument defines element's box edge.
 
 // Only the content.
 getWidth(elem, 'content');
@@ -90,8 +90,8 @@ getOffset(elem);
 // element/document/window that the element's offset is measured from.
 getOffset(elemA, elemB);
 
-// By default the "border" area edge is used for the argument elements, but you
-// can define another area edge also by using array syntax.
+// By default the "border" box edge is used for the argument elements, but you
+// can define another box edge also by using array syntax.
 getOffset([elemA, 'padding'], [elemB, 'margin']);
 
 //
@@ -102,8 +102,8 @@ getOffset([elemA, 'padding'], [elemB, 'margin']);
 getDistance(elemA, elemB);
 // => number
 
-// By default the "border" area edge is used for the argument elements, but you
-// can define another area edge also by using array syntax.
+// By default the "border" box edge is used for the argument elements, but you
+// can define another box edge also by using array syntax.
 getDistance([elemA, 'content'], [elemB, 'margin']);
 
 //
@@ -121,8 +121,8 @@ getIntersection(elemA, elemB);
 //    bottom: number,
 // };
 
-// By default the "border" area edge is used for the argument elements, but you
-// can define another area edge also by using array syntax.
+// By default the "border" box edge is used for the argument elements, but you
+// can define another box edge also by using array syntax.
 getIntersection([elemA, 'content'], [elemB, 'margin']);
 
 //
@@ -141,8 +141,8 @@ getOverflow(elemA, elemB);
 //    bottom: number,
 // };
 
-// By default the "border" area edge is used for the argument elements, but you
-// can define another area edge also by using array syntax.
+// By default the "border" box edge is used for the argument elements, but you
+// can define another box edge also by using array syntax.
 getOverflow([elemA, 'content'], [elemB, 'margin']);
 ```
 
@@ -165,23 +165,19 @@ Returns the width of an element in pixels. Accepts also the window object (for g
 **Syntax**
 
 ```ts
-type DomRectElementArea = 'content' | 'padding' | 'scroll' | 'border' | 'margin';
-
-type getWidth = (
-  element: Element | Document | Window,
-  area: DomRectElementArea = 'border',
-) => number;
+type getWidth = (element: BoxElement, boxEdge: BoxEdge = 'border') => number;
 ```
 
 **Parameters**
 
 1. **element**
    - The element which's width we want to measure.
-   - Accepts any HTML/SVG element, a document object or a window object.
-2. **area**
-   - Defines which edge (content, padding, scroll, border, margin) of the element is considered as it's outer edge.
+   - Accepts: [`BoxElement`](#boxelement).
+2. **boxEdge**
+   - Defines which box edge of the element is considered as it's outer edge for the calculations.
    - For `window` and `document` objects this argument behaves a bit differently since they cannot have any paddings, borders or margins. Only `"content"` (without vertical scrollbar's width) and `"scroll"` (with vertical scrollbar's width) are effective values. `"padding"` is normalized to `"content"` while `"border"` and `"margin"` are normalized to `"scroll"`.
-   - Optional, defaults to `"border"`.
+   - Accepts: [`BoxEdge`](#boxedge).
+   - Optional. Defaults to `"border"`.
 
 **Examples**
 
@@ -229,23 +225,19 @@ Returns the height of an element in pixels. Accepts also the window object (for 
 **Syntax**
 
 ```ts
-type DomRectElementArea = 'content' | 'padding' | 'scroll' | 'border' | 'margin';
-
-type getHeight = (
-  element: Element | Document | Window,
-  area: DomRectElementArea = 'border',
-) => number;
+type getHeight = (element: BoxElement, boxEdge: BoxEdge = 'border') => number;
 ```
 
 **Parameters**
 
 1. **element**
    - The element which's height we want to measure.
-   - Accepts any HTML/SVG element, a document object or a window object.
-2. **area**
-   - Defines which edge (content, padding, scroll, border, margin) of the element is considered as it's outer edge.
+   - Accepts: [`BoxElement`](#boxelement).
+2. **boxEdge**
+   - Defines which box edge (content, padding, scroll, border, margin) of the element is considered as it's outer edge for the calculations.
    - For `window` and `document` objects this argument behaves a bit differently since they cannot have any paddings, borders or margins. Only `"content"` (without horizontal scrollbar's height) and `"scroll"` (with horizontal scrollbar's height) are effective values. `"padding"` is normalized to `"content"` while `"border"` and `"margin"` are normalized to `"scroll"`.
-   - Optional, defaults to `"border"`.
+   - Accepts: [`BoxEdge`](#boxedge).
+   - Optional. Defaults to `"border"`.
 
 **Examples**
 
@@ -293,34 +285,28 @@ Returns the element's offset from another element, window or document.
 **Syntax**
 
 ```ts
-type DomRectElement = Element | Document | Window;
-
-type DomRectElementArea = 'content' | 'padding' | 'scroll' | 'border' | 'margin';
-
 type getOffset = (
-  element: DomRectElement | [DomRectElement, DomRectElementArea],
-  offsetRoot?: DomRectElement | [DomRectElement, DomRectElementArea],
+  element: BoxElementExtended,
+  offsetRoot?: BoxElementExtended,
 ) => { left: number; top: number };
 ```
 
 **Parameters**
 
 1. **element**
-   - The element which's offset we want to compute from the offset root (the second argument).
-   - Accepts any HTML/SVG element, a document object or a window object. Alternatively you can also provide an array where the first item is the element and the second item is the area edge (`"content"`, `"padding"`, `"scroll"`, `"border"`, `"margin"`).
-   - By default the provided element's area edge is considered to be `"border"`.
+   - The element which's offset we want to compute from the offset root.
+   - Accepts: [`BoxElementExtended`](#boxelementextended).
 2. **offsetRoot**
-   - The element from which the offset is computed to the target element (first argument).
-   - Accepts any HTML/SVG element, a document object or a window object. Alternatively you can also provide an array where the first item is the element and the second item is the area edge (`"content"`, `"padding"`, `"scroll"`, `"border"`, `"margin"`).
-   - By default the provided element's area edge is considered to be `"border"`.
-   - Optional, defaults to the first argument's closest document.
+   - The element from which the offset is computed to the target element.
+   - Accepts: [`BoxElementExtended`](#boxelementextended).
+   - Optional. Defaults to the first argument's closest document.
 
 **Examples**
 
 ```ts
 import { getOffset } from 'mezr/getOffset';
 
-// Document's offset.
+// Document's offset from document.
 getOffset(document);
 // => { left: 0, top: 0 }
 
@@ -331,7 +317,7 @@ getOffset(window);
 // Element's offset from it's owner document.
 getOffset(elem);
 
-// You can also define the element's area edge for the calculations.
+// You can also define the element's box edge for the calculations.
 getOffset([elem, 'content']);
 getOffset([elem, 'padding']);
 getOffset([elem, 'scroll']);
@@ -348,18 +334,14 @@ getOffset([elem, 'content'], [otherElem, 'margin']);
 
 ### getRect()
 
-Returns an object containing the provided element's dimensions and offsets. This is basically a helper method for calculating an element's dimensions and offsets simultaneously. Mimics the native [getBoundingClientRect](https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect) method with the added bonus of allowing to define the area edge of the element, and also the element from which the offset is measured.
+Returns an object containing the provided element's dimensions and offsets. This is basically a helper method for calculating an element's dimensions and offsets simultaneously. Mimics the native [getBoundingClientRect](https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect) method with the added bonus of allowing to define the box edge of the element, and also the element from which the offset is measured.
 
 **Syntax**
 
 ```ts
-type DomRectElement = Element | Document | Window;
-
-type DomRectElementArea = 'content' | 'padding' | 'scroll' | 'border' | 'margin';
-
 type getRect = (
-  element: DomRectElement | [DomRectElement, DomRectElementArea],
-  offsetRoot?: DomRectElement | [DomRectElement, DomRectElementArea],
+  element: BoxElementExtended,
+  offsetRoot?: BoxElementExtended,
 ) => {
   width: number;
   height: number;
@@ -373,14 +355,12 @@ type getRect = (
 **Parameters**
 
 1. **element**
-   - The element which's dimensions and offsets we want to compute from the offset root (the second argument).
-   - Accepts any HTML/SVG element, a document object or a window object. Alternatively you can also provide an array where the first item is the element and the second item is the area edge (`"content"`, `"padding"`, `"scroll"`, `"border"`, `"margin"`).
-   - By default the provided element's area edge is considered to be `"border"`.
+   - The element which's dimensions and offset (from the offset root) we want to compute.
+   - Accepts: [`BoxElementExtended`](#boxelementextended).
 2. **offsetRoot**
    - The element from which to compute the offset from.
-   - Accepts any HTML/SVG element, a document object or a window object. Alternatively you can also provide an array where the first item is the element and the second item is the area edge (`"content"`, `"padding"`, `"scroll"`, `"border"`, `"margin"`).
-   - By default the provided element's area edge is considered to be `"border"`.
-   - Optional, defaults to the first argument's closest document.
+   - Accepts: [`BoxElementExtended`](#boxelementextended).
+   - Optional. Defaults to the first argument's closest document.
 
 **Examples**
 
@@ -396,7 +376,7 @@ getRect(elem);
 // that it doesn't have x and y properties in result data.
 getRect(elem, window);
 
-// You can also define the element's area edge for the calculations.
+// You can also define the element's box edge for the calculations.
 getRect([elem, 'content']);
 getRect([elem, 'padding']);
 getRect([elem, 'scroll']);
@@ -413,24 +393,15 @@ getRect([elem, 'padding'], [anotherElem, 'margin']);
 Returns the distance between two elements (in pixels) or `null` if the elements overlap.
 
 ```ts
-type DomRectElement = Element | Document | Window;
-
-type DomRectElementArea = 'content' | 'padding' | 'scroll' | 'border' | 'margin';
-
-type getDistance = (
-  elementA: DomRectElement | [DomRectElement, DomRectElementArea],
-  elementB: DomRectElement | [DomRectElement, DomRectElementArea],
-) => number | null;
+type getDistance = (elementA: BoxElementExtended, elementB: BoxElementExtended) => number | null;
 ```
 
 **Parameters**
 
 1. **elementA**
-   - Accepts any HTML/SVG element, a document object or a window object. Alternatively you can also provide an array where the first item is the element and the second item is the area edge (`"content"`, `"padding"`, `"scroll"`, `"border"`, `"margin"`).
-   - By default the provided element's area edge is considered to be `"border"`.
+   - Accepts: [`BoxElementExtended`](#boxelementextended).
 2. **elementB**
-   - Accepts any HTML/SVG element, a document object or a window object. Alternatively you can also provide an array where the first item is the element and the second item is the area edge (`"content"`, `"padding"`, `"scroll"`, `"border"`, `"margin"`).
-   - By default the provided element's area edge is considered to be `"border"`.
+   - Accepts: [`BoxElementExtended`](#boxelementextended).
 
 **Examples**
 
@@ -443,7 +414,7 @@ getDistance(elemA, elemB);
 // Measure distance between element and window.
 getDistance(elem, window);
 
-// You can also define the elements' area edge for the calculations.
+// You can also define the elements' box edge for the calculations.
 getDistance([elemA, 'content'], [elemB, 'scroll']);
 ```
 
@@ -454,13 +425,9 @@ Measure the intersection area of two elements. Returns an object containing the 
 **Syntax**
 
 ```ts
-type DomRectElement = Element | Document | Window;
-
-type DomRectElementArea = 'content' | 'padding' | 'scroll' | 'border' | 'margin';
-
 type getDistance = (
-  elementA: DomRectElement | [DomRectElement, DomRectElementArea],
-  elementB: DomRectElement | [DomRectElement, DomRectElementArea],
+  elementA: BoxElementExtended,
+  elementB: BoxElementExtended,
 ) => {
   width: number;
   height: number;
@@ -474,11 +441,9 @@ type getDistance = (
 **Parameters**
 
 1. **elementA**
-   - Accepts any HTML/SVG element, a document object or a window object. Alternatively you can also provide an array where the first item is the element and the second item is the area edge (`"content"`, `"padding"`, `"scroll"`, `"border"`, `"margin"`).
-   - By default the provided element's area edge is considered to be `"border"`.
+   - Accepts: [`BoxElementExtended`](#boxelementextended).
 2. **elementB**
-   - Accepts any HTML/SVG element, a document object or a window object. Alternatively you can also provide an array where the first item is the element and the second item is the area edge (`"content"`, `"padding"`, `"scroll"`, `"border"`, `"margin"`).
-   - By default the provided element's area edge is considered to be `"border"`.
+   - Accepts: [`BoxElementExtended`](#boxelementextended).
 
 **Examples**
 
@@ -491,7 +456,7 @@ getIntersection(elemA, elemB);
 // Measure intersection area of element and window.
 getIntersection(elem, window);
 
-// You can also define the elements' area edge for the calculations.
+// You can also define the elements' box edge for the calculations.
 getIntersection([elemA, 'content'], [elemB, 'scroll']);
 ```
 
@@ -502,13 +467,9 @@ Measure how much an element overflows another element per each side. Returns an 
 **Syntax**
 
 ```ts
-type DomRectElement = Element | Document | Window;
-
-type DomRectElementArea = 'content' | 'padding' | 'scroll' | 'border' | 'margin';
-
-type getDistance = (
-  elementA: DomRectElement | [DomRectElement, DomRectElementArea],
-  elementB: DomRectElement | [DomRectElement, DomRectElementArea],
+type getOverflow = (
+  elementA: BoxElementExtended,
+  elementB: BoxElementExtended,
 ) => {
   left: number;
   right: number;
@@ -520,11 +481,9 @@ type getDistance = (
 **Parameters**
 
 1. **elementA**
-   - Accepts any HTML/SVG element, a document object or a window object. Alternatively you can also provide an array where the first item is the element and the second item is the area edge (`"content"`, `"padding"`, `"scroll"`, `"border"`, `"margin"`).
-   - By default the provided element's area edge is considered to be `"border"`.
+   - Accepts: [`BoxElementExtended`](#boxelementextended).
 2. **elementB**
-   - Accepts any HTML/SVG element, a document object or a window object. Alternatively you can also provide an array where the first item is the element and the second item is the area edge (`"content"`, `"padding"`, `"scroll"`, `"border"`, `"margin"`).
-   - By default the provided element's area edge is considered to be `"border"`.
+   - Accepts: [`BoxElementExtended`](#boxelementextended).
 
 **Examples**
 
@@ -538,7 +497,7 @@ getOverflow(elemA, elemB);
 // Measure elem overflows windown per each side.
 getOverflow(elem, window);
 
-// You can also define the elements' area edge for the calculations.
+// You can also define the elements' box edge for the calculations.
 getOverflow([elemA, 'content'], [elemB, 'scroll']);
 ```
 
@@ -636,6 +595,74 @@ getOffsetContainer(elem, { position: 'fixed' });
 // ancestors as "display:inline" elements.
 getOffsetContainer(elem, { treatDisplayNoneAs: 'block' });
 ```
+
+### Appendix
+
+#### BoxEdge
+
+```ts
+type BoxEdge = 'content' | 'padding' | 'scroll' | 'border' | 'margin';
+```
+
+In many methods you can explicitly define the box edge of the element for the calculcations. In practice the box edge indicates which parts of the the element are considered as part of the element. `"border"` box edge is always the default. The following table illustrates the different box edges.
+
+| Box edge    | Description                                                                    |
+| ----------- | ------------------------------------------------------------------------------ |
+| `"content"` | The element's content box.                                                     |
+| `"padding"` | The element's content box + paddings.                                          |
+| `"scroll"`  | The element's content box + paddings + scrollbar.                              |
+| `"border"`  | The element's content box + paddings + scrollbar + borders.                    |
+| `"margin"`  | The element's content box + paddings + scrollbar + borders + positive margins. |
+
+#### BoxRect
+
+```ts
+type BoxRect = {
+  width: number;
+  height: number;
+  left: number;
+  top: number;
+  right: number;
+  bottom: number;
+};
+```
+
+In many methods you can provide the raw rectangle data of the element instead of the element itself. The rectangle data is an object containing the element's dimensions and offsets. The following table illustrates the rectangle data:
+
+| Property | Description                                                                   |
+| -------- | ----------------------------------------------------------------------------- |
+| `width`  | The element's width in pixels.                                                |
+| `height` | The element's height in pixels.                                               |
+| `left`   | The element's left edge offset from the left edge of the document in pixels.  |
+| `top`    | The element's top edge offset from the top edge of the document in pixels.    |
+| `right`  | The element's right edge offset from the left edge of the document in pixels. |
+| `bottom` | The element's bottom edge offset from the top edge of the document in pixels. |
+
+#### BoxElement
+
+```ts
+type BoxElement = Element | Document | Window;
+```
+
+Box element can be any HTML/SVG element, Document or Window.
+
+#### BoxElementExtended
+
+```ts
+type BoxElementExtended = BoxElement | [BoxElement, BoxEdge] | BoxRect;
+```
+
+Many methods allow you to define either a box element, a box element with a box edge or a box rectangle data object. The following table illustrates the different box element types:
+
+| Type                    | Description                                                                |
+| ----------------------- | -------------------------------------------------------------------------- |
+| `BoxElement`            | Any HTML/SVG element, Document or Window. Uses `"border"` box edge.        |
+| `[BoxElement, BoxEdge]` | Any HTML/SVG element, Document or Window with box edge explicitly defined. |
+| `BoxRect`               | An object containing the element's dimensions and offsets.                 |
+
+## Contributing
+
+Contributions are welcome! Please read the [contributing guidelines](CONTRIBUTING.md) first.
 
 ## License
 

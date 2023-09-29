@@ -1,7 +1,7 @@
 import { getRect } from '../getRect.js';
 import { isRectObject } from './isRectObject.js';
-import { DomRectElement, DomRectArray, Rect } from './types.js';
+import { BoxElementExtended } from './types.js';
 
-export function getNormalizedRect(element: Rect | DomRectElement | DomRectArray) {
+export function getNormalizedRect(element: BoxElementExtended) {
   return isRectObject(element) ? element : getRect(element);
 }

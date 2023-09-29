@@ -1,18 +1,18 @@
-import { BOX_AREA } from './constants.js';
-import { DomRectElementArea } from './types.js';
+import { BOX_EDGE } from './constants.js';
+import { BoxEdge } from './types.js';
 import { getStyle } from './getStyle.js';
 import { isDocumentElement } from './isDocumentElement.js';
 
-export function getElementWidth(element: Element, area: DomRectElementArea = BOX_AREA.border) {
+export function getElementWidth(element: Element, boxEdge: BoxEdge = BOX_EDGE.border) {
   let { width } = element.getBoundingClientRect();
 
-  if (area === BOX_AREA.border) {
+  if (boxEdge === BOX_EDGE.border) {
     return width;
   }
 
   const style = getStyle(element);
 
-  if (area === BOX_AREA.margin) {
+  if (boxEdge === BOX_EDGE.margin) {
     width += Math.max(0, parseFloat(style.marginLeft) || 0);
     width += Math.max(0, parseFloat(style.marginRight) || 0);
     return width;
@@ -21,7 +21,7 @@ export function getElementWidth(element: Element, area: DomRectElementArea = BOX
   width -= parseFloat(style.borderLeftWidth) || 0;
   width -= parseFloat(style.borderRightWidth) || 0;
 
-  if (area === BOX_AREA.scroll) {
+  if (boxEdge === BOX_EDGE.scroll) {
     return width;
   }
 
@@ -38,7 +38,7 @@ export function getElementWidth(element: Element, area: DomRectElementArea = BOX
     }
   }
 
-  if (area === BOX_AREA.padding) {
+  if (boxEdge === BOX_EDGE.padding) {
     return width;
   }
 

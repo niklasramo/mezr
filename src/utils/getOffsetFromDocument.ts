@@ -1,18 +1,15 @@
-import { BOX_AREA } from './constants.js';
+import { BOX_EDGE } from './constants.js';
 import { getStyle } from './getStyle.js';
 import { isDocument } from './isDocument.js';
 import { isWindow } from './isWindow.js';
-import { DomRectElement, DomRectElementArea } from './types.js';
+import { BoxElement, BoxEdge } from './types.js';
 
 /**
  * Returns the element's (or window's) document offset, which in practice
  * means the vertical and horizontal distance between the element's northwest
  * corner and the document's northwest corner.
  */
-export function getOffsetFromDocument(
-  element: DomRectElement,
-  area: DomRectElementArea = BOX_AREA.border,
-) {
+export function getOffsetFromDocument(element: BoxElement, boxEdge: BoxEdge = BOX_EDGE.border) {
   const offset = {
     left: 0,
     top: 0,
@@ -38,13 +35,13 @@ export function getOffsetFromDocument(
   offset.left += rect.left;
   offset.top += rect.top;
 
-  if (area === BOX_AREA.border) {
+  if (boxEdge === BOX_EDGE.border) {
     return offset;
   }
 
   const style = getStyle(element);
 
-  if (area === BOX_AREA.margin) {
+  if (boxEdge === BOX_EDGE.margin) {
     offset.left -= Math.max(0, parseFloat(style.marginLeft) || 0);
     offset.top -= Math.max(0, parseFloat(style.marginTop) || 0);
     return offset;
@@ -53,7 +50,7 @@ export function getOffsetFromDocument(
   offset.left += parseFloat(style.borderLeftWidth) || 0;
   offset.top += parseFloat(style.borderTopWidth) || 0;
 
-  if (area === BOX_AREA.scroll || area === BOX_AREA.padding) {
+  if (boxEdge === BOX_EDGE.scroll || boxEdge === BOX_EDGE.padding) {
     return offset;
   }
 

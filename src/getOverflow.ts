@@ -1,14 +1,11 @@
 import { getNormalizedRect } from './utils/getNormalizedRect.js';
-import { DomRectElement, DomRectArray, Rect } from './utils/types.js';
+import { BoxElementExtended } from './utils/types.js';
 
 /**
  * Calculate how much elementA overflows elementB per each side. Negative value
  * indicates overflow.
  */
-export function getOverflow(
-  elementA: Rect | DomRectElement | DomRectArray,
-  elementB: Rect | DomRectElement | DomRectArray,
-) {
+export function getOverflow(elementA: BoxElementExtended, elementB: BoxElementExtended) {
   const rectA = getNormalizedRect(elementA);
   const rectB = getNormalizedRect(elementB);
 
