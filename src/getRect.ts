@@ -2,12 +2,9 @@ import { getWidth } from './getWidth.js';
 import { getHeight } from './getHeight.js';
 import { getOffset } from './getOffset.js';
 import { isRectObject } from './utils/isRectObject.js';
-import { Rect, DomRectElement, DomRectArray } from './utils/types.js';
+import { BoxElementExtended } from './utils/types.js';
 
-export function getRect(
-  element: Rect | DomRectElement | DomRectArray,
-  offsetRoot?: Rect | DomRectElement | DomRectArray,
-) {
+export function getRect(element: BoxElementExtended, offsetRoot?: BoxElementExtended) {
   let width = 0;
   let height = 0;
   if (isRectObject(element)) {

@@ -1,5 +1,5 @@
-import { DomRectElement, DomRectArray, Rect } from './types.js';
+import { BoxElementExtended, BoxRect } from './types.js';
 
-export function isRectObject(value: Rect | DomRectElement | DomRectArray): value is Rect {
+export function isRectObject(value: BoxElementExtended): value is BoxRect {
   return value?.constructor === Object;
 }

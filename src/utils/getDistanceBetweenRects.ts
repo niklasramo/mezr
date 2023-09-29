@@ -1,12 +1,12 @@
 import { doRectsOverlap } from './doRectsOverlap.js';
 import { getDistanceBetweenPoints } from './getDistanceBetweenPoints.js';
-import { Rect } from './types.js';
+import { BoxRect } from './types.js';
 
 /**
  * Calculate shortest distance between two rectangles. Returns null if the
  * rectangles are overlapping.
  */
-export function getDistanceBetweenRects(a: Rect, b: Rect) {
+export function getDistanceBetweenRects(a: BoxRect, b: BoxRect) {
   if (doRectsOverlap(a, b)) return null;
 
   // Check left side zones.

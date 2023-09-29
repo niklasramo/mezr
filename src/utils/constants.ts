@@ -9,7 +9,7 @@ export const IS_SAFARI = !!(
   navigator.userAgent.indexOf('FxiOS') == -1
 );
 
-export const BOX_AREA = {
+export const BOX_EDGE = {
   content: 'content',
   padding: 'padding',
   scroll: 'scroll',
@@ -18,9 +18,9 @@ export const BOX_AREA = {
 } as const;
 
 export const INCLUDE_SCROLLBAR = {
-  [BOX_AREA.content]: false,
-  [BOX_AREA.padding]: false,
-  [BOX_AREA.scroll]: true,
-  [BOX_AREA.border]: true,
-  [BOX_AREA.margin]: true,
+  [BOX_EDGE.content]: false,
+  [BOX_EDGE.padding]: false,
+  [BOX_EDGE.scroll]: true,
+  [BOX_EDGE.border]: true,
+  [BOX_EDGE.margin]: true,
 };
