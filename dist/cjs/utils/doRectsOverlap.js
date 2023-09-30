@@ -1,1 +1,1 @@
-"use strict";function doRectsOverlap(t,e){return!(t.right<=e.left||e.right<=t.left||t.bottom<=e.top||e.bottom<=t.top)}Object.defineProperty(exports,"__esModule",{value:!0}),exports.doRectsOverlap=void 0,exports.doRectsOverlap=doRectsOverlap;
+"use strict";function doRectsOverlap(e,t){return!(e.left+e.width<=t.left||t.left+t.width<=e.left||e.top+e.height<=t.top||t.top+t.height<=e.top)}Object.defineProperty(exports,"__esModule",{value:!0}),exports.doRectsOverlap=void 0,exports.doRectsOverlap=doRectsOverlap;

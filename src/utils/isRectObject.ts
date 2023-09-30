@@ -1,5 +1,5 @@
-import { BoxElementExtended, BoxRect } from './types.js';
+import { BoxObject, BoxRect } from './types.js';
 
-export function isRectObject(value: BoxElementExtended): value is BoxRect {
+export function isRectObject(value: BoxObject): value is BoxRect {
   return value?.constructor === Object;
 }

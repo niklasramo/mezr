@@ -1,6 +1,6 @@
 export declare const IS_BROWSER: boolean;
 export declare const IS_SAFARI: boolean;
-export declare const BOX_AREA: {
+export declare const BOX_EDGE: {
     readonly content: "content";
     readonly padding: "padding";
     readonly scroll: "scroll";

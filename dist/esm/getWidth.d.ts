@@ -1,2 +1,2 @@
-import { DomRectElement, DomRectElementArea } from './utils/types.js';
-export declare function getWidth(element: DomRectElement, area?: DomRectElementArea): number;
+import { BoxElement, BoxElementEdge } from './utils/types.js';
+export declare function getWidth(element: BoxElement, boxEdge?: BoxElementEdge): number;

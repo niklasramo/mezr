@@ -4,9 +4,9 @@ import { isDocument } from './utils/isDocument.js';
 import { getWindowHeight } from './utils/getWindowHeight.js';
 import { getDocumentHeight } from './utils/getDocumentHeight.js';
 import { getElementHeight } from './utils/getElementHeight.js';
-import { BoxElement, BoxEdge } from './utils/types.js';
+import { BoxElement, BoxElementEdge } from './utils/types.js';
 
-export function getHeight(element: BoxElement, boxEdge: BoxEdge = BOX_EDGE.border) {
+export function getHeight(element: BoxElement, boxEdge: BoxElementEdge = BOX_EDGE.border) {
   if (isWindow(element)) {
     return getWindowHeight(element, INCLUDE_SCROLLBAR[boxEdge]);
   }

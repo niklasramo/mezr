@@ -1,2 +1,2 @@
-import { DomRectElement, DomRectArray, Rect } from './types.js';
-export declare function isRectObject(value: Rect | DomRectElement | DomRectArray): value is Rect;
+import { BoxObject, BoxRect } from './types.js';
+export declare function isRectObject(value: BoxObject): value is BoxRect;

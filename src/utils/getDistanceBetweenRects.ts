@@ -9,49 +9,54 @@ import { BoxRect } from './types.js';
 export function getDistanceBetweenRects(a: BoxRect, b: BoxRect) {
   if (doRectsOverlap(a, b)) return null;
 
+  const aRight = a.left + a.width;
+  const aBottom = a.top + a.height;
+  const bRight = b.left + b.width;
+  const bBottom = b.top + b.height;
+
   // Check left side zones.
-  if (a.right < b.left) {
+  if (aRight < b.left) {
     // Left-top corner.
-    if (a.bottom < b.top) {
+    if (aBottom < b.top) {
       // Distance between a right-bottom point and b left-top point.
-      return getDistanceBetweenPoints(a.right, a.bottom, b.left, b.top);
+      return getDistanceBetweenPoints(aRight, aBottom, b.left, b.top);
     }
     // Left-bottom corner.
-    else if (a.top > b.bottom) {
+    else if (a.top > bBottom) {
       // Distance between a right-top point and b left-bottom point.
-      return getDistanceBetweenPoints(a.right, a.top, b.left, b.bottom);
+      return getDistanceBetweenPoints(aRight, a.top, b.left, bBottom);
     }
     // Left side.
     else {
-      return b.left - a.right;
+      return b.left - aRight;
     }
   }
   // Check right side zones.
-  else if (a.left > b.right) {
+  else if (a.left > bRight) {
     // Right-top corner.
-    if (a.bottom < b.top) {
+    if (aBottom < b.top) {
       // Distance between a left-bottom point and b right-top point.
-      return getDistanceBetweenPoints(a.left, a.bottom, b.right, b.top);
+      return getDistanceBetweenPoints(a.left, aBottom, bRight, b.top);
     }
     // Right-bottom corner.
-    else if (a.top > b.bottom) {
+    else if (a.top > bBottom) {
       // Distance between a left-top point and b right-bottom point.
-      return getDistanceBetweenPoints(a.left, a.top, b.right, b.bottom);
+      return getDistanceBetweenPoints(a.left, a.top, bRight, bBottom);
     }
     // Right side.
     else {
-      return a.left - b.right;
+      return a.left - bRight;
     }
   }
   // Check top and bottom sides.
   else {
     // Top side.
-    if (a.bottom < b.top) {
-      return b.top - a.bottom;
+    if (aBottom < b.top) {
+      return b.top - aBottom;
     }
     // Bottom side.
     else {
-      return a.top - b.bottom;
+      return a.top - bBottom;
     }
   }
 }

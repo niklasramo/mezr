@@ -1,5 +1,5 @@
-import { DomRectElement, DomRectElementArea } from './types.js';
-export declare function getOffsetFromDocument(element: DomRectElement, area?: DomRectElementArea): {
+import { BoxElement, BoxElementEdge } from './types.js';
+export declare function getOffsetFromDocument(element: BoxElement, boxEdge?: BoxElementEdge): {
     left: number;
     top: number;
 };

@@ -1,5 +1,5 @@
-import { Rect, DomRectElement, DomRectArray } from './utils/types.js';
-export declare function getIntersection(elementA: Rect | DomRectElement | DomRectArray, elementB: Rect | DomRectElement | DomRectArray): {
+import { BoxObject } from './utils/types.js';
+export declare function getIntersection(elementA: BoxObject, elementB: BoxObject): {
     width: number;
     height: number;
     left: number;

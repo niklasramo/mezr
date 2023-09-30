@@ -1,12 +1,10 @@
-import { BOX_AREA } from './constants.js';
-export type Rect = {
+import { BOX_EDGE } from './constants.js';
+export type BoxRect = {
     width: number;
     height: number;
     left: number;
     top: number;
-    right: number;
-    bottom: number;
 };
-export type DomRectElement = Element | Document | Window;
-export type DomRectElementArea = keyof typeof BOX_AREA;
-export type DomRectArray = [DomRectElement, DomRectElementArea];
+export type BoxElement = Element | Document | Window;
+export type BoxElementEdge = keyof typeof BOX_EDGE;
+export type BoxObject = BoxElement | [BoxElement, BoxElementEdge] | BoxRect;

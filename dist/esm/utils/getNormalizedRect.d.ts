@@ -1,2 +1,2 @@
-import { DomRectElement, DomRectArray, Rect } from './types.js';
-export declare function getNormalizedRect(element: Rect | DomRectElement | DomRectArray): Rect;
+import { BoxObject } from './types.js';
+export declare function getNormalizedRect(element: BoxObject): import("./types.js").BoxRect;

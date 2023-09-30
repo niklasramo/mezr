@@ -11,7 +11,7 @@ declare function getContainingBlock(element: HTMLElement, options?: {
     skipDisplayNone?: boolean;
 }): (Window & typeof globalThis) | HTMLElement | null;
 
-declare const BOX_AREA: {
+declare const BOX_EDGE: {
     readonly content: "content";
     readonly padding: "padding";
     readonly scroll: "scroll";
@@ -19,17 +19,15 @@ declare const BOX_AREA: {
     readonly margin: "margin";
 };
 
-type Rect = {
+type BoxRect = {
     width: number;
     height: number;
     left: number;
     top: number;
-    right: number;
-    bottom: number;
 };
-type DomRectElement = Element | Document | Window;
-type DomRectElementArea = keyof typeof BOX_AREA;
-type DomRectArray = [DomRectElement, DomRectElementArea];
+type BoxElement = Element | Document | Window;
+type BoxElementEdge = keyof typeof BOX_EDGE;
+type BoxObject = BoxElement | [BoxElement, BoxElementEdge] | BoxRect;
 
 /**
  * Calculate the distance between two elements or rectangles. If the
@@ -37,11 +35,11 @@ type DomRectArray = [DomRectElement, DomRectElementArea];
  * function returns the distance in pixels (fractional) between the the two
  * elements/rectangles.
  */
-declare function getDistance(elementA: Rect | DomRectElement | DomRectArray, elementB: Rect | DomRectElement | DomRectArray): number | null;
+declare function getDistance(elementA: BoxObject, elementB: BoxObject): number | null;
 
-declare function getHeight(element: DomRectElement, area?: DomRectElementArea): number;
+declare function getHeight(element: BoxElement, boxEdge?: BoxElementEdge): number;
 
-declare function getIntersection(elementA: Rect | DomRectElement | DomRectArray, elementB: Rect | DomRectElement | DomRectArray): {
+declare function getIntersection(elementA: BoxObject, elementB: BoxObject): {
     width: number;
     height: number;
     left: number;
@@ -50,7 +48,7 @@ declare function getIntersection(elementA: Rect | DomRectElement | DomRectArray,
     bottom: number;
 } | null;
 
-declare function getOffset(element: Rect | DomRectElement | DomRectArray, offsetRoot?: Rect | DomRectElement | DomRectArray): {
+declare function getOffset(element: BoxObject, offsetRoot?: BoxObject): {
     left: number;
     top: number;
 };
@@ -69,14 +67,14 @@ declare function getOffsetContainer(element: HTMLElement, options?: {
  * Calculate how much elementA overflows elementB per each side. Negative value
  * indicates overflow.
  */
-declare function getOverflow(elementA: Rect | DomRectElement | DomRectArray, elementB: Rect | DomRectElement | DomRectArray): {
+declare function getOverflow(elementA: BoxObject, elementB: BoxObject): {
     left: number;
     right: number;
     top: number;
     bottom: number;
 };
 
-declare function getRect(element: Rect | DomRectElement | DomRectArray, offsetRoot?: Rect | DomRectElement | DomRectArray): {
+declare function getRect(element: BoxObject, offsetRoot?: BoxObject): {
     right: number;
     bottom: number;
     left: number;
@@ -85,6 +83,6 @@ declare function getRect(element: Rect | DomRectElement | DomRectArray, offsetRo
     height: number;
 };
 
-declare function getWidth(element: DomRectElement, area?: DomRectElementArea): number;
+declare function getWidth(element: BoxElement, boxEdge?: BoxElementEdge): number;
 
 export { getContainingBlock, getDistance, getHeight, getIntersection, getOffset, getOffsetContainer, getOverflow, getRect, getWidth };

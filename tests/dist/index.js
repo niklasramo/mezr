@@ -65,7 +65,7 @@
         navigator.userAgent &&
         navigator.userAgent.indexOf('CriOS') == -1 &&
         navigator.userAgent.indexOf('FxiOS') == -1);
-    const BOX_AREA = {
+    const BOX_EDGE = {
         content: 'content',
         padding: 'padding',
         scroll: 'scroll',
@@ -73,11 +73,11 @@
         margin: 'margin',
     };
     const INCLUDE_SCROLLBAR = {
-        [BOX_AREA.content]: false,
-        [BOX_AREA.padding]: false,
-        [BOX_AREA.scroll]: true,
-        [BOX_AREA.border]: true,
-        [BOX_AREA.margin]: true,
+        [BOX_EDGE.content]: false,
+        [BOX_EDGE.padding]: false,
+        [BOX_EDGE.scroll]: true,
+        [BOX_EDGE.border]: true,
+        [BOX_EDGE.margin]: true,
     };
 
     function isBlockElement(element) {
@@ -267,20 +267,20 @@
         }
     }
 
-    function getElementWidth(element, area = BOX_AREA.border) {
+    function getElementWidth(element, boxEdge = BOX_EDGE.border) {
         let { width } = element.getBoundingClientRect();
-        if (area === BOX_AREA.border) {
+        if (boxEdge === BOX_EDGE.border) {
             return width;
         }
         const style = getStyle(element);
-        if (area === BOX_AREA.margin) {
+        if (boxEdge === BOX_EDGE.margin) {
             width += Math.max(0, parseFloat(style.marginLeft) || 0);
             width += Math.max(0, parseFloat(style.marginRight) || 0);
             return width;
         }
         width -= parseFloat(style.borderLeftWidth) || 0;
         width -= parseFloat(style.borderRightWidth) || 0;
-        if (area === BOX_AREA.scroll) {
+        if (boxEdge === BOX_EDGE.scroll) {
             return width;
         }
         if (isDocumentElement(element)) {
@@ -296,7 +296,7 @@
                 width -= sbSize;
             }
         }
-        if (area === BOX_AREA.padding) {
+        if (boxEdge === BOX_EDGE.padding) {
             return width;
         }
         width -= parseFloat(style.paddingLeft) || 0;
@@ -304,14 +304,14 @@
         return width;
     }
 
-    function getWidth(element, area = BOX_AREA.border) {
+    function getWidth(element, boxEdge = BOX_EDGE.border) {
         if (isWindow(element)) {
-            return getWindowWidth(element, INCLUDE_SCROLLBAR[area]);
+            return getWindowWidth(element, INCLUDE_SCROLLBAR[boxEdge]);
         }
         if (isDocument(element)) {
-            return getDocumentWidth(element, INCLUDE_SCROLLBAR[area]);
+            return getDocumentWidth(element, INCLUDE_SCROLLBAR[boxEdge]);
         }
-        return getElementWidth(element, area);
+        return getElementWidth(element, boxEdge);
     }
 
     function getWindowHeight(win, includeScrollbar = false) {
@@ -329,20 +329,20 @@
         }
     }
 
-    function getElementHeight(element, area = BOX_AREA.border) {
+    function getElementHeight(element, boxEdge = BOX_EDGE.border) {
         let { height } = element.getBoundingClientRect();
-        if (area === BOX_AREA.border) {
+        if (boxEdge === BOX_EDGE.border) {
             return height;
         }
         const style = getStyle(element);
-        if (area === BOX_AREA.margin) {
+        if (boxEdge === BOX_EDGE.margin) {
             height += Math.max(0, parseFloat(style.marginTop) || 0);
             height += Math.max(0, parseFloat(style.marginBottom) || 0);
             return height;
         }
         height -= parseFloat(style.borderTopWidth) || 0;
         height -= parseFloat(style.borderBottomWidth) || 0;
-        if (area === BOX_AREA.scroll) {
+        if (boxEdge === BOX_EDGE.scroll) {
             return height;
         }
         if (isDocumentElement(element)) {
@@ -358,7 +358,7 @@
                 height -= sbSize;
             }
         }
-        if (area === BOX_AREA.padding) {
+        if (boxEdge === BOX_EDGE.padding) {
             return height;
         }
         height -= parseFloat(style.paddingTop) || 0;
@@ -366,14 +366,14 @@
         return height;
     }
 
-    function getHeight(element, area = BOX_AREA.border) {
+    function getHeight(element, boxEdge = BOX_EDGE.border) {
         if (isWindow(element)) {
-            return getWindowHeight(element, INCLUDE_SCROLLBAR[area]);
+            return getWindowHeight(element, INCLUDE_SCROLLBAR[boxEdge]);
         }
         if (isDocument(element)) {
-            return getDocumentHeight(element, INCLUDE_SCROLLBAR[area]);
+            return getDocumentHeight(element, INCLUDE_SCROLLBAR[boxEdge]);
         }
-        return getElementHeight(element, area);
+        return getElementHeight(element, boxEdge);
     }
 
     function isRectObject(value) {
@@ -385,7 +385,7 @@
      * means the vertical and horizontal distance between the element's northwest
      * corner and the document's northwest corner.
      */
-    function getOffsetFromDocument(element, area = BOX_AREA.border) {
+    function getOffsetFromDocument(element, boxEdge = BOX_EDGE.border) {
         const offset = {
             left: 0,
             top: 0,
@@ -406,18 +406,18 @@
         const rect = element.getBoundingClientRect();
         offset.left += rect.left;
         offset.top += rect.top;
-        if (area === BOX_AREA.border) {
+        if (boxEdge === BOX_EDGE.border) {
             return offset;
         }
         const style = getStyle(element);
-        if (area === BOX_AREA.margin) {
+        if (boxEdge === BOX_EDGE.margin) {
             offset.left -= Math.max(0, parseFloat(style.marginLeft) || 0);
             offset.top -= Math.max(0, parseFloat(style.marginTop) || 0);
             return offset;
         }
         offset.left += parseFloat(style.borderLeftWidth) || 0;
         offset.top += parseFloat(style.borderTopWidth) || 0;
-        if (area === BOX_AREA.scroll || area === BOX_AREA.padding) {
+        if (boxEdge === BOX_EDGE.scroll || boxEdge === BOX_EDGE.padding) {
             return offset;
         }
         offset.left += parseFloat(style.paddingLeft) || 0;
