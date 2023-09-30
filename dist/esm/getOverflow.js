@@ -1,1 +1,1 @@
-import{getNormalizedRect}from"./utils/getNormalizedRect.js";export function getOverflow(t,e){const o=getNormalizedRect(t),r=getNormalizedRect(e);return{left:o.left-r.left,right:r.right-o.right,top:o.top-r.top,bottom:r.bottom-o.bottom}}
+import{getNormalizedRect}from"./utils/getNormalizedRect.js";export function getOverflow(t,e){const o=getNormalizedRect(t),i=getNormalizedRect(e);return{left:o.left-i.left,right:i.left+i.width-(o.left+o.width),top:o.top-i.top,bottom:i.top+i.height-(o.top+o.height)}}

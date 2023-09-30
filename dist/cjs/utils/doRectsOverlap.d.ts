@@ -1,2 +1,2 @@
-import { Rect } from './types.js';
-export declare function doRectsOverlap(a: Rect, b: Rect): boolean;
+import { BoxRect } from './types.js';
+export declare function doRectsOverlap(a: BoxRect, b: BoxRect): boolean;

@@ -2,14 +2,17 @@ import { BOX_EDGE } from './constants.js';
 import { getStyle } from './getStyle.js';
 import { isDocument } from './isDocument.js';
 import { isWindow } from './isWindow.js';
-import { BoxElement, BoxEdge } from './types.js';
+import { BoxElement, BoxElementEdge } from './types.js';
 
 /**
  * Returns the element's (or window's) document offset, which in practice
  * means the vertical and horizontal distance between the element's northwest
  * corner and the document's northwest corner.
  */
-export function getOffsetFromDocument(element: BoxElement, boxEdge: BoxEdge = BOX_EDGE.border) {
+export function getOffsetFromDocument(
+  element: BoxElement,
+  boxEdge: BoxElementEdge = BOX_EDGE.border,
+) {
   const offset = {
     left: 0,
     top: 0,

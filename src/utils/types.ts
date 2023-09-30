@@ -5,12 +5,10 @@ export type BoxRect = {
   height: number;
   left: number;
   top: number;
-  right: number;
-  bottom: number;
 };
-
-export type BoxEdge = keyof typeof BOX_EDGE;
 
 export type BoxElement = Element | Document | Window;
 
-export type BoxElementExtended = BoxElement | [BoxElement, BoxEdge] | BoxRect;
+export type BoxElementEdge = keyof typeof BOX_EDGE;
+
+export type BoxObject = BoxElement | [BoxElement, BoxElementEdge] | BoxRect;

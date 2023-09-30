@@ -1,2 +1,2 @@
-import { DomRectElement, DomRectArray, Rect } from './utils/types.js';
-export declare function getDistance(elementA: Rect | DomRectElement | DomRectArray, elementB: Rect | DomRectElement | DomRectArray): number | null;
+import { BoxObject } from './utils/types.js';
+export declare function getDistance(elementA: BoxObject, elementB: BoxObject): number | null;

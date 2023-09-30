@@ -1,5 +1,5 @@
-import { DomRectElement, DomRectArray, Rect } from './utils/types.js';
-export declare function getOverflow(elementA: Rect | DomRectElement | DomRectArray, elementB: Rect | DomRectElement | DomRectArray): {
+import { BoxObject } from './utils/types.js';
+export declare function getOverflow(elementA: BoxObject, elementB: BoxObject): {
     left: number;
     right: number;
     top: number;

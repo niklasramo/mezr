@@ -1,9 +1,9 @@
 import { isRectObject } from './utils/isRectObject.js';
 import { isDocument } from './utils/isDocument.js';
 import { getOffsetFromDocument } from './utils/getOffsetFromDocument.js';
-import { BoxElementExtended } from './utils/types.js';
+import { BoxObject } from './utils/types.js';
 
-export function getOffset(element: BoxElementExtended, offsetRoot?: BoxElementExtended) {
+export function getOffset(element: BoxObject, offsetRoot?: BoxObject) {
   const offset = isRectObject(element)
     ? { left: element.left, top: element.top }
     : Array.isArray(element)

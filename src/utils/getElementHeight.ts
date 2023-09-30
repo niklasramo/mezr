@@ -1,9 +1,9 @@
 import { BOX_EDGE } from './constants.js';
-import { BoxEdge } from './types.js';
+import { BoxElementEdge } from './types.js';
 import { getStyle } from './getStyle.js';
 import { isDocumentElement } from './isDocumentElement.js';
 
-export function getElementHeight(element: Element, boxEdge: BoxEdge = BOX_EDGE.border) {
+export function getElementHeight(element: Element, boxEdge: BoxElementEdge = BOX_EDGE.border) {
   let { height } = element.getBoundingClientRect();
 
   if (boxEdge === BOX_EDGE.border) {
