@@ -426,7 +426,7 @@ describe('getContainingBlock()', function () {
 
   describe('static/relative/sticky element', function () {
     ['static', 'relative', 'sticky'].forEach((position) => {
-      it(`should return document element for "position:${position}" if no other containing block ancestor is found`, function () {
+      it(`should return document element for "position:${position}" element if no other containing block ancestor is found`, function () {
         document.documentElement.style.display = 'inline';
         document.body.style.display = 'inline';
         container.style.display = 'inline';
@@ -438,8 +438,7 @@ describe('getContainingBlock()', function () {
         assert.equal(actual, expected, 'matches expected containing block');
       });
 
-      it(`should return the closest block-level element for "position:${position}" element (1/2)`, function () {
-        document.documentElement.style.display = 'block';
+      it(`should return the closest block-level ancestor for "position:${position}" element`, function () {
         document.body.style.display = 'block';
         container.style.display = 'block';
         el.style.position = position;
@@ -450,8 +449,7 @@ describe('getContainingBlock()', function () {
         assert.equal(actual, expected, 'matches expected containing block');
       });
 
-      it(`should return the closest block-level element for "position:${position}" element (2/2)`, function () {
-        document.documentElement.style.display = 'block';
+      it(`should skip all inline-level ancestors for "position:${position}" element`, function () {
         document.body.style.display = 'block';
         container.style.display = 'inline';
         el.style.position = position;
@@ -460,6 +458,33 @@ describe('getContainingBlock()', function () {
         const expected = document.body;
         assert.equal(actual, computed, 'matches computed containing block');
         assert.equal(actual, expected, 'matches expected containing block');
+      });
+
+      it(`should return null for "position:${position}" element when "display:none" ancestor is reached`, function () {
+        document.body.style.display = 'none';
+        container.style.display = 'inline';
+        el.style.position = position;
+        const actual = getContainingBlock(el);
+        const expected = null;
+        assert.equal(actual, expected);
+      });
+
+      it(`should return null for "position:${position}" element when "display:none" ancestor is reached when skipDisplayNone option is false`, function () {
+        document.body.style.display = 'none';
+        container.style.display = 'inline';
+        el.style.position = position;
+        const actual = getContainingBlock(el, { skipDisplayNone: false });
+        const expected = null;
+        assert.equal(actual, expected);
+      });
+
+      it(`should skip "display:none" ancestor for "position:${position}" element when skipDisplayNone option is true`, function () {
+        document.body.style.display = 'block';
+        container.style.display = 'none';
+        el.style.position = position;
+        const actual = getContainingBlock(el, { skipDisplayNone: true });
+        const expected = document.body;
+        assert.equal(actual, expected);
       });
     });
   });
