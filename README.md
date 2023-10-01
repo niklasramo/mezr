@@ -337,17 +337,7 @@ Returns an object containing the provided element's dimensions and offsets. This
 **Syntax**
 
 ```ts
-type getRect = (
-  element: BoxObject,
-  offsetRoot?: BoxObject,
-) => {
-  width: number;
-  height: number;
-  left: number;
-  right: number;
-  top: number;
-  bottom: number;
-};
+type getRect = (element: BoxObject, offsetRoot?: BoxObject) => BoxRectFull;
 ```
 
 **Parameters**
@@ -418,29 +408,18 @@ getDistance([elemA, 'content'], [elemB, 'scroll']);
 
 ### getIntersection()
 
-Measure the intersection area of two elements. Returns an object containing the intersection area dimensions and offsets if the elements overlap, otherwise returns `null`.
+Measure the intersection area of two or more elements. Returns an object containing the intersection area dimensions and offsets if _all_ the provided elements overlap, otherwise returns `null`.
 
 **Syntax**
 
 ```ts
-type getDistance = (
-  elementA: BoxObject,
-  elementB: BoxObject,
-) => {
-  width: number;
-  height: number;
-  left: number;
-  right: number;
-  top: number;
-  bottom: number;
-} | null;
+type getIntersection = (...elements: BoxObject[]) => BoxRectFull | null;
 ```
 
 **Parameters**
 
-1. **elementA**
-   - Accepts: [`BoxObject`](#boxobject).
-2. **elementB**
+1. **...elements**
+   - Provide at least two elements.
    - Accepts: [`BoxObject`](#boxobject).
 
 **Examples**
@@ -456,6 +435,9 @@ getIntersection(elem, window);
 
 // You can also define the elements' box edge for the calculations.
 getIntersection([elemA, 'content'], [elemB, 'scroll']);
+
+// You can provide as many elements as you want.
+getIntersection(elemA, elemB, [elemC, 'scroll'], { left: 0, top: 0, width: 100, height: 100 });
 ```
 
 ### getOverflow()
@@ -631,6 +613,30 @@ In many methods you can provide the raw rectangle data of the element instead of
 | `height` | The element's height in pixels.                                              |
 | `left`   | The element's left edge offset from the left edge of the document in pixels. |
 | `top`    | The element's top edge offset from the top edge of the document in pixels.   |
+
+#### BoxRectFull
+
+```ts
+type BoxRectFull = {
+  width: number;
+  height: number;
+  left: number;
+  top: number;
+  right: number;
+  bottom: number;
+};
+```
+
+This is a variation of the `BoxRect` type that also contains the element's right and bottom edge offsets.
+
+| Property | Description                                                                   |
+| -------- | ----------------------------------------------------------------------------- |
+| `width`  | The element's width in pixels.                                                |
+| `height` | The element's height in pixels.                                               |
+| `left`   | The element's left edge offset from the left edge of the document in pixels.  |
+| `top`    | The element's top edge offset from the top edge of the document in pixels.    |
+| `right`  | The element's right edge offset from the left edge of the document in pixels. |
+| `bottom` | The element's bottom edge offset from the top edge of the document in pixels. |
 
 #### BoxElement
 

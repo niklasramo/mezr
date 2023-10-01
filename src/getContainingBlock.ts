@@ -15,7 +15,7 @@ import { isDocumentElement } from './utils/isDocumentElement.js';
 export function getContainingBlock(
   element: HTMLElement,
   options: { position?: string; skipDisplayNone?: boolean } = {},
-) {
+): HTMLElement | Window | null {
   // Document element's containing block is always the window. It actually can't
   // be set to "display:inline".
   if (isDocumentElement(element)) {

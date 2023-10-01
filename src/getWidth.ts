@@ -6,7 +6,7 @@ import { getDocumentWidth } from './utils/getDocumentWidth.js';
 import { getElementWidth } from './utils/getElementWidth.js';
 import { BoxElement, BoxElementEdge } from './utils/types.js';
 
-export function getWidth(element: BoxElement, boxEdge: BoxElementEdge = BOX_EDGE.border) {
+export function getWidth(element: BoxElement, boxEdge: BoxElementEdge = BOX_EDGE.border): number {
   if (isWindow(element)) {
     return getWindowWidth(element, INCLUDE_SCROLLBAR[boxEdge]);
   }

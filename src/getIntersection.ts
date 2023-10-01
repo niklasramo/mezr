@@ -1,24 +1,31 @@
 import { getNormalizedRect } from './utils/getNormalizedRect.js';
-import { BoxObject } from './utils/types.js';
+import { BoxObject, BoxRectFull } from './utils/types.js';
 
-export function getIntersection(elementA: BoxObject, elementB: BoxObject) {
-  const rectA = getNormalizedRect(elementA);
-  const rectB = getNormalizedRect(elementB);
+export function getIntersection(
+  firstElement: BoxObject,
+  ...restElements: BoxObject[]
+): BoxRectFull | null {
+  const result = { ...getNormalizedRect(firstElement), right: 0, bottom: 0 };
 
-  const x1 = Math.max(rectA.left, rectB.left);
-  const x2 = Math.min(rectA.left + rectA.width, rectB.left + rectB.width);
-  if (x2 <= x1) return null;
+  for (const element of restElements) {
+    const rect = getNormalizedRect(element);
 
-  const y1 = Math.max(rectA.top, rectB.top);
-  const y2 = Math.min(rectA.top + rectA.height, rectB.height + rectB.top);
-  if (y2 <= y1) return null;
+    const x1 = Math.max(result.left, rect.left);
+    const x2 = Math.min(result.left + result.width, rect.left + rect.width);
+    if (x2 <= x1) return null;
 
-  return {
-    width: x2 - x1,
-    height: y2 - y1,
-    left: x1,
-    top: y1,
-    right: x2,
-    bottom: y2,
-  };
+    const y1 = Math.max(result.top, rect.top);
+    const y2 = Math.min(result.top + result.height, rect.height + rect.top);
+    if (y2 <= y1) return null;
+
+    result.left = x1;
+    result.top = y1;
+    result.width = x2 - x1;
+    result.height = y2 - y1;
+  }
+
+  result.right = result.left + result.width;
+  result.bottom = result.top + result.height;
+
+  return result;
 }

@@ -10,7 +10,7 @@ import { isWindow } from './utils/isWindow.js';
 export function getOffsetContainer(
   element: HTMLElement,
   options: { position?: string; skipDisplayNone?: boolean } = {},
-) {
+): HTMLElement | Document | Window | null {
   const style = getStyle(element);
 
   // If the element's display is "none" or "contents" the element's

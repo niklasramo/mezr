@@ -8,7 +8,7 @@ import { BoxObject } from './utils/types.js';
  * function returns the distance in pixels (fractional) between the the two
  * elements/rectangles.
  */
-export function getDistance(elementA: BoxObject, elementB: BoxObject) {
+export function getDistance(elementA: BoxObject, elementB: BoxObject): number | null {
   const rectA = getNormalizedRect(elementA);
   const rectB = getNormalizedRect(elementB);
   return getDistanceBetweenRects(rectA, rectB);
