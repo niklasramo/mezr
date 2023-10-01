@@ -15,14 +15,14 @@ export function getDistanceBetweenRects(a: BoxRect, b: BoxRect) {
   const bBottom = b.top + b.height;
 
   // Check left side zones.
-  if (aRight < b.left) {
+  if (aRight <= b.left) {
     // Left-top corner.
-    if (aBottom < b.top) {
+    if (aBottom <= b.top) {
       // Distance between a right-bottom point and b left-top point.
       return getDistanceBetweenPoints(aRight, aBottom, b.left, b.top);
     }
     // Left-bottom corner.
-    else if (a.top > bBottom) {
+    else if (a.top >= bBottom) {
       // Distance between a right-top point and b left-bottom point.
       return getDistanceBetweenPoints(aRight, a.top, b.left, bBottom);
     }
@@ -32,14 +32,14 @@ export function getDistanceBetweenRects(a: BoxRect, b: BoxRect) {
     }
   }
   // Check right side zones.
-  else if (a.left > bRight) {
+  else if (a.left >= bRight) {
     // Right-top corner.
-    if (aBottom < b.top) {
+    if (aBottom <= b.top) {
       // Distance between a left-bottom point and b right-top point.
       return getDistanceBetweenPoints(a.left, aBottom, bRight, b.top);
     }
     // Right-bottom corner.
-    else if (a.top > bBottom) {
+    else if (a.top >= bBottom) {
       // Distance between a left-top point and b right-bottom point.
       return getDistanceBetweenPoints(a.left, a.top, bRight, bBottom);
     }
@@ -51,7 +51,7 @@ export function getDistanceBetweenRects(a: BoxRect, b: BoxRect) {
   // Check top and bottom sides.
   else {
     // Top side.
-    if (aBottom < b.top) {
+    if (aBottom <= b.top) {
       return b.top - aBottom;
     }
     // Bottom side.
