@@ -238,6 +238,75 @@
         }
     }
 
+    function doRectsOverlap(a, b) {
+        return !(a.left + a.width <= b.left ||
+            b.left + b.width <= a.left ||
+            a.top + a.height <= b.top ||
+            b.top + b.height <= a.top);
+    }
+
+    function getDistanceBetweenPoints(x1, y1, x2, y2) {
+        return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+    }
+
+    /**
+     * Calculate shortest distance between two rectangles. Returns null if the
+     * rectangles are overlapping.
+     */
+    function getDistanceBetweenRects(a, b) {
+        if (doRectsOverlap(a, b))
+            return null;
+        const aRight = a.left + a.width;
+        const aBottom = a.top + a.height;
+        const bRight = b.left + b.width;
+        const bBottom = b.top + b.height;
+        // Check left side zones.
+        if (aRight <= b.left) {
+            // Left-top corner.
+            if (aBottom <= b.top) {
+                // Distance between a right-bottom point and b left-top point.
+                return getDistanceBetweenPoints(aRight, aBottom, b.left, b.top);
+            }
+            // Left-bottom corner.
+            else if (a.top >= bBottom) {
+                // Distance between a right-top point and b left-bottom point.
+                return getDistanceBetweenPoints(aRight, a.top, b.left, bBottom);
+            }
+            // Left side.
+            else {
+                return b.left - aRight;
+            }
+        }
+        // Check right side zones.
+        else if (a.left >= bRight) {
+            // Right-top corner.
+            if (aBottom <= b.top) {
+                // Distance between a left-bottom point and b right-top point.
+                return getDistanceBetweenPoints(a.left, aBottom, bRight, b.top);
+            }
+            // Right-bottom corner.
+            else if (a.top >= bBottom) {
+                // Distance between a left-top point and b right-bottom point.
+                return getDistanceBetweenPoints(a.left, a.top, bRight, bBottom);
+            }
+            // Right side.
+            else {
+                return a.left - bRight;
+            }
+        }
+        // Check top and bottom sides.
+        else {
+            // Top side.
+            if (aBottom <= b.top) {
+                return b.top - aBottom;
+            }
+            // Bottom side.
+            else {
+                return a.top - bBottom;
+            }
+        }
+    }
+
     /**
      * Check if the current value is a window.
      */
@@ -470,6 +539,18 @@
 
     function getNormalizedRect(element) {
         return isRectObject(element) ? element : getRect(element);
+    }
+
+    /**
+     * Calculate the distance between two elements or rectangles. If the
+     * elements/rectangles overlap the function returns null. In other cases the
+     * function returns the distance in pixels (fractional) between the the two
+     * elements/rectangles.
+     */
+    function getDistance(elementA, elementB) {
+        const rectA = getNormalizedRect(elementA);
+        const rectB = getNormalizedRect(elementB);
+        return getDistanceBetweenRects(rectA, rectB);
     }
 
     function getIntersection(firstElement, ...restElements) {
@@ -1251,10 +1332,219 @@
         });
     });
 
-    describe('getOffset()', function () {
+    describe('getDistance()', function () {
         beforeEach(beforeTest);
         afterEach(afterTest);
-        describe('basic tests with rects', () => {
+        describe('rectA fully within rectB', function () {
+            const rectA = { left: 100, top: 100, width: 100, height: 100 };
+            const rectB = { left: 0, top: 0, width: 300, height: 300 };
+            it('should return null for rectA within rectB', () => {
+                const result = getDistance(rectA, rectB);
+                chai.assert.isNull(result);
+            });
+            it('should return null for rectB within rectA', () => {
+                const result = getDistance(rectB, rectA);
+                chai.assert.isNull(result);
+            });
+        });
+        describe('compass points - separated', function () {
+            const rectCenter = { left: 100, top: 100, width: 100, height: 100 };
+            it('should return the vertical distance for North (N) placement', () => {
+                const rectN = { left: 100, top: 50, width: 100, height: 40 };
+                const result = getDistance(rectCenter, rectN);
+                chai.assert.strictEqual(result, 10);
+            });
+            it('should return the diagonal distance for North East (NE) placement', () => {
+                const rectNE = { left: 210, top: 50, width: 100, height: 40 };
+                const result = getDistance(rectCenter, rectNE);
+                chai.assert.strictEqual(result, Math.sqrt(10 * 10 + 10 * 10));
+            });
+            it('should return the horizontal distance for East (E) placement', () => {
+                const rectE = { left: 210, top: 100, width: 100, height: 100 };
+                const result = getDistance(rectCenter, rectE);
+                chai.assert.strictEqual(result, 10);
+            });
+            it('should return the diagonal distance for South East (SE) placement', () => {
+                const rectSE = { left: 210, top: 210, width: 100, height: 100 };
+                const result = getDistance(rectCenter, rectSE);
+                chai.assert.strictEqual(result, Math.sqrt(10 * 10 + 10 * 10));
+            });
+            it('should return the vertical distance for South (S) placement', () => {
+                const rectS = { left: 100, top: 210, width: 100, height: 100 };
+                const result = getDistance(rectCenter, rectS);
+                chai.assert.strictEqual(result, 10);
+            });
+            it('should return the diagonal distance for South West (SW) placement', () => {
+                const rectSW = { left: 50, top: 210, width: 40, height: 100 };
+                const result = getDistance(rectCenter, rectSW);
+                chai.assert.strictEqual(result, Math.sqrt(10 * 10 + 10 * 10));
+            });
+            it('should return the horizontal distance for West (W) placement', () => {
+                const rectW = { left: 50, top: 100, width: 40, height: 100 };
+                const result = getDistance(rectCenter, rectW);
+                chai.assert.strictEqual(result, 10);
+            });
+            it('should return the diagonal distance for North West (NW) placement', () => {
+                const rectNW = { left: 50, top: 50, width: 40, height: 40 };
+                const result = getDistance(rectCenter, rectNW);
+                chai.assert.strictEqual(result, Math.sqrt(10 * 10 + 10 * 10));
+            });
+        });
+        describe('compass points - touching', function () {
+            const rectCenter = { left: 100, top: 100, width: 100, height: 100 };
+            it('should return zero distance for North (N) placement', () => {
+                const rectN = { left: 100, top: 0, width: 100, height: 100 };
+                const result = getDistance(rectCenter, rectN);
+                chai.assert.strictEqual(result, 0);
+            });
+            it('should return zero distance for North East (NE) placement', () => {
+                const rectNE = { left: 200, top: 0, width: 100, height: 100 };
+                const result = getDistance(rectCenter, rectNE);
+                chai.assert.strictEqual(result, 0);
+            });
+            it('should return zero distance for East (E) placement', () => {
+                const rectE = { left: 200, top: 100, width: 100, height: 100 };
+                const result = getDistance(rectCenter, rectE);
+                chai.assert.strictEqual(result, 0);
+            });
+            it('should return zero distance for South East (SE) placement', () => {
+                const rectSE = { left: 200, top: 200, width: 100, height: 100 };
+                const result = getDistance(rectCenter, rectSE);
+                chai.assert.strictEqual(result, 0);
+            });
+            it('should return zero distance for South (S) placement', () => {
+                const rectS = { left: 100, top: 200, width: 100, height: 100 };
+                const result = getDistance(rectCenter, rectS);
+                chai.assert.strictEqual(result, 0);
+            });
+            it('should return zero distance for South West (SW) placement', () => {
+                const rectSW = { left: 0, top: 200, width: 100, height: 100 };
+                const result = getDistance(rectCenter, rectSW);
+                chai.assert.strictEqual(result, 0);
+            });
+            it('should return zero distance for West (W) placement', () => {
+                const rectW = { left: 0, top: 100, width: 100, height: 100 };
+                const result = getDistance(rectCenter, rectW);
+                chai.assert.strictEqual(result, 0);
+            });
+            it('should return zero distance for North West (NW) placement', () => {
+                const rectNW = { left: 0, top: 0, width: 100, height: 100 };
+                const result = getDistance(rectCenter, rectNW);
+                chai.assert.strictEqual(result, 0);
+            });
+        });
+        describe('compass points - intersecting', function () {
+            const rectCenter = { left: 100, top: 100, width: 100, height: 100 };
+            it('should return null for slight North (N) intersection', () => {
+                const rectN = { left: 100, top: 0.01, width: 100, height: 100 };
+                const result = getDistance(rectCenter, rectN);
+                chai.assert.isNull(result);
+            });
+            it('should return null for slight North East (NE) intersection', () => {
+                const rectNE = { left: 199.99, top: 0.01, width: 100, height: 100 };
+                const result = getDistance(rectCenter, rectNE);
+                chai.assert.isNull(result);
+            });
+            it('should return null for slight East (E) intersection', () => {
+                const rectE = { left: 199.99, top: 100, width: 100, height: 100 };
+                const result = getDistance(rectCenter, rectE);
+                chai.assert.isNull(result);
+            });
+            it('should return null for slight South East (SE) intersection', () => {
+                const rectSE = { left: 199.99, top: 199.99, width: 100, height: 100 };
+                const result = getDistance(rectCenter, rectSE);
+                chai.assert.isNull(result);
+            });
+            it('should return null for slight South (S) intersection', () => {
+                const rectS = { left: 100, top: 199.99, width: 100, height: 100 };
+                const result = getDistance(rectCenter, rectS);
+                chai.assert.isNull(result);
+            });
+            it('should return null for slight South West (SW) intersection', () => {
+                const rectSW = { left: 0.01, top: 199.99, width: 100, height: 100 };
+                const result = getDistance(rectCenter, rectSW);
+                chai.assert.isNull(result);
+            });
+            it('should return null for slight West (W) intersection', () => {
+                const rectW = { left: 0.01, top: 100, width: 100, height: 100 };
+                const result = getDistance(rectCenter, rectW);
+                chai.assert.isNull(result);
+            });
+            it('should return null for slight North West (NW) intersection', () => {
+                const rectNW = { left: 0.01, top: 0.01, width: 100, height: 100 };
+                const result = getDistance(rectCenter, rectNW);
+                chai.assert.isNull(result);
+            });
+        });
+        describe('DOM elements', function () {
+            it('should return the distance between two non-overlapping DOM elements', function () {
+                const elA = createTestElement({
+                    position: 'absolute',
+                    left: '0px',
+                    top: '0px',
+                    width: '100px',
+                    height: '100px',
+                });
+                const elB = createTestElement({
+                    position: 'absolute',
+                    left: '200px',
+                    top: '200px',
+                    width: '100px',
+                    height: '100px',
+                });
+                const result = getDistance(elA, elB);
+                chai.assert.strictEqual(result, Math.sqrt(100 ** 2 + 100 ** 2));
+            });
+            it('should account for the box edge accordingly', function () {
+                const elA = createTestElement({
+                    boxSizing: 'border-box',
+                    position: 'absolute',
+                    left: '0px',
+                    top: '0px',
+                    width: '100px',
+                    height: '100px',
+                    padding: '10px',
+                    border: '5px solid black',
+                });
+                const elB = createTestElement({
+                    boxSizing: 'border-box',
+                    position: 'absolute',
+                    left: '100px',
+                    top: '0px',
+                    width: '100px',
+                    height: '100px',
+                    padding: '10px',
+                    border: '5px solid black',
+                });
+                const result = getDistance([elA, 'content'], [elB, 'padding']);
+                const expectedDistance = 20;
+                chai.assert.strictEqual(result, expectedDistance);
+            });
+            it('should return null for overlapping DOM elements', function () {
+                const elA = createTestElement({
+                    position: 'absolute',
+                    left: '0px',
+                    top: '0px',
+                    width: '100px',
+                    height: '100px',
+                });
+                const elB = createTestElement({
+                    position: 'absolute',
+                    left: '50px',
+                    top: '50px',
+                    width: '100px',
+                    height: '100px',
+                });
+                const result = getDistance(elA, elB);
+                chai.assert.isNull(result);
+            });
+        });
+    });
+
+    describe('getIntersection()', function () {
+        beforeEach(beforeTest);
+        afterEach(afterTest);
+        describe('basic tests with BoxRects', () => {
             it('should return a new object', () => {
                 const rectA = { left: 0, top: 0, width: 100, height: 100 };
                 const result = getIntersection(rectA);

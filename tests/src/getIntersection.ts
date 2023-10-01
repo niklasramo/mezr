@@ -3,11 +3,11 @@ import { beforeTest, afterTest } from './utils/hooks.js';
 import { createTestElement } from './utils/createTestElement.js';
 import { getIntersection } from '../../src/index.js';
 
-describe('getOffset()', function () {
+describe('getIntersection()', function () {
   beforeEach(beforeTest);
   afterEach(afterTest);
 
-  describe('basic tests with rects', () => {
+  describe('basic tests with BoxRects', () => {
     it('should return a new object', () => {
       const rectA = { left: 0, top: 0, width: 100, height: 100 };
       const result = getIntersection(rectA);

@@ -378,7 +378,7 @@ getRect([elem, 'padding'], [anotherElem, 'margin']);
 
 ### getDistance()
 
-Returns the distance between two elements (in pixels) or `null` if the elements overlap.
+Returns the distance between two elements (in pixels) or `null` if the elements intersect. In case the elements are touching, but not intersecting, the distance is `0`.
 
 ```ts
 type getDistance = (elementA: BoxObject, elementB: BoxObject) => number | null;
