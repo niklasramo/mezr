@@ -488,4 +488,58 @@ describe('getContainingBlock()', function () {
       });
     });
   });
+
+  describe('position option', function () {
+    it('should be able to fake fixed position for absolute positioned element', function () {
+      container.style.display = 'block';
+      container.style.position = 'relative';
+      el.style.position = 'absolute';
+      const actual = getContainingBlock(el, { position: 'fixed' });
+      const expected = window;
+      assert.equal(actual, expected);
+    });
+
+    it('should be able to fake absolute position for fixed positioned element', function () {
+      container.style.display = 'block';
+      container.style.position = 'relative';
+      el.style.position = 'fixed';
+      const actual = getContainingBlock(el, { position: 'absolute' });
+      const expected = container;
+      assert.equal(actual, expected);
+    });
+
+    it('should be able to fake relative position for fixed positioned element', function () {
+      container.style.display = 'block';
+      el.style.position = 'fixed';
+      const actual = getContainingBlock(el, { position: 'relative' });
+      const expected = container;
+      assert.equal(actual, expected);
+    });
+
+    it('should be able to fake fixed position for relative positioned element', function () {
+      container.style.display = 'block';
+      el.style.position = 'relative';
+      const actual = getContainingBlock(el, { position: 'fixed' });
+      const expected = window;
+      assert.equal(actual, expected);
+    });
+
+    it('should be able to fake relative position for absolute positioned element', function () {
+      container.style.display = 'block';
+      container.style.position = 'static';
+      el.style.position = 'absolute';
+      const actual = getContainingBlock(el, { position: 'relative' });
+      const expected = container;
+      assert.equal(actual, expected);
+    });
+
+    it('should be able to fake absolute position for relative positioned element', function () {
+      document.body.style.position = 'relative';
+      container.style.display = 'block';
+      el.style.position = 'relative';
+      const actual = getContainingBlock(el, { position: 'absolute' });
+      const expected = document.body;
+      assert.equal(actual, expected);
+    });
+  });
 });
