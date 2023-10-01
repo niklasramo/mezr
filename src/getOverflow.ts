@@ -5,7 +5,10 @@ import { BoxObject } from './utils/types.js';
  * Calculate how much elementA overflows elementB per each side. Negative value
  * indicates overflow.
  */
-export function getOverflow(elementA: BoxObject, elementB: BoxObject) {
+export function getOverflow(
+  elementA: BoxObject,
+  elementB: BoxObject,
+): { left: number; right: number; top: number; bottom: number } {
   const rectA = getNormalizedRect(elementA);
   const rectB = getNormalizedRect(elementB);
 

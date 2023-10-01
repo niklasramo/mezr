@@ -9,7 +9,7 @@
 declare function getContainingBlock(element: HTMLElement, options?: {
     position?: string;
     skipDisplayNone?: boolean;
-}): (Window & typeof globalThis) | HTMLElement | null;
+}): HTMLElement | Window | null;
 
 declare const BOX_EDGE: {
     readonly content: "content";
@@ -19,11 +19,23 @@ declare const BOX_EDGE: {
     readonly margin: "margin";
 };
 
+type BoxOffset = {
+    left: number;
+    top: number;
+};
 type BoxRect = {
     width: number;
     height: number;
     left: number;
     top: number;
+};
+type BoxRectFull = {
+    width: number;
+    height: number;
+    left: number;
+    top: number;
+    right: number;
+    bottom: number;
 };
 type BoxElement = Element | Document | Window;
 type BoxElementEdge = keyof typeof BOX_EDGE;
@@ -39,19 +51,9 @@ declare function getDistance(elementA: BoxObject, elementB: BoxObject): number |
 
 declare function getHeight(element: BoxElement, boxEdge?: BoxElementEdge): number;
 
-declare function getIntersection(elementA: BoxObject, elementB: BoxObject): {
-    width: number;
-    height: number;
-    left: number;
-    top: number;
-    right: number;
-    bottom: number;
-} | null;
+declare function getIntersection(firstElement: BoxObject, ...restElements: BoxObject[]): BoxRectFull | null;
 
-declare function getOffset(element: BoxObject, offsetRoot?: BoxObject): {
-    left: number;
-    top: number;
-};
+declare function getOffset(element: BoxObject, offsetRoot?: BoxObject): BoxOffset;
 
 /**
  * Returns the element's offset container, meaning the closest
@@ -61,7 +63,7 @@ declare function getOffset(element: BoxObject, offsetRoot?: BoxObject): {
 declare function getOffsetContainer(element: HTMLElement, options?: {
     position?: string;
     skipDisplayNone?: boolean;
-}): (Window & typeof globalThis) | Document | HTMLElement | null;
+}): HTMLElement | Document | Window | null;
 
 /**
  * Calculate how much elementA overflows elementB per each side. Negative value
@@ -74,14 +76,7 @@ declare function getOverflow(elementA: BoxObject, elementB: BoxObject): {
     bottom: number;
 };
 
-declare function getRect(element: BoxObject, offsetRoot?: BoxObject): {
-    right: number;
-    bottom: number;
-    left: number;
-    top: number;
-    width: number;
-    height: number;
-};
+declare function getRect(element: BoxObject, offsetRoot?: BoxObject): BoxRectFull;
 
 declare function getWidth(element: BoxElement, boxEdge?: BoxElementEdge): number;
 
