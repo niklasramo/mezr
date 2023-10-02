@@ -143,7 +143,7 @@ describe('getOffset()', function () {
           left: left + marginLeft + borderLeft + paddingLeft,
           top: top + marginTop + borderTop + paddingTop,
         };
-        assert.deepStrictEqual(actual, expected);
+        assert.deepEqual(actual, expected);
       });
 
       it(`should measure element's padding offset from document`, function () {
@@ -152,7 +152,7 @@ describe('getOffset()', function () {
           left: left + marginLeft + borderLeft,
           top: top + marginTop + borderTop,
         };
-        assert.deepStrictEqual(actual, expected);
+        assert.deepEqual(actual, expected);
       });
 
       it(`should measure element's scroll offset from document`, function () {
@@ -161,7 +161,7 @@ describe('getOffset()', function () {
           left: left + marginLeft + borderLeft,
           top: top + marginTop + borderTop,
         };
-        assert.deepStrictEqual(actual, expected);
+        assert.deepEqual(actual, expected);
       });
 
       it(`should measure element's border offset from document`, function () {
@@ -170,7 +170,7 @@ describe('getOffset()', function () {
           left: left + marginLeft,
           top: top + marginTop,
         };
-        assert.deepStrictEqual(actual, expected);
+        assert.deepEqual(actual, expected);
       });
 
       it(`should measure element's margin offset from document`, function () {
@@ -179,7 +179,7 @@ describe('getOffset()', function () {
           left: left,
           top: top,
         };
-        assert.deepStrictEqual(actual, expected);
+        assert.deepEqual(actual, expected);
       });
     });
 
@@ -190,7 +190,7 @@ describe('getOffset()', function () {
           left: left + marginLeft + borderLeft + paddingLeft - scrollLeft,
           top: top + marginTop + borderTop + paddingTop - scrollTop,
         };
-        assert.deepStrictEqual(actual, expected);
+        assert.deepEqual(actual, expected);
       });
 
       it(`should measure element's padding offset from window`, function () {
@@ -199,7 +199,7 @@ describe('getOffset()', function () {
           left: left + marginLeft + borderLeft - scrollLeft,
           top: top + marginTop + borderTop - scrollTop,
         };
-        assert.deepStrictEqual(actual, expected);
+        assert.deepEqual(actual, expected);
       });
 
       it(`should measure element's scroll offset from window`, function () {
@@ -208,7 +208,7 @@ describe('getOffset()', function () {
           left: left + marginLeft + borderLeft - scrollLeft,
           top: top + marginTop + borderTop - scrollTop,
         };
-        assert.deepStrictEqual(actual, expected);
+        assert.deepEqual(actual, expected);
       });
 
       it(`should measure element's default (border) offset from window`, function () {
@@ -217,7 +217,7 @@ describe('getOffset()', function () {
           left: left + marginLeft - scrollLeft,
           top: top + marginTop - scrollTop,
         };
-        assert.deepStrictEqual(actual, expected);
+        assert.deepEqual(actual, expected);
       });
 
       it(`should measure element's border offset from window`, function () {
@@ -226,7 +226,7 @@ describe('getOffset()', function () {
           left: left + marginLeft - scrollLeft,
           top: top + marginTop - scrollTop,
         };
-        assert.deepStrictEqual(actual, expected);
+        assert.deepEqual(actual, expected);
       });
 
       it(`should measure element's margin offset from window`, function () {
@@ -235,7 +235,7 @@ describe('getOffset()', function () {
           left: left - scrollLeft,
           top: top - scrollTop,
         };
-        assert.deepStrictEqual(actual, expected);
+        assert.deepEqual(actual, expected);
       });
     });
 
@@ -246,7 +246,7 @@ describe('getOffset()', function () {
           left: -elBContainerLeft,
           top: -elBContainerTop,
         };
-        assert.deepStrictEqual(actual, expected);
+        assert.deepEqual(actual, expected);
       });
 
       it(`should measure content -> padding offset`, function () {
@@ -255,7 +255,7 @@ describe('getOffset()', function () {
           left: paddingLeft - elBContainerLeft,
           top: paddingTop - elBContainerTop,
         };
-        assert.deepStrictEqual(actual, expected);
+        assert.deepEqual(actual, expected);
       });
 
       it(`should measure content -> scroll offset`, function () {
@@ -264,7 +264,7 @@ describe('getOffset()', function () {
           left: paddingLeft - elBContainerLeft,
           top: paddingTop - elBContainerTop,
         };
-        assert.deepStrictEqual(actual, expected);
+        assert.deepEqual(actual, expected);
       });
 
       it(`should measure content -> default (border) offset`, function () {
@@ -273,7 +273,7 @@ describe('getOffset()', function () {
           left: paddingLeft + borderLeft - elBContainerLeft,
           top: paddingTop + borderTop - elBContainerTop,
         };
-        assert.deepStrictEqual(actual, expected);
+        assert.deepEqual(actual, expected);
       });
 
       it(`should measure content -> border offset`, function () {
@@ -282,7 +282,7 @@ describe('getOffset()', function () {
           left: paddingLeft + borderLeft - elBContainerLeft,
           top: paddingTop + borderTop - elBContainerTop,
         };
-        assert.deepStrictEqual(actual, expected);
+        assert.deepEqual(actual, expected);
       });
 
       it(`should measure content -> margin offset`, function () {
@@ -291,7 +291,7 @@ describe('getOffset()', function () {
           left: paddingLeft + borderLeft + marginLeft - elBContainerLeft,
           top: paddingTop + borderTop + marginTop - elBContainerTop,
         };
-        assert.deepStrictEqual(actual, expected);
+        assert.deepEqual(actual, expected);
       });
     });
 
@@ -302,7 +302,7 @@ describe('getOffset()', function () {
           left: -(elBContainerLeft + paddingLeft),
           top: -(elBContainerTop + paddingTop),
         };
-        assert.deepStrictEqual(actual, expected);
+        assert.deepEqual(actual, expected);
       });
 
       it(`should measure padding -> padding offset`, function () {
@@ -311,7 +311,7 @@ describe('getOffset()', function () {
           left: -elBContainerLeft,
           top: -elBContainerTop,
         };
-        assert.deepStrictEqual(actual, expected);
+        assert.deepEqual(actual, expected);
       });
 
       it(`should measure padding -> scroll offset`, function () {
@@ -320,7 +320,7 @@ describe('getOffset()', function () {
           left: -elBContainerLeft,
           top: -elBContainerTop,
         };
-        assert.deepStrictEqual(actual, expected);
+        assert.deepEqual(actual, expected);
       });
 
       it(`should measure padding -> default (border) offset`, function () {
@@ -329,7 +329,7 @@ describe('getOffset()', function () {
           left: borderLeft - elBContainerLeft,
           top: borderTop - elBContainerTop,
         };
-        assert.deepStrictEqual(actual, expected);
+        assert.deepEqual(actual, expected);
       });
 
       it(`should measure padding -> border offset`, function () {
@@ -338,7 +338,7 @@ describe('getOffset()', function () {
           left: borderLeft - elBContainerLeft,
           top: borderTop - elBContainerTop,
         };
-        assert.deepStrictEqual(actual, expected);
+        assert.deepEqual(actual, expected);
       });
 
       it(`should measure padding -> margin offset`, function () {
@@ -347,7 +347,7 @@ describe('getOffset()', function () {
           left: borderLeft + marginLeft - elBContainerLeft,
           top: borderTop + marginTop - elBContainerTop,
         };
-        assert.deepStrictEqual(actual, expected);
+        assert.deepEqual(actual, expected);
       });
     });
 
@@ -358,7 +358,7 @@ describe('getOffset()', function () {
           left: -(elBContainerLeft + paddingLeft),
           top: -(elBContainerTop + paddingTop),
         };
-        assert.deepStrictEqual(actual, expected);
+        assert.deepEqual(actual, expected);
       });
 
       it(`should measure scroll -> padding offset`, function () {
@@ -367,7 +367,7 @@ describe('getOffset()', function () {
           left: -elBContainerLeft,
           top: -elBContainerTop,
         };
-        assert.deepStrictEqual(actual, expected);
+        assert.deepEqual(actual, expected);
       });
 
       it(`should measure scroll -> scroll offset`, function () {
@@ -376,7 +376,7 @@ describe('getOffset()', function () {
           left: -elBContainerLeft,
           top: -elBContainerTop,
         };
-        assert.deepStrictEqual(actual, expected);
+        assert.deepEqual(actual, expected);
       });
 
       it(`should measure scroll -> default (border) offset`, function () {
@@ -385,7 +385,7 @@ describe('getOffset()', function () {
           left: borderLeft - elBContainerLeft,
           top: borderTop - elBContainerTop,
         };
-        assert.deepStrictEqual(actual, expected);
+        assert.deepEqual(actual, expected);
       });
 
       it(`should measure scroll -> border offset`, function () {
@@ -394,7 +394,7 @@ describe('getOffset()', function () {
           left: borderLeft - elBContainerLeft,
           top: borderTop - elBContainerTop,
         };
-        assert.deepStrictEqual(actual, expected);
+        assert.deepEqual(actual, expected);
       });
 
       it(`should measure scroll -> margin offset`, function () {
@@ -403,7 +403,7 @@ describe('getOffset()', function () {
           left: borderLeft + marginLeft - elBContainerLeft,
           top: borderTop + marginTop - elBContainerTop,
         };
-        assert.deepStrictEqual(actual, expected);
+        assert.deepEqual(actual, expected);
       });
     });
 
@@ -414,7 +414,7 @@ describe('getOffset()', function () {
           left: -(elBContainerLeft + paddingLeft + borderLeft),
           top: -(elBContainerTop + paddingTop + borderTop),
         };
-        assert.deepStrictEqual(actual, expected);
+        assert.deepEqual(actual, expected);
       });
 
       it(`should measure border -> padding offset`, function () {
@@ -423,7 +423,7 @@ describe('getOffset()', function () {
           left: -(elBContainerLeft + borderLeft),
           top: -(elBContainerTop + borderTop),
         };
-        assert.deepStrictEqual(actual, expected);
+        assert.deepEqual(actual, expected);
       });
 
       it(`should measure border -> scroll offset`, function () {
@@ -432,7 +432,7 @@ describe('getOffset()', function () {
           left: -(elBContainerLeft + borderLeft),
           top: -(elBContainerTop + borderTop),
         };
-        assert.deepStrictEqual(actual, expected);
+        assert.deepEqual(actual, expected);
       });
 
       it(`should measure border -> default (border) offset`, function () {
@@ -441,7 +441,7 @@ describe('getOffset()', function () {
           left: -elBContainerLeft,
           top: -elBContainerTop,
         };
-        assert.deepStrictEqual(actual, expected);
+        assert.deepEqual(actual, expected);
       });
 
       it(`should measure border -> border offset`, function () {
@@ -450,7 +450,7 @@ describe('getOffset()', function () {
           left: -elBContainerLeft,
           top: -elBContainerTop,
         };
-        assert.deepStrictEqual(actual, expected);
+        assert.deepEqual(actual, expected);
       });
 
       it(`should measure border -> margin offset`, function () {
@@ -459,7 +459,7 @@ describe('getOffset()', function () {
           left: marginLeft - elBContainerLeft,
           top: marginTop - elBContainerTop,
         };
-        assert.deepStrictEqual(actual, expected);
+        assert.deepEqual(actual, expected);
       });
     });
 
@@ -470,7 +470,7 @@ describe('getOffset()', function () {
           left: -(elBContainerLeft + paddingLeft + borderLeft + marginLeft),
           top: -(elBContainerTop + paddingTop + borderTop + marginTop),
         };
-        assert.deepStrictEqual(actual, expected);
+        assert.deepEqual(actual, expected);
       });
 
       it(`should measure margin -> padding offset`, function () {
@@ -479,7 +479,7 @@ describe('getOffset()', function () {
           left: -(elBContainerLeft + borderLeft + marginLeft),
           top: -(elBContainerTop + borderTop + marginTop),
         };
-        assert.deepStrictEqual(actual, expected);
+        assert.deepEqual(actual, expected);
       });
 
       it(`should measure margin -> scroll offset`, function () {
@@ -488,7 +488,7 @@ describe('getOffset()', function () {
           left: -(elBContainerLeft + borderLeft + marginLeft),
           top: -(elBContainerTop + borderTop + marginTop),
         };
-        assert.deepStrictEqual(actual, expected);
+        assert.deepEqual(actual, expected);
       });
 
       it(`should measure margin -> default (border) offset`, function () {
@@ -497,7 +497,7 @@ describe('getOffset()', function () {
           left: -(elBContainerLeft + marginLeft),
           top: -(elBContainerTop + marginTop),
         };
-        assert.deepStrictEqual(actual, expected);
+        assert.deepEqual(actual, expected);
       });
 
       it(`should measure margin -> border offset`, function () {
@@ -506,7 +506,7 @@ describe('getOffset()', function () {
           left: -(elBContainerLeft + marginLeft),
           top: -(elBContainerTop + marginTop),
         };
-        assert.deepStrictEqual(actual, expected);
+        assert.deepEqual(actual, expected);
       });
 
       it(`should measure margin -> margin offset`, function () {
@@ -515,7 +515,7 @@ describe('getOffset()', function () {
           left: -elBContainerLeft,
           top: -elBContainerTop,
         };
-        assert.deepStrictEqual(actual, expected);
+        assert.deepEqual(actual, expected);
       });
     });
   });
