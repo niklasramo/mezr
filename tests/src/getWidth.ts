@@ -30,7 +30,7 @@ describe('getWidth()', function () {
       assert.strictEqual(getWidth(document, 'padding'), expected, 'padding');
     });
 
-    it('should measure height with scrollbar', function () {
+    it('should measure width with scrollbar', function () {
       const expected = elWidth + window.innerWidth - document.documentElement.clientWidth;
       assert.strictEqual(getWidth(document, 'scroll'), expected, 'scroll');
       assert.strictEqual(getWidth(document), expected, 'default');
