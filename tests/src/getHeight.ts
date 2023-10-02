@@ -33,6 +33,7 @@ describe('getHeight()', function () {
     it('should measure height with scrollbar', function () {
       const expected = elHeight + window.innerHeight - document.documentElement.clientHeight;
       assert.strictEqual(getHeight(document, 'scroll'), expected, 'scroll');
+      assert.strictEqual(getHeight(document), expected, 'default');
       assert.strictEqual(getHeight(document, 'border'), expected, 'border');
       assert.strictEqual(getHeight(document, 'margin'), expected, 'margin');
     });
