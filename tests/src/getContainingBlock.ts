@@ -2,94 +2,7 @@ import { assert } from 'chai';
 import { getContainingBlock } from '../../src/index.js';
 import { getEffectiveContainingBlock } from './utils/getEffectiveContainingBlock.js';
 import { createTestElement } from './utils/createTestElement.js';
-import { IS_SAFARI } from './utils/constants.js';
-
-const specialCases = [
-  {
-    property: 'transform',
-    value: 'translateX(10px)',
-    containsInline: false,
-    containsBlock: true,
-  },
-  {
-    property: 'perspective',
-    value: '500px',
-    containsInline: false,
-    containsBlock: true,
-  },
-  {
-    property: 'contentVisibility',
-    value: 'auto',
-    containsInline: false,
-    containsBlock: !IS_SAFARI,
-  },
-  {
-    property: 'contain',
-    value: 'paint',
-    containsInline: false,
-    containsBlock: true,
-  },
-  {
-    property: 'contain',
-    value: 'layout',
-    containsInline: false,
-    containsBlock: true,
-  },
-  {
-    property: 'contain',
-    value: 'strict',
-    containsInline: false,
-    containsBlock: true,
-  },
-  {
-    property: 'contain',
-    value: 'content',
-    containsInline: false,
-    containsBlock: true,
-  },
-  {
-    property: 'willChange',
-    value: 'transform',
-    containsInline: false,
-    containsBlock: true,
-  },
-  {
-    property: 'willChange',
-    value: 'perspective',
-    containsInline: false,
-    containsBlock: true,
-  },
-  {
-    property: 'willChange',
-    value: 'contain',
-    containsInline: false,
-    containsBlock: true,
-  },
-  {
-    property: 'filter',
-    value: 'blur(5px)',
-    containsInline: !IS_SAFARI,
-    containsBlock: !IS_SAFARI,
-  },
-  {
-    property: 'backdropFilter',
-    value: 'blur(5px)',
-    containsInline: !IS_SAFARI,
-    containsBlock: !IS_SAFARI,
-  },
-  {
-    property: 'willChange',
-    value: 'filter',
-    containsInline: !IS_SAFARI,
-    containsBlock: true,
-  },
-  {
-    property: 'willChange',
-    value: 'backdrop-filter',
-    containsInline: !IS_SAFARI,
-    containsBlock: !IS_SAFARI,
-  },
-] as const;
+import { CONTAINING_BLOCK_SPECIAL_CASES } from './utils/constants.js';
 
 describe('getContainingBlock()', function () {
   let el: HTMLElement;
@@ -165,7 +78,7 @@ describe('getContainingBlock()', function () {
       });
     });
 
-    specialCases.forEach(({ property, value, containsInline }) => {
+    CONTAINING_BLOCK_SPECIAL_CASES.forEach(({ property, value, containsInline }) => {
       it(`should recognize block-level "position:static" "${property}:${value}" ancestors`, function () {
         container.style.display = 'block';
         container.style.position = 'static';
@@ -332,7 +245,7 @@ describe('getContainingBlock()', function () {
       });
     });
 
-    specialCases.forEach(({ property, value, containsInline }) => {
+    CONTAINING_BLOCK_SPECIAL_CASES.forEach(({ property, value, containsInline }) => {
       it(`should recognize block-level "position:static" "${property}:${value}" ancestors`, function () {
         container.style.display = 'block';
         container.style.position = 'static';

@@ -45,42 +45,43 @@ Lastly a [UMD module](./dist/umd/mezr.js) is also provided if you want to includ
 
 ### Measure
 
-Now you're ready to start measuring the DOM, here's a quick cheat-sheet to get you started.
+Now you're ready to start measuring the DOM, here's a quick demo on the dimensions/offsets methods. Please refer to the [API](#api) section for more details and more methods.
 
 ```ts
 import { getWidth } from 'mezr/getWidth';
 import { getHeight } from 'mezr/getHeight';
 import { getOffset } from 'mezr/getOffset';
-import { getDistance } from 'mezr/getDistance';
-import { getIntersection } from 'mezr/getIntersection';
-import { getOverflow } from 'mezr/getOverflow';
 
-//
 // DIMENSIONS
-//
 
 // Measure element's dimensions (with paddings + scrollbar + borders).
+// elem.getBoundingClientRect().width/height.
 getWidth(elem);
-// equals elem.getBoundingClientRect().width
 getHeight(elem);
-// equals elem.getBoundingClientRect().height
 
 // The second argument defines element's box edge.
 
 // Only the content.
 getWidth(elem, 'content');
+getHeight(elem, 'content');
+
 // Content + paddings.
 getWidth(elem, 'padding');
+getHeight(elem, 'padding');
+
 // Content + paddings + scrollbar.
 getWidth(elem, 'scroll');
+getHeight(elem, 'scroll');
+
 // Content + paddings + scrollbar + borders (default).
 getWidth(elem, 'border');
+getHeight(elem, 'border');
+
 // Content + paddings + scrollbar + borders + (positive) margins.
 getWidth(elem, 'margin');
+getHeight(elem, 'margin');
 
-//
 // OFFSETS
-//
 
 // Measure element's offset from it's owner document.
 getOffset(elem);
@@ -93,57 +94,6 @@ getOffset(elemA, elemB);
 // By default the "border" box edge is used for the argument elements, but you
 // can define another box edge also by using array syntax.
 getOffset([elemA, 'padding'], [elemB, 'margin']);
-
-//
-// DISTANCE
-//
-
-// Measure straight line distance between two elements.
-getDistance(elemA, elemB);
-// => number
-
-// By default the "border" box edge is used for the argument elements, but you
-// can define another box edge also by using array syntax.
-getDistance([elemA, 'content'], [elemB, 'margin']);
-
-//
-// INTERSECTION
-//
-
-// Measure intersection area between two elements (or document/window).
-getIntersection(elemA, elemB);
-// => {
-//    width: number,
-//    height: number,
-//    left: number,
-//    top: number,
-//    right: number,
-//    bottom: number,
-// };
-
-// By default the "border" box edge is used for the argument elements, but you
-// can define another box edge also by using array syntax.
-getIntersection([elemA, 'content'], [elemB, 'margin']);
-
-//
-// OVERFLOW
-//
-
-// Measure how much elemB overflows elemA per each side. If a side's value
-// is positive it means that elemB overflows elemA by that much from that side.
-// If the value is negative it means that elemA overflows elemB by that much
-// from that side.
-getOverflow(elemA, elemB);
-// => {
-//    left: number,
-//    top: number,
-//    right: number,
-//    bottom: number,
-// };
-
-// By default the "border" box edge is used for the argument elements, but you
-// can define another box edge also by using array syntax.
-getOverflow([elemA, 'content'], [elemB, 'margin']);
 ```
 
 ## API
@@ -378,7 +328,7 @@ getRect([elem, 'padding'], [anotherElem, 'margin']);
 
 ### getDistance()
 
-Returns the distance between two elements (in pixels) or `null` if the elements intersect. In case the elements are touching, but not intersecting, the distance is `0`.
+Returns the shortest distance between two elements (in pixels), or `null` if the elements intersect. In case the elements are touching, but not intersecting, the returned distance is `0`.
 
 ```ts
 type getDistance = (elementA: BoxObject, elementB: BoxObject) => number | null;
@@ -483,9 +433,9 @@ getOverflow([elemA, 'content'], [elemB, 'scroll']);
 
 ### getContainingBlock()
 
-Returns the element's [containing block](https://developer.mozilla.org/en-US/docs/Web/CSS/Containing_block#identifying_the_containing_block). In case the containing block could not be computed `null` will be returned.
+Returns the element's [containing block](https://developer.mozilla.org/en-US/docs/Web/CSS/Containing_block#identifying_the_containing_block), meaning the ancestor element which the target element's percentage-based width, height, left, right, top, bottom, padding and margin properties are relative to. In case the containing block can not be computed `null` will be returned (e.g. in some cases we can't query all the information needed from elements with display:none).
 
-This method is not something you need too often, but when you do you'll be happy that you stumbled upon this library. It's _very_ tricky to compute the containing block correctly while taking browser differences into account. This method does all the heavy lifting for you.
+This method is not something you need too often, but when you do you'll be happy that you stumbled upon this library. It's very tricky to compute the containing block correctly while taking browser differences into account. This method does all the heavy lifting for you.
 
 **Syntax**
 
@@ -659,10 +609,6 @@ Many methods allow you to define either a box element, a box element with a box 
 | `BoxElement`                   | Any HTML/SVG element, Document or Window. Uses `"border"` box edge.        |
 | `[BoxElement, BoxElementEdge]` | Any HTML/SVG element, Document or Window with box edge explicitly defined. |
 | `BoxRect`                      | An object containing the element's dimensions and offsets.                 |
-
-## Contributing
-
-Contributions are welcome! Please read the [contributing guidelines](CONTRIBUTING.md) first.
 
 ## License
 

@@ -3,10 +3,9 @@ import { getNormalizedRect } from './utils/getNormalizedRect.js';
 import { BoxObject } from './utils/types.js';
 
 /**
- * Calculate the distance between two elements or rectangles. If the
- * elements/rectangles overlap the function returns null. In other cases the
- * function returns the distance in pixels (fractional) between the the two
- * elements/rectangles.
+ * Returns the shortest distance between two elements (in pixels), or `null` if
+ * the elements intersect. In case the elements are touching, but not
+ * intersecting, the returned distance is `0`.
  */
 export function getDistance(elementA: BoxObject, elementB: BoxObject): number | null {
   const rectA = getNormalizedRect(elementA);

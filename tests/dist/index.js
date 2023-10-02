@@ -184,11 +184,15 @@
 
     /**
      * Returns the element's containing block, meaning the ancestor element which
-     * the target element's percentage-based
-     * width/height/left/right/top/bottom/padding/margin properties are relative to
-     * (i.e the final pixel amount of the those percentage-based properties is
-     * computed based on the containing block's widht/height).
-     * https://developer.mozilla.org/en-US/docs/Web/CSS/Containing_block#identifying_the_containing_block
+     * the target element's percentage-based width, height, left, right, top,
+     * bottom, padding and margin properties are relative to. In case the containing
+     * block can not be computed `null` will be returned (e.g. in some cases we
+     * can't query all the information needed from elements with display:none).
+     *
+     * This method is not something you need too often, but when you do you'll be
+     * happy that you stumbled upon this library. It's very tricky to compute the
+     * containing block correctly while taking browser differences into account.
+     * This method does all the heavy lifting for you.
      */
     function getContainingBlock(element, options = {}) {
         // Document element's containing block is always the window. It actually can't
@@ -238,7 +242,7 @@
         }
     }
 
-    function doRectsOverlap(a, b) {
+    function isIntersecting(a, b) {
         return !(a.left + a.width <= b.left ||
             b.left + b.width <= a.left ||
             a.top + a.height <= b.top ||
@@ -254,7 +258,7 @@
      * rectangles are overlapping.
      */
     function getDistanceBetweenRects(a, b) {
-        if (doRectsOverlap(a, b))
+        if (isIntersecting(a, b))
             return null;
         const aRight = a.left + a.width;
         const aBottom = a.top + a.height;
@@ -373,6 +377,11 @@
         return width;
     }
 
+    /**
+     * Returns the width of an element in pixels. Accepts also the window object
+     * (for getting the viewport width) and the document object (for getting the
+     * width of the whole document).
+     */
     function getWidth(element, boxEdge = BOX_EDGE.border) {
         if (isWindow(element)) {
             return getWindowWidth(element, INCLUDE_SCROLLBAR[boxEdge]);
@@ -435,6 +444,11 @@
         return height;
     }
 
+    /**
+     * Returns the height of an element in pixels. Accepts also the window object
+     * (for getting the viewport height) and the document object (for getting the
+     * height of the whole document).
+     */
     function getHeight(element, boxEdge = BOX_EDGE.border) {
         if (isWindow(element)) {
             return getWindowHeight(element, INCLUDE_SCROLLBAR[boxEdge]);
@@ -494,6 +508,9 @@
         return offset;
     }
 
+    /**
+     * Returns the element's offset from another element, window or document.
+     */
     function getOffset(element, offsetRoot) {
         const offset = isRectObject(element)
             ? { left: element.left, top: element.top }
@@ -512,6 +529,13 @@
         return offset;
     }
 
+    /**
+     * Returns an object containing the provided element's dimensions and offsets.
+     * This is basically a helper method for calculating an element's dimensions and
+     * offsets simultaneously. Mimics the native getBoundingClientRect method with
+     * the added bonus of allowing to define the box edge of the element, and also
+     * the element from which the offset is measured.
+     */
     function getRect(element, offsetRoot) {
         let width = 0;
         let height = 0;
@@ -542,10 +566,9 @@
     }
 
     /**
-     * Calculate the distance between two elements or rectangles. If the
-     * elements/rectangles overlap the function returns null. In other cases the
-     * function returns the distance in pixels (fractional) between the the two
-     * elements/rectangles.
+     * Returns the shortest distance between two elements (in pixels), or `null` if
+     * the elements intersect. In case the elements are touching, but not
+     * intersecting, the returned distance is `0`.
      */
     function getDistance(elementA, elementB) {
         const rectA = getNormalizedRect(elementA);
@@ -553,6 +576,11 @@
         return getDistanceBetweenRects(rectA, rectB);
     }
 
+    /**
+     * Measure the intersection area of two or more elements. Returns an object
+     * containing the intersection area dimensions and offsets if _all_ the provided
+     * elements overlap, otherwise returns `null`.
+     */
     function getIntersection(firstElement, ...restElements) {
         const result = { ...getNormalizedRect(firstElement), right: 0, bottom: 0 };
         for (const element of restElements) {
@@ -573,6 +601,25 @@
         result.right = result.left + result.width;
         result.bottom = result.top + result.height;
         return result;
+    }
+
+    /**
+     * Measure how much target overflows container per each side. Returns an object
+     * containing the overflow values (note that the overflow values are reported
+     * even if the elements don't overlap). If a side's value is positive it means
+     * that target overflows container by that much from that side. If the value is
+     * negative it means that container overflows target by that much from that
+     * side.
+     */
+    function getOverflow(target, container) {
+        const targetRect = getNormalizedRect(target);
+        const containerRect = getNormalizedRect(container);
+        return {
+            left: containerRect.left - targetRect.left,
+            right: targetRect.left + targetRect.width - (containerRect.left + containerRect.width),
+            top: containerRect.top - targetRect.top,
+            bottom: targetRect.top + targetRect.height - (containerRect.top + containerRect.height),
+        };
     }
 
     function getScrollbarSizes() {
@@ -1676,6 +1723,199 @@
         });
     });
 
+    describe('getOverflow()', function () {
+        beforeEach(beforeTest);
+        afterEach(afterTest);
+        describe('basic tests with BoxRects', () => {
+            it('should calculate the overflow for a fully contained box', () => {
+                const container = { left: 0, top: 0, width: 200, height: 200 };
+                const target = { left: 50, top: 50, width: 100, height: 100 };
+                const result = getOverflow(target, container);
+                chai.assert.deepEqual(result, { left: -50, right: -50, top: -50, bottom: -50 });
+            });
+            it('should calculate the overflow for a non-overlapping box', () => {
+                const container = { left: 0, top: 0, width: 100, height: 100 };
+                const target = { left: 200, top: 200, width: 100, height: 100 };
+                const result = getOverflow(target, container);
+                chai.assert.deepEqual(result, { left: -200, right: 200, top: -200, bottom: 200 });
+            });
+            it('should calculate the overflow for a partially overlapping box', () => {
+                const container = { left: 0, top: 0, width: 150, height: 150 };
+                const target = { left: 100, top: 100, width: 100, height: 100 };
+                const result = getOverflow(target, container);
+                chai.assert.deepEqual(result, { left: -100, right: 50, top: -100, bottom: 50 });
+            });
+        });
+        describe('DOM elements', function () {
+            it('should calculate the overflow for a fully contained DOM element', function () {
+                const container = createTestElement({
+                    position: 'absolute',
+                    left: '0px',
+                    top: '0px',
+                    width: '200px',
+                    height: '200px',
+                });
+                const target = createTestElement({
+                    position: 'absolute',
+                    left: '50px',
+                    top: '50px',
+                    width: '100px',
+                    height: '100px',
+                });
+                const result = getOverflow(target, container);
+                chai.assert.deepEqual(result, { left: -50, right: -50, top: -50, bottom: -50 });
+            });
+            it('should calculate the overflow for a non-overlapping DOM element', function () {
+                const container = createTestElement({
+                    position: 'absolute',
+                    left: '0px',
+                    top: '0px',
+                    width: '100px',
+                    height: '100px',
+                });
+                const target = createTestElement({
+                    position: 'absolute',
+                    left: '200px',
+                    top: '200px',
+                    width: '100px',
+                    height: '100px',
+                });
+                const result = getOverflow(target, container);
+                chai.assert.deepEqual(result, { left: -200, right: 200, top: -200, bottom: 200 });
+            });
+            it('should consider box edges for the overflow calculations', function () {
+                const container = createTestElement({
+                    boxSizing: 'border-box',
+                    position: 'absolute',
+                    left: '0px',
+                    top: '0px',
+                    width: '120px',
+                    height: '120px',
+                    padding: '10px',
+                    border: '5px solid black',
+                });
+                const target = createTestElement({
+                    boxSizing: 'border-box',
+                    position: 'absolute',
+                    left: '0px',
+                    top: '0px',
+                    width: '140px',
+                    height: '140px',
+                    border: '5px solid black',
+                    margin: '10px',
+                });
+                const result = getOverflow([target, 'margin'], [container, 'content']);
+                chai.assert.deepEqual(result, { left: 15, right: 55, top: 15, bottom: 55 });
+            });
+        });
+        describe('compass points', () => {
+            const container = { left: 0, top: 0, width: 200, height: 200 };
+            const compassPoints = [
+                {
+                    direction: 'North (N)',
+                    nonIntersect: {
+                        rect: { left: 0, top: -250, width: 200, height: 200 },
+                        expected: { left: 0, right: 0, top: 250, bottom: -250 },
+                    },
+                    intersect: {
+                        rect: { left: 0, top: -150, width: 200, height: 200 },
+                        expected: { left: 0, right: 0, top: 150, bottom: -150 },
+                    },
+                },
+                {
+                    direction: 'South (S)',
+                    nonIntersect: {
+                        rect: { left: 0, top: 250, width: 200, height: 200 },
+                        expected: { left: 0, right: 0, top: -250, bottom: 250 },
+                    },
+                    intersect: {
+                        rect: { left: 0, top: 150, width: 200, height: 200 },
+                        expected: { left: 0, right: 0, top: -150, bottom: 150 },
+                    },
+                },
+                // Fix the rest!
+                {
+                    direction: 'East (E)',
+                    nonIntersect: {
+                        rect: { left: 250, top: 0, width: 200, height: 200 },
+                        expected: { left: -250, right: 250, top: 0, bottom: 0 },
+                    },
+                    intersect: {
+                        rect: { left: 150, top: 0, width: 200, height: 200 },
+                        expected: { left: -150, right: 150, top: 0, bottom: 0 },
+                    },
+                },
+                {
+                    direction: 'West (W)',
+                    nonIntersect: {
+                        rect: { left: -250, top: 0, width: 200, height: 200 },
+                        expected: { left: 250, right: -250, top: 0, bottom: 0 },
+                    },
+                    intersect: {
+                        rect: { left: -150, top: 0, width: 200, height: 200 },
+                        expected: { left: 150, right: -150, top: 0, bottom: 0 },
+                    },
+                },
+                {
+                    direction: 'Northwest (NW)',
+                    nonIntersect: {
+                        rect: { left: -250, top: -250, width: 200, height: 200 },
+                        expected: { left: 250, right: -250, top: 250, bottom: -250 },
+                    },
+                    intersect: {
+                        rect: { left: -150, top: -150, width: 200, height: 200 },
+                        expected: { left: 150, right: -150, top: 150, bottom: -150 },
+                    },
+                },
+                {
+                    direction: 'Southeast (SE)',
+                    nonIntersect: {
+                        rect: { left: 250, top: 250, width: 200, height: 200 },
+                        expected: { left: -250, right: 250, top: -250, bottom: 250 },
+                    },
+                    intersect: {
+                        rect: { left: 150, top: 150, width: 200, height: 200 },
+                        expected: { left: -150, right: 150, top: -150, bottom: 150 },
+                    },
+                },
+                {
+                    direction: 'Southwest (SW)',
+                    nonIntersect: {
+                        rect: { left: -250, top: 250, width: 200, height: 200 },
+                        expected: { left: 250, right: -250, top: -250, bottom: 250 },
+                    },
+                    intersect: {
+                        rect: { left: -150, top: 150, width: 200, height: 200 },
+                        expected: { left: 150, right: -150, top: -150, bottom: 150 },
+                    },
+                },
+                {
+                    direction: 'Northeast (NE)',
+                    nonIntersect: {
+                        rect: { left: 250, top: -250, width: 200, height: 200 },
+                        expected: { left: -250, right: 250, top: 250, bottom: -250 },
+                    },
+                    intersect: {
+                        rect: { left: 150, top: -150, width: 200, height: 200 },
+                        expected: { left: -150, right: 150, top: 150, bottom: -150 },
+                    },
+                },
+            ];
+            compassPoints.forEach((point) => {
+                describe(point.direction, () => {
+                    it(`${point.direction}: target is not intersecting container`, () => {
+                        const result = getOverflow(point.nonIntersect.rect, container);
+                        chai.assert.deepEqual(result, point.nonIntersect.expected);
+                    });
+                    it(`${point.direction}: target is intersecting container`, () => {
+                        const result = getOverflow(point.intersect.rect, container);
+                        chai.assert.deepEqual(result, point.intersect.expected);
+                    });
+                });
+            });
+        });
+    });
+
     function isDimensionsMatch(targetRect, ancestorRect, scaleFactor) {
         // Note, the 0.1 is to account for rounding errors.
         return (Math.abs(ancestorRect.width * scaleFactor - targetRect.width) < 0.1 &&
@@ -1732,8 +1972,7 @@
         navigator.userAgent &&
         navigator.userAgent.indexOf('CriOS') == -1 &&
         navigator.userAgent.indexOf('FxiOS') == -1);
-
-    const specialCases = [
+    const CONTAINING_BLOCK_SPECIAL_CASES = [
         {
             property: 'transform',
             value: 'translateX(10px)',
@@ -1819,6 +2058,7 @@
             containsBlock: !IS_SAFARI,
         },
     ];
+
     describe('getContainingBlock()', function () {
         let el;
         let container;
@@ -1882,7 +2122,7 @@
                     chai.assert.equal(actual, expected);
                 });
             });
-            specialCases.forEach(({ property, value, containsInline }) => {
+            CONTAINING_BLOCK_SPECIAL_CASES.forEach(({ property, value, containsInline }) => {
                 it(`should recognize block-level "position:static" "${property}:${value}" ancestors`, function () {
                     container.style.display = 'block';
                     container.style.position = 'static';
@@ -2033,7 +2273,7 @@
                     chai.assert.equal(actual, expected);
                 });
             });
-            specialCases.forEach(({ property, value, containsInline }) => {
+            CONTAINING_BLOCK_SPECIAL_CASES.forEach(({ property, value, containsInline }) => {
                 it(`should recognize block-level "position:static" "${property}:${value}" ancestors`, function () {
                     container.style.display = 'block';
                     container.style.position = 'static';

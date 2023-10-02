@@ -1,6 +1,6 @@
 import { BoxRect } from './types.js';
 
-export function doRectsOverlap(a: BoxRect, b: BoxRect) {
+export function isIntersecting(a: BoxRect, b: BoxRect) {
   return !(
     a.left + a.width <= b.left ||
     b.left + b.width <= a.left ||

@@ -1,4 +1,4 @@
-import { doRectsOverlap } from './doRectsOverlap.js';
+import { isIntersecting } from './isIntersecting.js';
 import { getDistanceBetweenPoints } from './getDistanceBetweenPoints.js';
 import { BoxRect } from './types.js';
 
@@ -7,7 +7,7 @@ import { BoxRect } from './types.js';
  * rectangles are overlapping.
  */
 export function getDistanceBetweenRects(a: BoxRect, b: BoxRect) {
-  if (doRectsOverlap(a, b)) return null;
+  if (isIntersecting(a, b)) return null;
 
   const aRight = a.left + a.width;
   const aBottom = a.top + a.height;
