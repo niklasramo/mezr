@@ -4,6 +4,13 @@ import { getOffset } from './getOffset.js';
 import { isRectObject } from './utils/isRectObject.js';
 import { BoxObject, BoxRectFull } from './utils/types.js';
 
+/**
+ * Returns an object containing the provided element's dimensions and offsets.
+ * This is basically a helper method for calculating an element's dimensions and
+ * offsets simultaneously. Mimics the native getBoundingClientRect method with
+ * the added bonus of allowing to define the box edge of the element, and also
+ * the element from which the offset is measured.
+ */
 export function getRect(element: BoxObject, offsetRoot?: BoxObject): BoxRectFull {
   let width = 0;
   let height = 0;

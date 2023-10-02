@@ -3,6 +3,9 @@ import { isDocument } from './utils/isDocument.js';
 import { getOffsetFromDocument } from './utils/getOffsetFromDocument.js';
 import { BoxObject, BoxOffset } from './utils/types.js';
 
+/**
+ * Returns the element's offset from another element, window or document.
+ */
 export function getOffset(element: BoxObject, offsetRoot?: BoxObject): BoxOffset {
   const offset = isRectObject(element)
     ? { left: element.left, top: element.top }

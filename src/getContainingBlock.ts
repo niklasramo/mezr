@@ -6,11 +6,15 @@ import { isDocumentElement } from './utils/isDocumentElement.js';
 
 /**
  * Returns the element's containing block, meaning the ancestor element which
- * the target element's percentage-based
- * width/height/left/right/top/bottom/padding/margin properties are relative to
- * (i.e the final pixel amount of the those percentage-based properties is
- * computed based on the containing block's widht/height).
- * https://developer.mozilla.org/en-US/docs/Web/CSS/Containing_block#identifying_the_containing_block
+ * the target element's percentage-based width, height, left, right, top,
+ * bottom, padding and margin properties are relative to. In case the containing
+ * block can not be computed `null` will be returned (e.g. in some cases we
+ * can't query all the information needed from elements with display:none).
+ *
+ * This method is not something you need too often, but when you do you'll be
+ * happy that you stumbled upon this library. It's very tricky to compute the
+ * containing block correctly while taking browser differences into account.
+ * This method does all the heavy lifting for you.
  */
 export function getContainingBlock(
   element: HTMLElement,

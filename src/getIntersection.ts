@@ -1,6 +1,11 @@
 import { getNormalizedRect } from './utils/getNormalizedRect.js';
 import { BoxObject, BoxRectFull } from './utils/types.js';
 
+/**
+ * Measure the intersection area of two or more elements. Returns an object
+ * containing the intersection area dimensions and offsets if _all_ the provided
+ * elements overlap, otherwise returns `null`.
+ */
 export function getIntersection(
   firstElement: BoxObject,
   ...restElements: BoxObject[]
