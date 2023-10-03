@@ -4,7 +4,7 @@ import { BoxRect } from './types.js';
 
 /**
  * Calculate shortest distance between two rectangles. Returns null if the
- * rectangles are overlapping.
+ * rectangles are intersecting.
  */
 export function getDistanceBetweenRects(a: BoxRect, b: BoxRect) {
   if (isIntersecting(a, b)) return null;

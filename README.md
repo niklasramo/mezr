@@ -1,5 +1,9 @@
 # Mezr
 
+```bash
+$ npm install mezr
+```
+
 Mezr is a lightweight utility library for measuring and comparing the dimensions and positions of DOM elements in modern browsers.
 
 - 📦 **Modular**, organized into clear independent modules.
@@ -9,6 +13,51 @@ Mezr is a lightweight utility library for measuring and comparing the dimensions
 - 🦺 **Type-safety** provided by TypeScript.
 - 🍭 **No runtime dependencies**, just a boatload of dev dependencies.
 - 💝 **Free and open source**, MIT Licensed.
+
+## Why?
+
+Mezr is a collection of methods that I've found myself writing over and over again in different projects. I've also found that these methods are not something that you can easily find from other maintained libraries. I've tried to keep the API as simple as possible, so that you can get started with it right away without having to read a lot of documentation. There are also hundreds of unit tests to ensure that the methods work as expected.
+
+Here's a simple example of measuring an element's content width:
+
+**Vanilla**
+
+```ts
+// Yes, we could start with elem.clientWidth to make this simpler, but it
+// returns rounded integers instead of the true (possibly fractional) width.
+let width = elem.getBoundingClientRect().width;
+
+// Get the computed style of the element, this gives us always computed pixel
+// values.
+const style = window.getComputedStyle(elem);
+
+// Subtract borders.
+width -= parseFloat(style.borderLeftWidth) || 0;
+width -= parseFloat(style.borderRightWidth) || 0;
+
+// Subtract scrollbar.
+if (elem instanceof HTMLHtmlElement) {
+  width -= window.innerWidth - document.documentElement.clientWidth;
+} else {
+  width -= Math.max(0, Math.round(width) - element.clientWidth);
+}
+
+// Subtract paddings.
+width -= parseFloat(style.paddingLeft) || 0;
+width -= parseFloat(style.paddingRight) || 0;
+
+// Done!
+console.log(width);
+```
+
+**Mezr**
+
+```ts
+import { getWidth } from 'mezr/getWidth';
+
+// Done!
+console.log(getWidth(elem, 'content'));
+```
 
 ## Getting started
 
@@ -358,7 +407,7 @@ getDistance([elemA, 'content'], [elemB, 'scroll']);
 
 ### getIntersection()
 
-Measure the intersection area of two or more elements. Returns an object containing the intersection area dimensions and offsets if _all_ the provided elements overlap, otherwise returns `null`.
+Measure the intersection area of two or more elements. Returns an object containing the intersection area dimensions and offsets if _all_ the provided elements intersect, otherwise returns `null`.
 
 **Syntax**
 
@@ -392,7 +441,7 @@ getIntersection(elemA, elemB, [elemC, 'scroll'], { left: 0, top: 0, width: 100, 
 
 ### getOverflow()
 
-Measure how much an element overflows another element per each side. Returns an object containing the overflow values. Note that the overflow values are reported even if the elements don't overlap.
+Measure how much an element overflows another element per each side. Returns an object containing the overflow values. Note that the overflow values are reported even if the elements don't intersect.
 
 **Syntax**
 
