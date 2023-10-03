@@ -87,12 +87,13 @@
     "build-tests": "rollup --config rollup.config.build-tests.ts --configPlugin typescript",
     "del-dist": "del ./dist && del ./tests/dist",
     "format": "prettier --write --no-error-on-unmatched-pattern \"./**/*.{js,ts,jsx,tsx,css,html,json,md,yml}\"",
+    "format-check": "prettier --check --no-error-on-unmatched-pattern \"./**/*.{js,ts,jsx,tsx,css,html,json,md,yml}\"",
     "minify": "find ./dist -name '*.js' -exec terser {} -o {} -c -m --comments false \\;",
     "size": "find ./dist/umd -name 'mezr.js' -exec echo {} \\; -exec gzip-size {} --include-original \\;",
     "test": "npm run ts-check && npm run test-browserstack",
     "test-chrome": "karma start karma.chrome-local.cjs",
     "test-firefox": "karma start karma.firefox-local.cjs",
-    "test-browserstack": "karma start karma.browserstack.ts",
+    "test-browserstack": "karma start karma.browserstack.cjs",
     "ts-check": "tsc --noEmit"
   },
   "devDependencies": {

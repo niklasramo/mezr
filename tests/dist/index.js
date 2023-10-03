@@ -255,7 +255,7 @@
 
     /**
      * Calculate shortest distance between two rectangles. Returns null if the
-     * rectangles are overlapping.
+     * rectangles are intersecting.
      */
     function getDistanceBetweenRects(a, b) {
         if (isIntersecting(a, b))
@@ -579,7 +579,7 @@
     /**
      * Measure the intersection area of two or more elements. Returns an object
      * containing the intersection area dimensions and offsets if _all_ the provided
-     * elements overlap, otherwise returns `null`.
+     * elements intersect, otherwise returns `null`.
      */
     function getIntersection(firstElement, ...restElements) {
         const result = { ...getNormalizedRect(firstElement), right: 0, bottom: 0 };
@@ -606,7 +606,7 @@
     /**
      * Measure how much target overflows container per each side. Returns an object
      * containing the overflow values (note that the overflow values are reported
-     * even if the elements don't overlap). If a side's value is positive it means
+     * even if the elements don't intersect). If a side's value is positive it means
      * that target overflows container by that much from that side. If the value is
      * negative it means that container overflows target by that much from that
      * side.
