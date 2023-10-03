@@ -39,7 +39,7 @@ width -= parseFloat(style.borderRightWidth) || 0;
 if (elem instanceof HTMLHtmlElement) {
   width -= window.innerWidth - document.documentElement.clientWidth;
 } else {
-  width -= Math.max(0, Math.round(width) - element.clientWidth);
+  width -= Math.max(0, Math.round(width) - elem.clientWidth);
 }
 
 // Subtract paddings.
