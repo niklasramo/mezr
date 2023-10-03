@@ -1,7 +1,7 @@
 # Mezr
 
-```bash
-$ npm install mezr
+```
+npm install mezr
 ```
 
 Mezr is a lightweight utility library for measuring and comparing the dimensions and positions of DOM elements in modern browsers.
@@ -63,8 +63,8 @@ console.log(getWidth(elem, 'content'));
 
 ### Install
 
-```bash
-$ npm install mezr
+```
+npm install mezr
 ```
 
 ### Import
