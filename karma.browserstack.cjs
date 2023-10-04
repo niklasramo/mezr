@@ -60,19 +60,42 @@ module.exports = function (config) {
         os: 'OS X',
         os_version: 'Sonoma',
       },
-      bsMacSafari: {
+      bsMacVenturaSafari: {
+        base: 'BrowserStack',
+        browser: 'safari',
+        browser_version: 'latest',
+        os: 'OS X',
+        os_version: 'Ventura',
+      },
+      bsMacSonomaSafari: {
         base: 'BrowserStack',
         browser: 'safari',
         browser_version: 'latest',
         os: 'OS X',
         os_version: 'Sonoma',
       },
-      bsIphoneSafari: {
+      bsIos16Safari: {
+        base: 'BrowserStack',
+        device: 'iPhone 14',
+        os: 'ios',
+        os_version: '16',
+        real_mobile: true,
+      },
+      bsIos17Safari: {
         base: 'BrowserStack',
         device: 'iPhone 15',
         os: 'ios',
-        real_mobile: true,
         os_version: '17',
+        real_mobile: true,
+      },
+      bsAndroid13Chrome: {
+        base: 'BrowserStack',
+        device: 'Samsung Galaxy S23',
+        os: 'android',
+        os_version: '13.0',
+        browser: 'chrome',
+        browser_version: 'latest',
+        real_mobile: true,
       },
     },
     browsers: [
@@ -82,8 +105,11 @@ module.exports = function (config) {
       'bsMacChrome',
       'bsMacEdge',
       'bsMacFirefox',
-      'bsMacSafari',
-      'bsIphoneSafari',
+      'bsMacVenturaSafari',
+      'bsMacSonomaSafari',
+      'bsIos16Safari',
+      'bsIos17Safari',
+      'bsAndroid13Chrome',
     ],
   });
 };
