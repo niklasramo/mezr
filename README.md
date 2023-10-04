@@ -4,27 +4,31 @@
 npm install mezr
 ```
 
-Mezr is a lightweight utility library for measuring and comparing the dimensions and positions of DOM elements in modern browsers.
+Mezr is a lightweight utility library, written in TypeScript, for measuring and comparing the dimensions, distances and other tricky stuff of DOM elements in modern browsers.
 
+- 🧩 **Simple API** which reduces boilerplate code a lot.
 - 📦 **Modular**, organized into clear independent modules.
-- 🧩 **Simple API**, which reduces boilerplate code a lot.
-- ⚡ **Fast**, built with performance in mind.
 - 🤖 **Extensively tested** across all modern browsers.
-- 🦺 **Type-safety** provided by TypeScript.
-- 🍭 **No runtime dependencies**, just a boatload of dev dependencies.
+- 🍭 **No runtime dependencies**, what you see is what you get.
 - 💝 **Free and open source**, MIT Licensed.
 
 ## Why?
 
 Mezr is a collection of methods that I've found myself writing over and over again in different projects. I've also found that these methods are not something that you can easily find from other maintained libraries. I've tried to keep the API as simple as possible, so that you can get started with it right away without having to read a lot of documentation. There are also hundreds of unit tests to ensure that the methods work as expected.
 
-Here's a simple example of measuring an element's content width:
+Some of the methods are also quite tricky to implement correctly, especially when you need to take browser differences into account. For example, the [getContainingBlock()](#getcontainingblock) method is something that I've seen implemented incorrectly (or rather not fully correctly) in many libraries. It's very tricky to compute the containing block correctly while taking browser differences into account. Mezr does all the heavy lifting for you.
 
-**Vanilla**
+Here's a simple example of measuring an element's content width with both vanilla JS and Mezr.
 
-```ts
-// Yes, we could start with elem.clientWidth to make this simpler, but it
-// returns rounded integers instead of the true (possibly fractional) width.
+**Vanilla JS**
+
+```js
+// Let's start by getting the element's bounding client rect, this gives us
+// always computed fractional pixel values, which is important. It contains
+// the element's borders, paddings and scrollbars, which we need to subtract
+// from the final width. Alternatively, we could start with elem.clientWidth to
+// make this simpler, but it returns rounded integers, which is not ideal for
+// precise calculations.
 let width = elem.getBoundingClientRect().width;
 
 // Get the computed style of the element, this gives us always computed pixel
@@ -69,20 +73,20 @@ npm install mezr
 
 ### Import
 
-All the public API methods are provided as [CommonJS modules](./dist/cjs/) (CJS) and [ECMAScript modules](./dist/esm/) (ESM) individually via subpath exports.
+All the public API methods are provided as [CommonJS modules](./dist/cjs/) (CJS) and [ECMAScript modules](./dist/esm/) (ESM) via subpath exports.
 
 ```ts
 import { getWidth } from 'mezr/getWidth';
 import { getHeight } from 'mezr/getHeight';
 ```
 
-You can also import all the public methods from the library root traditionally if you wish.
+You can also import all the public methods from the library root if you wish.
 
 ```ts
 import { getWidth, getHeight } from 'mezr';
 ```
 
-Lastly a [UMD module](./dist/umd/mezr.js) is also provided if you want to include mezr directly in your website (like in the good old days).
+Lastly, a [UMD module](./dist/umd/mezr.js) is also provided if you want to include Mezr directly in your website (like in the good old days).
 
 ```html
 <script src="mezr.js"></script>

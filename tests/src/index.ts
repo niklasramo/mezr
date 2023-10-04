@@ -6,3 +6,4 @@ import './getDistance.js';
 import './getIntersection.js';
 import './getOverflow.js';
 import './getContainingBlock.js';
+import './getOffsetContainer.js';
