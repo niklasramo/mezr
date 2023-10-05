@@ -1,7 +1,7 @@
 import { assert } from 'chai';
 import { createTestElement } from './utils/createTestElement.js';
-import { getOffsetContainer, getContainingBlock } from '../../src/index.js';
 import { CONTAINING_BLOCK_SPECIAL_CASES } from './utils/constants.js';
+import { getOffsetContainer, getContainingBlock } from '../../src/index.js';
 
 describe('getOffsetContainer()', function () {
   let el: HTMLElement;
@@ -47,7 +47,7 @@ describe('getOffsetContainer()', function () {
     it('should return document if no offset container ancestor is found', function () {
       const actual = getOffsetContainer(el);
       const expected = getExpectedOffsetContainer(el);
-      assert.equal(actual, expected);
+      assert.strictEqual(actual, expected);
     });
 
     ['relative', 'absolute', 'fixed', 'sticky'].forEach((position) => {
@@ -56,7 +56,7 @@ describe('getOffsetContainer()', function () {
         container.style.position = position;
         const actual = getOffsetContainer(el);
         const expected = getExpectedOffsetContainer(el);
-        assert.equal(actual, expected);
+        assert.strictEqual(actual, expected);
       });
 
       it(`should recognize inline-level "position:${position}" ancestors`, function () {
@@ -64,7 +64,7 @@ describe('getOffsetContainer()', function () {
         container.style.position = position;
         const actual = getOffsetContainer(el);
         const expected = getExpectedOffsetContainer(el);
-        assert.equal(actual, expected);
+        assert.strictEqual(actual, expected);
       });
 
       it(`should recognize "display:none" "position:${position}" ancestors`, function () {
@@ -72,7 +72,7 @@ describe('getOffsetContainer()', function () {
         container.style.position = position;
         const actual = getOffsetContainer(el);
         const expected = getExpectedOffsetContainer(el);
-        assert.equal(actual, expected);
+        assert.strictEqual(actual, expected);
       });
     });
 
@@ -83,7 +83,7 @@ describe('getOffsetContainer()', function () {
         (container.style as any)[property] = value;
         const actual = getOffsetContainer(el);
         const expected = getExpectedOffsetContainer(el);
-        assert.equal(actual, expected);
+        assert.strictEqual(actual, expected);
       });
 
       if (containsInline) {
@@ -93,7 +93,7 @@ describe('getOffsetContainer()', function () {
           (container.style as any)[property] = value;
           const actual = getContainingBlock(el);
           const expected = getExpectedOffsetContainer(el);
-          assert.equal(actual, expected);
+          assert.strictEqual(actual, expected);
         });
 
         it(`should recognize "display:none" "position:static" "${property}:${value}" ancestors by default`, function () {
@@ -102,7 +102,7 @@ describe('getOffsetContainer()', function () {
           (container.style as any)[property] = value;
           const actual = getContainingBlock(el);
           const expected = getExpectedOffsetContainer(el);
-          assert.equal(actual, expected);
+          assert.strictEqual(actual, expected);
         });
 
         it(`should recognize "display:none" "position:static" "${property}:${value}" ancestors when skipDisplayNone option is false`, function () {
@@ -111,7 +111,7 @@ describe('getOffsetContainer()', function () {
           (container.style as any)[property] = value;
           const actual = getContainingBlock(el, { skipDisplayNone: false });
           const expected = getExpectedOffsetContainer(el, { skipDisplayNone: false });
-          assert.equal(actual, expected);
+          assert.strictEqual(actual, expected);
         });
 
         it(`should recognize "display:none" "position:static" "${property}:${value}" ancestors when skipDisplayNone option is true`, function () {
@@ -120,7 +120,7 @@ describe('getOffsetContainer()', function () {
           (container.style as any)[property] = value;
           const actual = getContainingBlock(el, { skipDisplayNone: true });
           const expected = getExpectedOffsetContainer(el, { skipDisplayNone: true });
-          assert.equal(actual, expected);
+          assert.strictEqual(actual, expected);
         });
       } else {
         it(`should not recognize inline-level "position:static" "${property}:${value}" ancestors`, function () {
@@ -129,7 +129,7 @@ describe('getOffsetContainer()', function () {
           (container.style as any)[property] = value;
           const actual = getContainingBlock(el);
           const expected = getExpectedOffsetContainer(el);
-          assert.equal(actual, expected);
+          assert.strictEqual(actual, expected);
         });
 
         it(`should return null on "display:none" "position:static" "${property}:${value}" ancestors by default`, function () {
@@ -138,7 +138,7 @@ describe('getOffsetContainer()', function () {
           (container.style as any)[property] = value;
           const actual = getContainingBlock(el);
           const expected = getExpectedOffsetContainer(el);
-          assert.equal(actual, expected);
+          assert.strictEqual(actual, expected);
         });
 
         it(`should return null on "display:none" "position:static" "${property}:${value}" ancestors when skipDisplayNone option is false`, function () {
@@ -147,7 +147,7 @@ describe('getOffsetContainer()', function () {
           (container.style as any)[property] = value;
           const actual = getContainingBlock(el, { skipDisplayNone: false });
           const expected = getExpectedOffsetContainer(el, { skipDisplayNone: false });
-          assert.equal(actual, expected);
+          assert.strictEqual(actual, expected);
         });
 
         it(`should skip "display:none" "position:static" "${property}:${value}" ancestors when skipDisplayNone option is true`, function () {
@@ -156,7 +156,7 @@ describe('getOffsetContainer()', function () {
           (container.style as any)[property] = value;
           const actual = getContainingBlock(el, { skipDisplayNone: true });
           const expected = getExpectedOffsetContainer(el, { skipDisplayNone: true });
-          assert.equal(actual, expected);
+          assert.strictEqual(actual, expected);
         });
       }
     });
@@ -173,7 +173,7 @@ describe('getOffsetContainer()', function () {
         container.style.position = position;
         const actual = getOffsetContainer(el);
         const expected = getContainingBlock(el);
-        assert.equal(actual, expected);
+        assert.strictEqual(actual, expected);
       });
 
       it(`should not recognize inline-level "position:${position}" ancestors`, function () {
@@ -181,7 +181,7 @@ describe('getOffsetContainer()', function () {
         container.style.position = position;
         const actual = getOffsetContainer(el);
         const expected = getContainingBlock(el);
-        assert.equal(actual, expected);
+        assert.strictEqual(actual, expected);
       });
 
       it(`should return null on "display:none" "position:${position}" ancestors by default`, function () {
@@ -189,7 +189,7 @@ describe('getOffsetContainer()', function () {
         container.style.position = position;
         const actual = getOffsetContainer(el);
         const expected = getContainingBlock(el);
-        assert.equal(actual, expected);
+        assert.strictEqual(actual, expected);
       });
 
       it(`should return null on "display:none" "position:${position}" ancestors when skipDisplayNone option is false`, function () {
@@ -197,7 +197,7 @@ describe('getOffsetContainer()', function () {
         container.style.position = position;
         const actual = getOffsetContainer(el);
         const expected = getContainingBlock(el);
-        assert.equal(actual, expected);
+        assert.strictEqual(actual, expected);
       });
 
       it(`should skip "display:none" "position:${position}" ancestors when skipDisplayNone option is true`, function () {
@@ -205,7 +205,7 @@ describe('getOffsetContainer()', function () {
         container.style.position = position;
         const actual = getOffsetContainer(el);
         const expected = getContainingBlock(el);
-        assert.equal(actual, expected);
+        assert.strictEqual(actual, expected);
       });
     });
 
@@ -216,7 +216,7 @@ describe('getOffsetContainer()', function () {
         (container.style as any)[property] = value;
         const actual = getOffsetContainer(el);
         const expected = getContainingBlock(el);
-        assert.equal(actual, expected);
+        assert.strictEqual(actual, expected);
       });
 
       if (containsInline) {
@@ -226,7 +226,7 @@ describe('getOffsetContainer()', function () {
           (container.style as any)[property] = value;
           const actual = getOffsetContainer(el);
           const expected = getContainingBlock(el);
-          assert.equal(actual, expected);
+          assert.strictEqual(actual, expected);
         });
 
         it(`should recognize "display:none" "position:static" "${property}:${value}" ancestors by default`, function () {
@@ -235,7 +235,7 @@ describe('getOffsetContainer()', function () {
           (container.style as any)[property] = value;
           const actual = getOffsetContainer(el);
           const expected = getContainingBlock(el);
-          assert.equal(actual, expected);
+          assert.strictEqual(actual, expected);
         });
 
         it(`should recognize "display:none" "position:static" "${property}:${value}" ancestors when skipDisplayNone option is false`, function () {
@@ -244,7 +244,7 @@ describe('getOffsetContainer()', function () {
           (container.style as any)[property] = value;
           const actual = getOffsetContainer(el, { skipDisplayNone: false });
           const expected = getContainingBlock(el, { skipDisplayNone: false });
-          assert.equal(actual, expected);
+          assert.strictEqual(actual, expected);
         });
 
         it(`should recognize "display:none" "position:static" "${property}:${value}" ancestors when skipDisplayNone option is true`, function () {
@@ -253,7 +253,7 @@ describe('getOffsetContainer()', function () {
           (container.style as any)[property] = value;
           const actual = getOffsetContainer(el, { skipDisplayNone: true });
           const expected = getContainingBlock(el, { skipDisplayNone: true });
-          assert.equal(actual, expected);
+          assert.strictEqual(actual, expected);
         });
       } else {
         it(`should not recognize inline-level "position:static" "${property}:${value}" ancestors`, function () {
@@ -262,7 +262,7 @@ describe('getOffsetContainer()', function () {
           (container.style as any)[property] = value;
           const actual = getOffsetContainer(el);
           const expected = getContainingBlock(el);
-          assert.equal(actual, expected);
+          assert.strictEqual(actual, expected);
         });
 
         it(`should return null on "display:none" "position:static" "${property}:${value}" ancestors by default`, function () {
@@ -271,7 +271,7 @@ describe('getOffsetContainer()', function () {
           (container.style as any)[property] = value;
           const actual = getOffsetContainer(el);
           const expected = getContainingBlock(el);
-          assert.equal(actual, expected);
+          assert.strictEqual(actual, expected);
         });
 
         it(`should return null on "display:none" "position:static" "${property}:${value}" ancestors when skipDisplayNone option is false`, function () {
@@ -280,7 +280,7 @@ describe('getOffsetContainer()', function () {
           (container.style as any)[property] = value;
           const actual = getOffsetContainer(el, { skipDisplayNone: false });
           const expected = getContainingBlock(el, { skipDisplayNone: false });
-          assert.equal(actual, expected);
+          assert.strictEqual(actual, expected);
         });
 
         it(`should skip "display:none" "position:static" "${property}:${value}" ancestors when skipDisplayNone option is true`, function () {
@@ -289,7 +289,7 @@ describe('getOffsetContainer()', function () {
           (container.style as any)[property] = value;
           const actual = getOffsetContainer(el, { skipDisplayNone: true });
           const expected = getContainingBlock(el, { skipDisplayNone: true });
-          assert.equal(actual, expected);
+          assert.strictEqual(actual, expected);
         });
       }
     });
@@ -300,7 +300,7 @@ describe('getOffsetContainer()', function () {
       el.style.position = 'relative';
       const actual = getOffsetContainer(el);
       const expected = el;
-      assert.equal(actual, expected);
+      assert.strictEqual(actual, expected);
     });
   });
 
@@ -309,7 +309,7 @@ describe('getOffsetContainer()', function () {
       el.style.position = 'static';
       const actual = getOffsetContainer(el);
       const expected = null;
-      assert.equal(actual, expected);
+      assert.strictEqual(actual, expected);
     });
   });
 
@@ -318,7 +318,7 @@ describe('getOffsetContainer()', function () {
       el.style.position = 'sticky';
       const actual = getOffsetContainer(el);
       const expected = null;
-      assert.equal(actual, expected);
+      assert.strictEqual(actual, expected);
     });
   });
 });

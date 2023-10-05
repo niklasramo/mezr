@@ -95,3 +95,42 @@ export const CONTAINING_BLOCK_SPECIAL_CASES = [
     containsBlock: !IS_SAFARI,
   },
 ] as const;
+
+// On some mobile devices (and on desktop browsers if you zoom to specific
+// levels) the computed values of some properties are not always the integer
+// values you have specified in CSS. E.g. border width of 3px might turn to
+// 2.887px when you zoom the browser or when you use a mobile device with
+// a specific display scaling. Here we check if the browser has this issue.
+export const HAS_FLAKY_COMPUTED_DIMENSIONS = (() => {
+  const el = document.createElement('div');
+  Object.assign(el.style, {
+    boxSizing: 'content-box',
+    overflow: 'scroll',
+    width: `50px`,
+    height: `50px`,
+    paddingLeft: `1px`,
+    paddingRight: `2px`,
+    paddingTop: `1px`,
+    paddingBottom: `2px`,
+    borderLeft: `3px solid #000`,
+    borderRight: `4px solid #000`,
+    borderTop: `3px solid #000`,
+    borderBottom: `4px solid #000`,
+    marginLeft: `5px`,
+    marginRight: `6px`,
+    marginTop: `5px`,
+    marginBottom: `6px`,
+  });
+
+  document.body.appendChild(el);
+
+  const rect = el.getBoundingClientRect();
+
+  document.body.removeChild(el);
+
+  if (!Number.isInteger(rect.width) || !Number.isInteger(rect.height)) {
+    return true;
+  }
+
+  return false;
+})();

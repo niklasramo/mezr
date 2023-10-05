@@ -1,6 +1,7 @@
 import { assert } from 'chai';
 import { beforeTest, afterTest } from './utils/hooks.js';
 import { createTestElement } from './utils/createTestElement.js';
+import { assertEqualDomNumbers } from './utils/assertEqualDomNumbers.js';
 import { getOverflow } from '../../src/index.js';
 
 describe('getOverflow()', function () {
@@ -47,7 +48,11 @@ describe('getOverflow()', function () {
         height: '100px',
       });
       const result = getOverflow(target, container);
-      assert.deepEqual(result, { left: -50, right: -50, top: -50, bottom: -50 });
+      const expected = { left: -50, right: -50, top: -50, bottom: -50 };
+      assertEqualDomNumbers(result.left, expected.left, 'left');
+      assertEqualDomNumbers(result.right, expected.right, 'right');
+      assertEqualDomNumbers(result.top, expected.top, 'top');
+      assertEqualDomNumbers(result.bottom, expected.bottom, 'bottom');
     });
 
     it('should calculate the overflow for a non-overlapping DOM element', function () {
@@ -66,7 +71,11 @@ describe('getOverflow()', function () {
         height: '100px',
       });
       const result = getOverflow(target, container);
-      assert.deepEqual(result, { left: -200, right: 200, top: -200, bottom: 200 });
+      const expected = { left: -200, right: 200, top: -200, bottom: 200 };
+      assertEqualDomNumbers(result.left, expected.left, 'left');
+      assertEqualDomNumbers(result.right, expected.right, 'right');
+      assertEqualDomNumbers(result.top, expected.top, 'top');
+      assertEqualDomNumbers(result.bottom, expected.bottom, 'bottom');
     });
 
     it('should consider box edges for the overflow calculations', function () {
@@ -91,7 +100,11 @@ describe('getOverflow()', function () {
         margin: '10px',
       });
       const result = getOverflow([target, 'margin'], [container, 'content']);
-      assert.deepEqual(result, { left: 15, right: 55, top: 15, bottom: 55 });
+      const expected = { left: 15, right: 55, top: 15, bottom: 55 };
+      assertEqualDomNumbers(result.left, expected.left, 'left');
+      assertEqualDomNumbers(result.right, expected.right, 'right');
+      assertEqualDomNumbers(result.top, expected.top, 'top');
+      assertEqualDomNumbers(result.bottom, expected.bottom, 'bottom');
     });
   });
 

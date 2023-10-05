@@ -1,12 +1,11 @@
 function isDimensionsMatch(
-  targetRect: DOMRect,
-  ancestorRect: DOMRect,
+  targetDimensions: { width: number; height: number },
+  ancestorDimensions: { width: number; height: number },
   scaleFactor: number,
 ): boolean {
-  // Note, the 0.1 is to account for rounding errors.
   return (
-    Math.abs(ancestorRect.width * scaleFactor - targetRect.width) < 0.1 &&
-    Math.abs(ancestorRect.height * scaleFactor - targetRect.height) < 0.1
+    Math.abs(ancestorDimensions.width * scaleFactor - targetDimensions.width) < 0.5 &&
+    Math.abs(ancestorDimensions.height * scaleFactor - targetDimensions.height) < 0.5
   );
 }
 
@@ -59,8 +58,11 @@ export function getEffectiveContainingBlock(
   const { position } = window.getComputedStyle(element);
   if (
     (position === 'fixed' || position === 'absolute') &&
-    Math.abs(window.innerWidth * scaleFactor - targetOriginalRect.width) < 0.1 &&
-    Math.abs(window.innerHeight * scaleFactor - targetOriginalRect.height) < 0.1
+    isDimensionsMatch(
+      targetOriginalRect,
+      { width: window.innerWidth, height: window.innerHeight },
+      scaleFactor,
+    )
   ) {
     return window;
   }

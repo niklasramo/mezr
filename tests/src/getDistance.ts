@@ -1,6 +1,7 @@
 import { assert } from 'chai';
 import { beforeTest, afterTest } from './utils/hooks.js';
 import { createTestElement } from './utils/createTestElement.js';
+import { assertEqualDomNumbers } from './utils/assertEqualDomNumbers.js';
 import { getDistance } from '../../src/index.js';
 
 describe('getDistance()', function () {
@@ -195,7 +196,7 @@ describe('getDistance()', function () {
         height: '100px',
       });
       const result = getDistance(elA, elB);
-      assert.strictEqual(result, Math.sqrt(100 ** 2 + 100 ** 2));
+      assertEqualDomNumbers(result, Math.sqrt(100 ** 2 + 100 ** 2));
     });
 
     it('should account for the box edge accordingly', function () {
@@ -221,7 +222,7 @@ describe('getDistance()', function () {
       });
       const result = getDistance([elA, 'content'], [elB, 'padding']);
       const expectedDistance = 20;
-      assert.strictEqual(result, expectedDistance);
+      assertEqualDomNumbers(result, expectedDistance);
     });
 
     it('should return null for overlapping DOM elements', function () {
