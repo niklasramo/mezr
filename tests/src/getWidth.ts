@@ -1,8 +1,8 @@
-import { assert } from 'chai';
 import { beforeTest, afterTest } from './utils/hooks.js';
 import { createTestElement } from './utils/createTestElement.js';
-import { getWidth } from '../../src/index.js';
 import { getScrollbarSizes } from './utils/getScrollbarSizes.js';
+import { assertEqualDomNumbers } from './utils/assertEqualDomNumbers.js';
+import { getWidth } from '../../src/index.js';
 
 const { width: sbWidth } = getScrollbarSizes();
 
@@ -26,16 +26,16 @@ describe('getWidth()', function () {
 
     it('should measure width without scrollbar', function () {
       const expected = elWidth;
-      assert.strictEqual(getWidth(document, 'content'), expected, 'content');
-      assert.strictEqual(getWidth(document, 'padding'), expected, 'padding');
+      assertEqualDomNumbers(getWidth(document, 'content'), expected, 'content');
+      assertEqualDomNumbers(getWidth(document, 'padding'), expected, 'padding');
     });
 
     it('should measure width with scrollbar', function () {
       const expected = elWidth + window.innerWidth - document.documentElement.clientWidth;
-      assert.strictEqual(getWidth(document, 'scroll'), expected, 'scroll');
-      assert.strictEqual(getWidth(document), expected, 'default');
-      assert.strictEqual(getWidth(document, 'border'), expected, 'border');
-      assert.strictEqual(getWidth(document, 'margin'), expected, 'margin');
+      assertEqualDomNumbers(getWidth(document, 'scroll'), expected, 'scroll');
+      assertEqualDomNumbers(getWidth(document), expected, 'default');
+      assertEqualDomNumbers(getWidth(document, 'border'), expected, 'border');
+      assertEqualDomNumbers(getWidth(document, 'margin'), expected, 'margin');
     });
   });
 
@@ -43,16 +43,16 @@ describe('getWidth()', function () {
     it('should measure width without scrollbar', function () {
       document.documentElement.style.overflow = 'scroll';
       const expected = document.documentElement.clientWidth;
-      assert.strictEqual(getWidth(window, 'content'), expected, 'content');
-      assert.strictEqual(getWidth(window, 'padding'), expected, 'padding');
+      assertEqualDomNumbers(getWidth(window, 'content'), expected, 'content');
+      assertEqualDomNumbers(getWidth(window, 'padding'), expected, 'padding');
     });
 
     it('should measure width with scrollbar', function () {
       const expected = window.innerWidth;
-      assert.strictEqual(getWidth(window, 'scroll'), expected, 'scroll');
-      assert.strictEqual(getWidth(window), expected, 'default');
-      assert.strictEqual(getWidth(window, 'border'), expected, 'border');
-      assert.strictEqual(getWidth(window, 'margin'), expected, 'margin');
+      assertEqualDomNumbers(getWidth(window, 'scroll'), expected, 'scroll');
+      assertEqualDomNumbers(getWidth(window), expected, 'default');
+      assertEqualDomNumbers(getWidth(window, 'border'), expected, 'border');
+      assertEqualDomNumbers(getWidth(window, 'margin'), expected, 'margin');
     });
   });
 
@@ -60,20 +60,20 @@ describe('getWidth()', function () {
     const testElementDimensions = (boxSizing: 'border-box' | 'content-box') => {
       let el: HTMLElement;
 
-      const width = 50;
-      const height = 50;
-      const paddingLeft = 1;
-      const paddingRight = 2;
-      const paddingTop = 1;
-      const paddingBottom = 2;
-      const borderWidthRight = 3;
-      const borderWidthLeft = 4;
-      const borderWidthTop = 3;
-      const borderWidthBottom = 4;
-      const marginLeft = 5;
-      const marginRight = 6;
-      const marginTop = 5;
-      const marginBottom = 6;
+      const width = 200;
+      const height = 200;
+      const paddingLeft = 5;
+      const paddingRight = 10;
+      const paddingTop = 15;
+      const paddingBottom = 20;
+      const borderWidthRight = 25;
+      const borderWidthLeft = 30;
+      const borderWidthTop = 35;
+      const borderWidthBottom = 40;
+      const marginLeft = 45;
+      const marginRight = 50;
+      const marginTop = 55;
+      const marginBottom = 60;
 
       beforeEach(function () {
         el = createTestElement({
@@ -102,7 +102,7 @@ describe('getWidth()', function () {
           boxSizing === 'content-box'
             ? width - sbWidth
             : width - sbWidth - paddingLeft - paddingRight - borderWidthLeft - borderWidthRight;
-        assert.equal(actual, expected, `content - ${boxSizing}`);
+        assertEqualDomNumbers(actual, expected, `content - ${boxSizing}`);
       });
 
       it(`should measure padding width for ${boxSizing}`, function () {
@@ -111,7 +111,7 @@ describe('getWidth()', function () {
           boxSizing === 'content-box'
             ? width - sbWidth + paddingLeft + paddingRight
             : width - sbWidth - borderWidthLeft - borderWidthRight;
-        assert.equal(actual, expected, `padding - ${boxSizing}`);
+        assertEqualDomNumbers(actual, expected, `padding - ${boxSizing}`);
       });
 
       it(`should measure scroll width for ${boxSizing}`, function () {
@@ -120,7 +120,7 @@ describe('getWidth()', function () {
           boxSizing === 'content-box'
             ? width + paddingLeft + paddingRight
             : width - borderWidthLeft - borderWidthRight;
-        assert.equal(actual, expected, `scroll - ${boxSizing}`);
+        assertEqualDomNumbers(actual, expected, `scroll - ${boxSizing}`);
       });
 
       it(`should measure default width for ${boxSizing}`, function () {
@@ -129,7 +129,7 @@ describe('getWidth()', function () {
           boxSizing === 'content-box'
             ? width + paddingLeft + paddingRight + borderWidthLeft + borderWidthRight
             : width;
-        assert.equal(actual, expected, `default - ${boxSizing}`);
+        assertEqualDomNumbers(actual, expected, `default - ${boxSizing}`);
       });
 
       it(`should measure border width for ${boxSizing}`, function () {
@@ -138,7 +138,7 @@ describe('getWidth()', function () {
           boxSizing === 'content-box'
             ? width + paddingLeft + paddingRight + borderWidthLeft + borderWidthRight
             : width;
-        assert.equal(actual, expected, `border - ${boxSizing}`);
+        assertEqualDomNumbers(actual, expected, `border - ${boxSizing}`);
       });
 
       it(`should measure margin width for ${boxSizing}`, function () {
@@ -153,7 +153,7 @@ describe('getWidth()', function () {
               marginLeft +
               marginRight
             : width + marginLeft + marginRight;
-        assert.equal(actual, expected, `margin - ${boxSizing}`);
+        assertEqualDomNumbers(actual, expected, `margin - ${boxSizing}`);
       });
     };
 

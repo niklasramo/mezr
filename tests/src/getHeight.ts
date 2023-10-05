@@ -1,8 +1,8 @@
-import { assert } from 'chai';
 import { beforeTest, afterTest } from './utils/hooks.js';
 import { createTestElement } from './utils/createTestElement.js';
-import { getHeight } from '../../src/index.js';
 import { getScrollbarSizes } from './utils/getScrollbarSizes.js';
+import { assertEqualDomNumbers } from './utils/assertEqualDomNumbers.js';
+import { getHeight } from '../../src/index.js';
 
 const { height: sbHeight } = getScrollbarSizes();
 
@@ -26,16 +26,16 @@ describe('getHeight()', function () {
 
     it('should measure height without scrollbar', function () {
       const expected = elHeight;
-      assert.strictEqual(getHeight(document, 'content'), expected, 'content');
-      assert.strictEqual(getHeight(document, 'padding'), expected, 'padding');
+      assertEqualDomNumbers(getHeight(document, 'content'), expected, 'content');
+      assertEqualDomNumbers(getHeight(document, 'padding'), expected, 'padding');
     });
 
     it('should measure height with scrollbar', function () {
       const expected = elHeight + window.innerHeight - document.documentElement.clientHeight;
-      assert.strictEqual(getHeight(document, 'scroll'), expected, 'scroll');
-      assert.strictEqual(getHeight(document), expected, 'default');
-      assert.strictEqual(getHeight(document, 'border'), expected, 'border');
-      assert.strictEqual(getHeight(document, 'margin'), expected, 'margin');
+      assertEqualDomNumbers(getHeight(document, 'scroll'), expected, 'scroll');
+      assertEqualDomNumbers(getHeight(document), expected, 'default');
+      assertEqualDomNumbers(getHeight(document, 'border'), expected, 'border');
+      assertEqualDomNumbers(getHeight(document, 'margin'), expected, 'margin');
     });
   });
 
@@ -43,16 +43,16 @@ describe('getHeight()', function () {
     it('should measure height without scrollbar', function () {
       document.documentElement.style.overflow = 'scroll';
       const expected = document.documentElement.clientHeight;
-      assert.strictEqual(getHeight(window, 'content'), expected, 'content');
-      assert.strictEqual(getHeight(window, 'padding'), expected, 'padding');
+      assertEqualDomNumbers(getHeight(window, 'content'), expected, 'content');
+      assertEqualDomNumbers(getHeight(window, 'padding'), expected, 'padding');
     });
 
     it('should measure height with scrollbar', function () {
       const expected = window.innerHeight;
-      assert.strictEqual(getHeight(window, 'scroll'), expected, 'scroll');
-      assert.strictEqual(getHeight(window), expected, 'default');
-      assert.strictEqual(getHeight(window, 'border'), expected, 'border');
-      assert.strictEqual(getHeight(window, 'margin'), expected, 'margin');
+      assertEqualDomNumbers(getHeight(window, 'scroll'), expected, 'scroll');
+      assertEqualDomNumbers(getHeight(window), expected, 'default');
+      assertEqualDomNumbers(getHeight(window, 'border'), expected, 'border');
+      assertEqualDomNumbers(getHeight(window, 'margin'), expected, 'margin');
     });
   });
 
@@ -60,20 +60,20 @@ describe('getHeight()', function () {
     const testElementDimensions = (boxSizing: 'border-box' | 'content-box') => {
       let el: HTMLElement;
 
-      const width = 50;
-      const height = 50;
-      const paddingLeft = 1;
-      const paddingRight = 2;
-      const paddingTop = 1;
-      const paddingBottom = 2;
-      const borderWidthRight = 3;
-      const borderWidthLeft = 4;
-      const borderWidthTop = 3;
-      const borderWidthBottom = 4;
-      const marginLeft = 5;
-      const marginRight = 6;
-      const marginTop = 5;
-      const marginBottom = 6;
+      const width = 200;
+      const height = 200;
+      const paddingLeft = 5;
+      const paddingRight = 10;
+      const paddingTop = 15;
+      const paddingBottom = 20;
+      const borderWidthRight = 25;
+      const borderWidthLeft = 30;
+      const borderWidthTop = 35;
+      const borderWidthBottom = 40;
+      const marginLeft = 45;
+      const marginRight = 50;
+      const marginTop = 55;
+      const marginBottom = 60;
 
       beforeEach(function () {
         el = createTestElement({
@@ -102,7 +102,7 @@ describe('getHeight()', function () {
           boxSizing === 'content-box'
             ? height - sbHeight
             : height - sbHeight - paddingTop - paddingBottom - borderWidthTop - borderWidthBottom;
-        assert.equal(actual, expected, `content - ${boxSizing}`);
+        assertEqualDomNumbers(actual, expected, `content - ${boxSizing}`);
       });
 
       it(`should measure padding height for ${boxSizing}`, function () {
@@ -111,7 +111,7 @@ describe('getHeight()', function () {
           boxSizing === 'content-box'
             ? height - sbHeight + paddingTop + paddingBottom
             : height - sbHeight - borderWidthTop - borderWidthBottom;
-        assert.equal(actual, expected, `padding - ${boxSizing}`);
+        assertEqualDomNumbers(actual, expected, `padding - ${boxSizing}`);
       });
 
       it(`should measure scroll height for ${boxSizing}`, function () {
@@ -120,7 +120,7 @@ describe('getHeight()', function () {
           boxSizing === 'content-box'
             ? height + paddingTop + paddingBottom
             : height - borderWidthTop - borderWidthBottom;
-        assert.equal(actual, expected, `scroll - ${boxSizing}`);
+        assertEqualDomNumbers(actual, expected, `scroll - ${boxSizing}`);
       });
 
       it(`should measure default height for ${boxSizing}`, function () {
@@ -129,7 +129,7 @@ describe('getHeight()', function () {
           boxSizing === 'content-box'
             ? height + paddingTop + paddingBottom + borderWidthTop + borderWidthBottom
             : height;
-        assert.equal(actual, expected, `default - ${boxSizing}`);
+        assertEqualDomNumbers(actual, expected, `default - ${boxSizing}`);
       });
 
       it(`should measure border height for ${boxSizing}`, function () {
@@ -138,7 +138,7 @@ describe('getHeight()', function () {
           boxSizing === 'content-box'
             ? height + paddingTop + paddingBottom + borderWidthTop + borderWidthBottom
             : height;
-        assert.equal(actual, expected, `border - ${boxSizing}`);
+        assertEqualDomNumbers(actual, expected, `border - ${boxSizing}`);
       });
 
       it(`should measure margin height for ${boxSizing}`, function () {
@@ -150,10 +150,10 @@ describe('getHeight()', function () {
               paddingBottom +
               borderWidthTop +
               borderWidthBottom +
-              marginLeft +
-              marginRight
-            : height + marginLeft + marginRight;
-        assert.equal(actual, expected, `margin - ${boxSizing}`);
+              marginTop +
+              marginBottom
+            : height + marginTop + marginBottom;
+        assertEqualDomNumbers(actual, expected, `margin - ${boxSizing}`);
       });
     };
 

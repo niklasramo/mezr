@@ -1,8 +1,8 @@
-import { assert } from 'chai';
 import { beforeTest, afterTest } from './utils/hooks.js';
 import { createTestElement } from './utils/createTestElement.js';
-import { getRect } from '../../src/index.js';
 import { getScrollbarSizes } from './utils/getScrollbarSizes.js';
+import { assertEqualDomNumbers } from './utils/assertEqualDomNumbers.js';
+import { getRect } from '../../src/index.js';
 
 const { width: sbWidth, height: sbHeight } = getScrollbarSizes();
 
@@ -45,15 +45,15 @@ describe('getRect()', function () {
 
           const rect = getRect([document, boxEdge]);
 
-          assert.strictEqual(rect.width, expectedWidth, 'width: rect.width');
-          assert.strictEqual(
+          assertEqualDomNumbers(rect.width, expectedWidth, 'width: rect.width');
+          assertEqualDomNumbers(
             rect.right - rect.left,
             expectedWidth,
             'width: rect.right - rect.left',
           );
 
-          assert.strictEqual(rect.height, expectedHeight, 'height: rect.height');
-          assert.strictEqual(
+          assertEqualDomNumbers(rect.height, expectedHeight, 'height: rect.height');
+          assertEqualDomNumbers(
             rect.bottom - rect.top,
             expectedHeight,
             'height: rect.bottom - rect.top',
@@ -84,15 +84,15 @@ describe('getRect()', function () {
 
           const rect = getRect([window, boxEdge]);
 
-          assert.strictEqual(rect.width, expectedWidth, 'width: rect.width');
-          assert.strictEqual(
+          assertEqualDomNumbers(rect.width, expectedWidth, 'width: rect.width');
+          assertEqualDomNumbers(
             rect.right - rect.left,
             expectedWidth,
             'width: rect.right - rect.left',
           );
 
-          assert.strictEqual(rect.height, expectedHeight, 'height: rect.height');
-          assert.strictEqual(
+          assertEqualDomNumbers(rect.height, expectedHeight, 'height: rect.height');
+          assertEqualDomNumbers(
             rect.bottom - rect.top,
             expectedHeight,
             'height: rect.bottom - rect.top',
@@ -147,8 +147,8 @@ describe('getRect()', function () {
             boxSizing === 'content-box'
               ? width - sbWidth
               : width - sbWidth - paddingLeft - paddingRight - borderWidthLeft - borderWidthRight;
-          assert.equal(rect.width, expected, `content - ${boxSizing}: rect.width`);
-          assert.equal(
+          assertEqualDomNumbers(rect.width, expected, `content - ${boxSizing}: rect.width`);
+          assertEqualDomNumbers(
             rect.right - rect.left,
             expected,
             `content - ${boxSizing}: rect.right - rect.left`,
@@ -161,8 +161,8 @@ describe('getRect()', function () {
             boxSizing === 'content-box'
               ? height - sbHeight
               : height - sbHeight - paddingTop - paddingBottom - borderWidthTop - borderWidthBottom;
-          assert.equal(rect.height, expected, `content - ${boxSizing}: rect.height`);
-          assert.equal(
+          assertEqualDomNumbers(rect.height, expected, `content - ${boxSizing}: rect.height`);
+          assertEqualDomNumbers(
             rect.bottom - rect.top,
             expected,
             `content - ${boxSizing}: rect.bottom - rect.top`,
@@ -175,8 +175,8 @@ describe('getRect()', function () {
             boxSizing === 'content-box'
               ? width - sbWidth + paddingLeft + paddingRight
               : width - sbWidth - borderWidthLeft - borderWidthRight;
-          assert.equal(rect.width, expected, `padding - ${boxSizing}: rect.width`);
-          assert.equal(
+          assertEqualDomNumbers(rect.width, expected, `padding - ${boxSizing}: rect.width`);
+          assertEqualDomNumbers(
             rect.right - rect.left,
             expected,
             `padding - ${boxSizing}: rect.right - rect.left`,
@@ -189,8 +189,8 @@ describe('getRect()', function () {
             boxSizing === 'content-box'
               ? height - sbHeight + paddingTop + paddingBottom
               : height - sbHeight - borderWidthTop - borderWidthBottom;
-          assert.equal(rect.height, expected, `padding - ${boxSizing}: rect.height`);
-          assert.equal(
+          assertEqualDomNumbers(rect.height, expected, `padding - ${boxSizing}: rect.height`);
+          assertEqualDomNumbers(
             rect.bottom - rect.top,
             expected,
             `padding - ${boxSizing}: rect.bottom - rect.top`,
@@ -203,8 +203,8 @@ describe('getRect()', function () {
             boxSizing === 'content-box'
               ? width + paddingLeft + paddingRight
               : width - borderWidthLeft - borderWidthRight;
-          assert.equal(rect.width, expected, `scroll - ${boxSizing}: rect.width`);
-          assert.equal(
+          assertEqualDomNumbers(rect.width, expected, `scroll - ${boxSizing}: rect.width`);
+          assertEqualDomNumbers(
             rect.right - rect.left,
             expected,
             `scroll - ${boxSizing}: rect.right - rect.left`,
@@ -217,8 +217,8 @@ describe('getRect()', function () {
             boxSizing === 'content-box'
               ? height + paddingTop + paddingBottom
               : height - borderWidthTop - borderWidthBottom;
-          assert.equal(rect.height, expected, `scroll - ${boxSizing}: rect.height`);
-          assert.equal(
+          assertEqualDomNumbers(rect.height, expected, `scroll - ${boxSizing}: rect.height`);
+          assertEqualDomNumbers(
             rect.bottom - rect.top,
             expected,
             `scroll - ${boxSizing}: rect.bottom - rect.top`,
@@ -231,8 +231,8 @@ describe('getRect()', function () {
             boxSizing === 'content-box'
               ? width + paddingLeft + paddingRight + borderWidthLeft + borderWidthRight
               : width;
-          assert.equal(rect.width, expected, `default - ${boxSizing}: rect.width`);
-          assert.equal(
+          assertEqualDomNumbers(rect.width, expected, `default - ${boxSizing}: rect.width`);
+          assertEqualDomNumbers(
             rect.right - rect.left,
             expected,
             `default - ${boxSizing}: rect.right - rect.left`,
@@ -245,8 +245,8 @@ describe('getRect()', function () {
             boxSizing === 'content-box'
               ? height + paddingTop + paddingBottom + borderWidthTop + borderWidthBottom
               : height;
-          assert.equal(rect.height, expected, `default - ${boxSizing}: rect.height`);
-          assert.equal(
+          assertEqualDomNumbers(rect.height, expected, `default - ${boxSizing}: rect.height`);
+          assertEqualDomNumbers(
             rect.bottom - rect.top,
             expected,
             `default - ${boxSizing}: rect.bottom - rect.top`,
@@ -259,8 +259,8 @@ describe('getRect()', function () {
             boxSizing === 'content-box'
               ? width + paddingLeft + paddingRight + borderWidthLeft + borderWidthRight
               : width;
-          assert.equal(rect.width, expected, `border - ${boxSizing}: rect.width`);
-          assert.equal(
+          assertEqualDomNumbers(rect.width, expected, `border - ${boxSizing}: rect.width`);
+          assertEqualDomNumbers(
             rect.right - rect.left,
             expected,
             `border - ${boxSizing}: rect.right - rect.left`,
@@ -273,8 +273,8 @@ describe('getRect()', function () {
             boxSizing === 'content-box'
               ? height + paddingTop + paddingBottom + borderWidthTop + borderWidthBottom
               : height;
-          assert.equal(rect.height, expected, `border - ${boxSizing}: rect.height`);
-          assert.equal(
+          assertEqualDomNumbers(rect.height, expected, `border - ${boxSizing}: rect.height`);
+          assertEqualDomNumbers(
             rect.bottom - rect.top,
             expected,
             `border - ${boxSizing}: rect.bottom - rect.top`,
@@ -293,8 +293,8 @@ describe('getRect()', function () {
                 marginLeft +
                 marginRight
               : width + marginLeft + marginRight;
-          assert.equal(rect.width, expected, `margin - ${boxSizing}: rect.width`);
-          assert.equal(
+          assertEqualDomNumbers(rect.width, expected, `margin - ${boxSizing}: rect.width`);
+          assertEqualDomNumbers(
             rect.right - rect.left,
             expected,
             `margin - ${boxSizing}: rect.right - rect.left`,
@@ -313,8 +313,8 @@ describe('getRect()', function () {
                 marginTop +
                 marginBottom
               : height + marginTop + marginBottom;
-          assert.equal(rect.height, expected, `margin - ${boxSizing}: rect.height`);
-          assert.equal(
+          assertEqualDomNumbers(rect.height, expected, `margin - ${boxSizing}: rect.height`);
+          assertEqualDomNumbers(
             rect.bottom - rect.top,
             expected,
             `margin - ${boxSizing}: rect.bottom - rect.top`,
@@ -345,7 +345,8 @@ describe('getRect()', function () {
       it('should return correct offset without scrolling', function () {
         const actual = getRectOffset(document);
         const expected = { left: 0, top: 0 };
-        assert.deepEqual(actual, expected);
+        assertEqualDomNumbers(actual.left, expected.left, 'left');
+        assertEqualDomNumbers(actual.top, expected.top, 'top');
       });
 
       it('should return correct offset with scrolling', function () {
@@ -356,7 +357,8 @@ describe('getRect()', function () {
         window.scrollTo({ left: 50, top: 100, behavior: 'instant' });
         const actual = getRectOffset(document);
         const expected = { left: 0, top: 0 };
-        assert.deepEqual(actual, expected);
+        assertEqualDomNumbers(actual.left, expected.left, 'left');
+        assertEqualDomNumbers(actual.top, expected.top, 'top');
       });
     });
 
@@ -364,7 +366,8 @@ describe('getRect()', function () {
       it('should return correct offset without scrolling', function () {
         const actual = getRectOffset(window);
         const expected = { left: 0, top: 0 };
-        assert.deepEqual(actual, expected);
+        assertEqualDomNumbers(actual.left, expected.left, 'left');
+        assertEqualDomNumbers(actual.top, expected.top, 'top');
       });
 
       it('should return correct offset with scrolling', function () {
@@ -375,7 +378,8 @@ describe('getRect()', function () {
         window.scrollTo({ left: 50, top: 100, behavior: 'instant' });
         const actual = getRectOffset(window);
         const expected = { left: 50, top: 100 };
-        assert.deepEqual(actual, expected);
+        assertEqualDomNumbers(actual.left, expected.left, 'left');
+        assertEqualDomNumbers(actual.top, expected.top, 'top');
       });
     });
 
@@ -477,7 +481,8 @@ describe('getRect()', function () {
             left: left + marginLeft + borderLeft + paddingLeft,
             top: top + marginTop + borderTop + paddingTop,
           };
-          assert.deepEqual(actual, expected);
+          assertEqualDomNumbers(actual.left, expected.left, 'left');
+          assertEqualDomNumbers(actual.top, expected.top, 'top');
         });
 
         it(`should measure element's padding offset from document`, function () {
@@ -486,7 +491,8 @@ describe('getRect()', function () {
             left: left + marginLeft + borderLeft,
             top: top + marginTop + borderTop,
           };
-          assert.deepEqual(actual, expected);
+          assertEqualDomNumbers(actual.left, expected.left, 'left');
+          assertEqualDomNumbers(actual.top, expected.top, 'top');
         });
 
         it(`should measure element's scroll offset from document`, function () {
@@ -495,7 +501,8 @@ describe('getRect()', function () {
             left: left + marginLeft + borderLeft,
             top: top + marginTop + borderTop,
           };
-          assert.deepEqual(actual, expected);
+          assertEqualDomNumbers(actual.left, expected.left, 'left');
+          assertEqualDomNumbers(actual.top, expected.top, 'top');
         });
 
         it(`should measure element's border offset from document`, function () {
@@ -504,7 +511,8 @@ describe('getRect()', function () {
             left: left + marginLeft,
             top: top + marginTop,
           };
-          assert.deepEqual(actual, expected);
+          assertEqualDomNumbers(actual.left, expected.left, 'left');
+          assertEqualDomNumbers(actual.top, expected.top, 'top');
         });
 
         it(`should measure element's margin offset from document`, function () {
@@ -513,7 +521,8 @@ describe('getRect()', function () {
             left: left,
             top: top,
           };
-          assert.deepEqual(actual, expected);
+          assertEqualDomNumbers(actual.left, expected.left, 'left');
+          assertEqualDomNumbers(actual.top, expected.top, 'top');
         });
       });
 
@@ -524,7 +533,8 @@ describe('getRect()', function () {
             left: left + marginLeft + borderLeft + paddingLeft - scrollLeft,
             top: top + marginTop + borderTop + paddingTop - scrollTop,
           };
-          assert.deepEqual(actual, expected);
+          assertEqualDomNumbers(actual.left, expected.left, 'left');
+          assertEqualDomNumbers(actual.top, expected.top, 'top');
         });
 
         it(`should measure element's padding offset from window`, function () {
@@ -533,7 +543,8 @@ describe('getRect()', function () {
             left: left + marginLeft + borderLeft - scrollLeft,
             top: top + marginTop + borderTop - scrollTop,
           };
-          assert.deepEqual(actual, expected);
+          assertEqualDomNumbers(actual.left, expected.left, 'left');
+          assertEqualDomNumbers(actual.top, expected.top, 'top');
         });
 
         it(`should measure element's scroll offset from window`, function () {
@@ -542,7 +553,8 @@ describe('getRect()', function () {
             left: left + marginLeft + borderLeft - scrollLeft,
             top: top + marginTop + borderTop - scrollTop,
           };
-          assert.deepEqual(actual, expected);
+          assertEqualDomNumbers(actual.left, expected.left, 'left');
+          assertEqualDomNumbers(actual.top, expected.top, 'top');
         });
 
         it(`should measure element's default (border) offset from window`, function () {
@@ -551,7 +563,8 @@ describe('getRect()', function () {
             left: left + marginLeft - scrollLeft,
             top: top + marginTop - scrollTop,
           };
-          assert.deepEqual(actual, expected);
+          assertEqualDomNumbers(actual.left, expected.left, 'left');
+          assertEqualDomNumbers(actual.top, expected.top, 'top');
         });
 
         it(`should measure element's border offset from window`, function () {
@@ -560,7 +573,8 @@ describe('getRect()', function () {
             left: left + marginLeft - scrollLeft,
             top: top + marginTop - scrollTop,
           };
-          assert.deepEqual(actual, expected);
+          assertEqualDomNumbers(actual.left, expected.left, 'left');
+          assertEqualDomNumbers(actual.top, expected.top, 'top');
         });
 
         it(`should measure element's margin offset from window`, function () {
@@ -569,7 +583,8 @@ describe('getRect()', function () {
             left: left - scrollLeft,
             top: top - scrollTop,
           };
-          assert.deepEqual(actual, expected);
+          assertEqualDomNumbers(actual.left, expected.left, 'left');
+          assertEqualDomNumbers(actual.top, expected.top, 'top');
         });
       });
 
@@ -580,7 +595,8 @@ describe('getRect()', function () {
             left: -elBContainerLeft,
             top: -elBContainerTop,
           };
-          assert.deepEqual(actual, expected);
+          assertEqualDomNumbers(actual.left, expected.left, 'left');
+          assertEqualDomNumbers(actual.top, expected.top, 'top');
         });
 
         it(`should measure content -> padding offset`, function () {
@@ -589,7 +605,8 @@ describe('getRect()', function () {
             left: paddingLeft - elBContainerLeft,
             top: paddingTop - elBContainerTop,
           };
-          assert.deepEqual(actual, expected);
+          assertEqualDomNumbers(actual.left, expected.left, 'left');
+          assertEqualDomNumbers(actual.top, expected.top, 'top');
         });
 
         it(`should measure content -> scroll offset`, function () {
@@ -598,7 +615,8 @@ describe('getRect()', function () {
             left: paddingLeft - elBContainerLeft,
             top: paddingTop - elBContainerTop,
           };
-          assert.deepEqual(actual, expected);
+          assertEqualDomNumbers(actual.left, expected.left, 'left');
+          assertEqualDomNumbers(actual.top, expected.top, 'top');
         });
 
         it(`should measure content -> default (border) offset`, function () {
@@ -607,7 +625,8 @@ describe('getRect()', function () {
             left: paddingLeft + borderLeft - elBContainerLeft,
             top: paddingTop + borderTop - elBContainerTop,
           };
-          assert.deepEqual(actual, expected);
+          assertEqualDomNumbers(actual.left, expected.left, 'left');
+          assertEqualDomNumbers(actual.top, expected.top, 'top');
         });
 
         it(`should measure content -> border offset`, function () {
@@ -616,7 +635,8 @@ describe('getRect()', function () {
             left: paddingLeft + borderLeft - elBContainerLeft,
             top: paddingTop + borderTop - elBContainerTop,
           };
-          assert.deepEqual(actual, expected);
+          assertEqualDomNumbers(actual.left, expected.left, 'left');
+          assertEqualDomNumbers(actual.top, expected.top, 'top');
         });
 
         it(`should measure content -> margin offset`, function () {
@@ -625,7 +645,8 @@ describe('getRect()', function () {
             left: paddingLeft + borderLeft + marginLeft - elBContainerLeft,
             top: paddingTop + borderTop + marginTop - elBContainerTop,
           };
-          assert.deepEqual(actual, expected);
+          assertEqualDomNumbers(actual.left, expected.left, 'left');
+          assertEqualDomNumbers(actual.top, expected.top, 'top');
         });
       });
 
@@ -636,7 +657,8 @@ describe('getRect()', function () {
             left: -(elBContainerLeft + paddingLeft),
             top: -(elBContainerTop + paddingTop),
           };
-          assert.deepEqual(actual, expected);
+          assertEqualDomNumbers(actual.left, expected.left, 'left');
+          assertEqualDomNumbers(actual.top, expected.top, 'top');
         });
 
         it(`should measure padding -> padding offset`, function () {
@@ -645,7 +667,8 @@ describe('getRect()', function () {
             left: -elBContainerLeft,
             top: -elBContainerTop,
           };
-          assert.deepEqual(actual, expected);
+          assertEqualDomNumbers(actual.left, expected.left, 'left');
+          assertEqualDomNumbers(actual.top, expected.top, 'top');
         });
 
         it(`should measure padding -> scroll offset`, function () {
@@ -654,7 +677,8 @@ describe('getRect()', function () {
             left: -elBContainerLeft,
             top: -elBContainerTop,
           };
-          assert.deepEqual(actual, expected);
+          assertEqualDomNumbers(actual.left, expected.left, 'left');
+          assertEqualDomNumbers(actual.top, expected.top, 'top');
         });
 
         it(`should measure padding -> default (border) offset`, function () {
@@ -663,7 +687,8 @@ describe('getRect()', function () {
             left: borderLeft - elBContainerLeft,
             top: borderTop - elBContainerTop,
           };
-          assert.deepEqual(actual, expected);
+          assertEqualDomNumbers(actual.left, expected.left, 'left');
+          assertEqualDomNumbers(actual.top, expected.top, 'top');
         });
 
         it(`should measure padding -> border offset`, function () {
@@ -672,7 +697,8 @@ describe('getRect()', function () {
             left: borderLeft - elBContainerLeft,
             top: borderTop - elBContainerTop,
           };
-          assert.deepEqual(actual, expected);
+          assertEqualDomNumbers(actual.left, expected.left, 'left');
+          assertEqualDomNumbers(actual.top, expected.top, 'top');
         });
 
         it(`should measure padding -> margin offset`, function () {
@@ -681,7 +707,8 @@ describe('getRect()', function () {
             left: borderLeft + marginLeft - elBContainerLeft,
             top: borderTop + marginTop - elBContainerTop,
           };
-          assert.deepEqual(actual, expected);
+          assertEqualDomNumbers(actual.left, expected.left, 'left');
+          assertEqualDomNumbers(actual.top, expected.top, 'top');
         });
       });
 
@@ -692,7 +719,8 @@ describe('getRect()', function () {
             left: -(elBContainerLeft + paddingLeft),
             top: -(elBContainerTop + paddingTop),
           };
-          assert.deepEqual(actual, expected);
+          assertEqualDomNumbers(actual.left, expected.left, 'left');
+          assertEqualDomNumbers(actual.top, expected.top, 'top');
         });
 
         it(`should measure scroll -> padding offset`, function () {
@@ -701,7 +729,8 @@ describe('getRect()', function () {
             left: -elBContainerLeft,
             top: -elBContainerTop,
           };
-          assert.deepEqual(actual, expected);
+          assertEqualDomNumbers(actual.left, expected.left, 'left');
+          assertEqualDomNumbers(actual.top, expected.top, 'top');
         });
 
         it(`should measure scroll -> scroll offset`, function () {
@@ -710,7 +739,8 @@ describe('getRect()', function () {
             left: -elBContainerLeft,
             top: -elBContainerTop,
           };
-          assert.deepEqual(actual, expected);
+          assertEqualDomNumbers(actual.left, expected.left, 'left');
+          assertEqualDomNumbers(actual.top, expected.top, 'top');
         });
 
         it(`should measure scroll -> default (border) offset`, function () {
@@ -719,7 +749,8 @@ describe('getRect()', function () {
             left: borderLeft - elBContainerLeft,
             top: borderTop - elBContainerTop,
           };
-          assert.deepEqual(actual, expected);
+          assertEqualDomNumbers(actual.left, expected.left, 'left');
+          assertEqualDomNumbers(actual.top, expected.top, 'top');
         });
 
         it(`should measure scroll -> border offset`, function () {
@@ -728,7 +759,8 @@ describe('getRect()', function () {
             left: borderLeft - elBContainerLeft,
             top: borderTop - elBContainerTop,
           };
-          assert.deepEqual(actual, expected);
+          assertEqualDomNumbers(actual.left, expected.left, 'left');
+          assertEqualDomNumbers(actual.top, expected.top, 'top');
         });
 
         it(`should measure scroll -> margin offset`, function () {
@@ -737,7 +769,8 @@ describe('getRect()', function () {
             left: borderLeft + marginLeft - elBContainerLeft,
             top: borderTop + marginTop - elBContainerTop,
           };
-          assert.deepEqual(actual, expected);
+          assertEqualDomNumbers(actual.left, expected.left, 'left');
+          assertEqualDomNumbers(actual.top, expected.top, 'top');
         });
       });
 
@@ -748,7 +781,8 @@ describe('getRect()', function () {
             left: -(elBContainerLeft + paddingLeft + borderLeft),
             top: -(elBContainerTop + paddingTop + borderTop),
           };
-          assert.deepEqual(actual, expected);
+          assertEqualDomNumbers(actual.left, expected.left, 'left');
+          assertEqualDomNumbers(actual.top, expected.top, 'top');
         });
 
         it(`should measure border -> padding offset`, function () {
@@ -757,7 +791,8 @@ describe('getRect()', function () {
             left: -(elBContainerLeft + borderLeft),
             top: -(elBContainerTop + borderTop),
           };
-          assert.deepEqual(actual, expected);
+          assertEqualDomNumbers(actual.left, expected.left, 'left');
+          assertEqualDomNumbers(actual.top, expected.top, 'top');
         });
 
         it(`should measure border -> scroll offset`, function () {
@@ -766,7 +801,8 @@ describe('getRect()', function () {
             left: -(elBContainerLeft + borderLeft),
             top: -(elBContainerTop + borderTop),
           };
-          assert.deepEqual(actual, expected);
+          assertEqualDomNumbers(actual.left, expected.left, 'left');
+          assertEqualDomNumbers(actual.top, expected.top, 'top');
         });
 
         it(`should measure border -> default (border) offset`, function () {
@@ -775,7 +811,8 @@ describe('getRect()', function () {
             left: -elBContainerLeft,
             top: -elBContainerTop,
           };
-          assert.deepEqual(actual, expected);
+          assertEqualDomNumbers(actual.left, expected.left, 'left');
+          assertEqualDomNumbers(actual.top, expected.top, 'top');
         });
 
         it(`should measure border -> border offset`, function () {
@@ -784,7 +821,8 @@ describe('getRect()', function () {
             left: -elBContainerLeft,
             top: -elBContainerTop,
           };
-          assert.deepEqual(actual, expected);
+          assertEqualDomNumbers(actual.left, expected.left, 'left');
+          assertEqualDomNumbers(actual.top, expected.top, 'top');
         });
 
         it(`should measure border -> margin offset`, function () {
@@ -793,7 +831,8 @@ describe('getRect()', function () {
             left: marginLeft - elBContainerLeft,
             top: marginTop - elBContainerTop,
           };
-          assert.deepEqual(actual, expected);
+          assertEqualDomNumbers(actual.left, expected.left, 'left');
+          assertEqualDomNumbers(actual.top, expected.top, 'top');
         });
       });
 
@@ -804,7 +843,8 @@ describe('getRect()', function () {
             left: -(elBContainerLeft + paddingLeft + borderLeft + marginLeft),
             top: -(elBContainerTop + paddingTop + borderTop + marginTop),
           };
-          assert.deepEqual(actual, expected);
+          assertEqualDomNumbers(actual.left, expected.left, 'left');
+          assertEqualDomNumbers(actual.top, expected.top, 'top');
         });
 
         it(`should measure margin -> padding offset`, function () {
@@ -813,7 +853,8 @@ describe('getRect()', function () {
             left: -(elBContainerLeft + borderLeft + marginLeft),
             top: -(elBContainerTop + borderTop + marginTop),
           };
-          assert.deepEqual(actual, expected);
+          assertEqualDomNumbers(actual.left, expected.left, 'left');
+          assertEqualDomNumbers(actual.top, expected.top, 'top');
         });
 
         it(`should measure margin -> scroll offset`, function () {
@@ -822,7 +863,8 @@ describe('getRect()', function () {
             left: -(elBContainerLeft + borderLeft + marginLeft),
             top: -(elBContainerTop + borderTop + marginTop),
           };
-          assert.deepEqual(actual, expected);
+          assertEqualDomNumbers(actual.left, expected.left, 'left');
+          assertEqualDomNumbers(actual.top, expected.top, 'top');
         });
 
         it(`should measure margin -> default (border) offset`, function () {
@@ -831,7 +873,8 @@ describe('getRect()', function () {
             left: -(elBContainerLeft + marginLeft),
             top: -(elBContainerTop + marginTop),
           };
-          assert.deepEqual(actual, expected);
+          assertEqualDomNumbers(actual.left, expected.left, 'left');
+          assertEqualDomNumbers(actual.top, expected.top, 'top');
         });
 
         it(`should measure margin -> border offset`, function () {
@@ -840,7 +883,8 @@ describe('getRect()', function () {
             left: -(elBContainerLeft + marginLeft),
             top: -(elBContainerTop + marginTop),
           };
-          assert.deepEqual(actual, expected);
+          assertEqualDomNumbers(actual.left, expected.left, 'left');
+          assertEqualDomNumbers(actual.top, expected.top, 'top');
         });
 
         it(`should measure margin -> margin offset`, function () {
@@ -849,7 +893,8 @@ describe('getRect()', function () {
             left: -elBContainerLeft,
             top: -elBContainerTop,
           };
-          assert.deepEqual(actual, expected);
+          assertEqualDomNumbers(actual.left, expected.left, 'left');
+          assertEqualDomNumbers(actual.top, expected.top, 'top');
         });
       });
     });

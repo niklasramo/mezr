@@ -1,6 +1,7 @@
 import { assert } from 'chai';
 import { beforeTest, afterTest } from './utils/hooks.js';
 import { createTestElement } from './utils/createTestElement.js';
+import { assertEqualDomNumbers } from './utils/assertEqualDomNumbers.js';
 import { getIntersection } from '../../src/index.js';
 
 describe('getIntersection()', function () {
@@ -14,13 +15,13 @@ describe('getIntersection()', function () {
       assert.notEqual(result, rectA);
     });
 
-    it('should return the first element rect if no other elements are provided', () => {
+    it('should return the first rect rect if no other rects are provided', () => {
       const rectA = { left: 0, top: 0, width: 100, height: 100 };
       const result = getIntersection(rectA);
       assert.deepEqual(result, { ...rectA, right: 100, bottom: 100 });
     });
 
-    it('should return the intersection area of two overlapping elements', () => {
+    it('should return the intersection area of two overlapping rects', () => {
       const rectA = { left: 0, top: 0, width: 100, height: 100 };
       const rectB = { left: 50, top: 50, width: 150, height: 150 };
       const result = getIntersection(rectA, rectB);
@@ -34,7 +35,7 @@ describe('getIntersection()', function () {
       });
     });
 
-    it('should return the intersection area of three overlapping elements', () => {
+    it('should return the intersection area of three overlapping rects', () => {
       const rectA = { left: 0, top: 0, width: 100, height: 100 };
       const rectB = { left: 50, top: 50, width: 150, height: 150 };
       const rectC = { left: 60, top: 60, width: 10, height: 200 };
@@ -49,7 +50,7 @@ describe('getIntersection()', function () {
       });
     });
 
-    it('should return null for non-overlapping elements', () => {
+    it('should return null for non-overlapping rects', () => {
       const rectA = { left: 0, top: 0, width: 100, height: 100 };
       const rectB = { left: 200, top: 200, width: 100, height: 100 };
       const result = getIntersection(rectA, rectB);
@@ -74,14 +75,20 @@ describe('getIntersection()', function () {
         height: '150px',
       });
       const result = getIntersection(elA, elB);
-      assert.deepEqual(result, {
-        left: 50,
-        top: 50,
+      const expected = {
         width: 50,
         height: 50,
+        left: 50,
+        top: 50,
         right: 100,
         bottom: 100,
-      });
+      };
+      assertEqualDomNumbers(result?.width, expected.width, 'width');
+      assertEqualDomNumbers(result?.height, expected.height, 'height');
+      assertEqualDomNumbers(result?.left, expected.left, 'left');
+      assertEqualDomNumbers(result?.top, expected.top, 'top');
+      assertEqualDomNumbers(result?.right, expected.right, 'right');
+      assertEqualDomNumbers(result?.bottom, expected.bottom, 'bottom');
     });
 
     it('should return the intersection area of a DOM element and a rect object', function () {
@@ -94,14 +101,20 @@ describe('getIntersection()', function () {
       });
       const rectObject = { left: 50, top: 50, width: 100, height: 100 };
       const result = getIntersection(el, rectObject);
-      assert.deepEqual(result, {
-        left: 50,
-        top: 50,
+      const expected = {
         width: 50,
         height: 50,
+        left: 50,
+        top: 50,
         right: 100,
         bottom: 100,
-      });
+      };
+      assertEqualDomNumbers(result?.width, expected.width, 'width');
+      assertEqualDomNumbers(result?.height, expected.height, 'height');
+      assertEqualDomNumbers(result?.left, expected.left, 'left');
+      assertEqualDomNumbers(result?.top, expected.top, 'top');
+      assertEqualDomNumbers(result?.right, expected.right, 'right');
+      assertEqualDomNumbers(result?.bottom, expected.bottom, 'bottom');
     });
 
     it('should return null for non-overlapping DOM elements', function () {
@@ -135,14 +148,20 @@ describe('getIntersection()', function () {
         border: '5px solid black',
       });
       const result = getIntersection([elA, 'content'], [elA, 'border']);
-      assert.deepEqual(result, {
-        left: 15,
-        top: 15,
+      const expected = {
         width: 90,
         height: 90,
+        left: 15,
+        top: 15,
         right: 105,
         bottom: 105,
-      });
+      };
+      assertEqualDomNumbers(result?.width, expected.width, 'width');
+      assertEqualDomNumbers(result?.height, expected.height, 'height');
+      assertEqualDomNumbers(result?.left, expected.left, 'left');
+      assertEqualDomNumbers(result?.top, expected.top, 'top');
+      assertEqualDomNumbers(result?.right, expected.right, 'right');
+      assertEqualDomNumbers(result?.bottom, expected.bottom, 'bottom');
     });
   });
 });

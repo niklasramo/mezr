@@ -1,8 +1,8 @@
 import { assert } from 'chai';
-import { getContainingBlock } from '../../src/index.js';
 import { getEffectiveContainingBlock } from './utils/getEffectiveContainingBlock.js';
 import { createTestElement } from './utils/createTestElement.js';
 import { CONTAINING_BLOCK_SPECIAL_CASES } from './utils/constants.js';
+import { getContainingBlock } from '../../src/index.js';
 
 describe('getContainingBlock()', function () {
   let el: HTMLElement;
@@ -44,8 +44,8 @@ describe('getContainingBlock()', function () {
       const actual = getContainingBlock(el);
       const computed = getEffectiveContainingBlock(el, 0.5);
       const expected = window;
-      assert.equal(actual, computed, 'matches computed containing block');
-      assert.equal(actual, expected, 'matches expected containing block');
+      assert.strictEqual(actual, computed, 'matches computed containing block');
+      assert.strictEqual(actual, expected, 'matches expected containing block');
     });
 
     ['relative', 'absolute', 'fixed', 'sticky'].forEach((position) => {
@@ -55,8 +55,8 @@ describe('getContainingBlock()', function () {
         const actual = getContainingBlock(el);
         const computed = getEffectiveContainingBlock(el, 0.5);
         const expected = container;
-        assert.equal(actual, computed, 'matches computed containing block');
-        assert.equal(actual, expected, 'matches expected containing block');
+        assert.strictEqual(actual, computed, 'matches computed containing block');
+        assert.strictEqual(actual, expected, 'matches expected containing block');
       });
 
       it(`should recognize inline-level "position:${position}" ancestors`, function () {
@@ -65,8 +65,8 @@ describe('getContainingBlock()', function () {
         const actual = getContainingBlock(el);
         const computed = getEffectiveContainingBlock(el, 0.5);
         const expected = container;
-        assert.equal(actual, computed, 'matches computed containing block');
-        assert.equal(actual, expected, 'matches expected containing block');
+        assert.strictEqual(actual, computed, 'matches computed containing block');
+        assert.strictEqual(actual, expected, 'matches expected containing block');
       });
 
       it(`should recognize "display:none" "position:${position}" ancestors`, function () {
@@ -74,7 +74,7 @@ describe('getContainingBlock()', function () {
         container.style.position = position;
         const actual = getContainingBlock(el);
         const expected = container;
-        assert.equal(actual, expected);
+        assert.strictEqual(actual, expected);
       });
     });
 
@@ -85,7 +85,7 @@ describe('getContainingBlock()', function () {
         (container.style as any)[property] = value;
         const actual = getContainingBlock(el);
         const computed = getEffectiveContainingBlock(el, 0.5);
-        assert.equal(actual, computed);
+        assert.strictEqual(actual, computed);
       });
 
       if (containsInline) {
@@ -95,7 +95,7 @@ describe('getContainingBlock()', function () {
           (container.style as any)[property] = value;
           const actual = getContainingBlock(el);
           const computed = getEffectiveContainingBlock(el, 0.5);
-          assert.equal(actual, computed);
+          assert.strictEqual(actual, computed);
         });
 
         it(`should recognize "display:none" "position:static" "${property}:${value}" ancestors by default`, function () {
@@ -105,8 +105,8 @@ describe('getContainingBlock()', function () {
           const actual = getContainingBlock(el);
           const computed = getEffectiveContainingBlock(el, 0.5);
           const expected = container;
-          assert.equal(actual, computed, 'matches computed containing block');
-          assert.equal(actual, expected, 'matches expected containing block');
+          assert.strictEqual(actual, computed, 'matches computed containing block');
+          assert.strictEqual(actual, expected, 'matches expected containing block');
         });
 
         it(`should recognize "display:none" "position:static" "${property}:${value}" ancestors when skipDisplayNone option is false`, function () {
@@ -116,8 +116,8 @@ describe('getContainingBlock()', function () {
           const actual = getContainingBlock(el, { skipDisplayNone: false });
           const computed = getEffectiveContainingBlock(el, 0.5);
           const expected = container;
-          assert.equal(actual, computed, 'matches computed containing block');
-          assert.equal(actual, expected, 'matches expected containing block');
+          assert.strictEqual(actual, computed, 'matches computed containing block');
+          assert.strictEqual(actual, expected, 'matches expected containing block');
         });
 
         it(`should recognize "display:none" "position:static" "${property}:${value}" ancestors when skipDisplayNone option is true`, function () {
@@ -127,8 +127,8 @@ describe('getContainingBlock()', function () {
           const actual = getContainingBlock(el, { skipDisplayNone: true });
           const computed = getEffectiveContainingBlock(el, 0.5);
           const expected = container;
-          assert.equal(actual, computed, 'matches computed containing block');
-          assert.equal(actual, expected, 'matches expected containing block');
+          assert.strictEqual(actual, computed, 'matches computed containing block');
+          assert.strictEqual(actual, expected, 'matches expected containing block');
         });
       } else {
         it(`should not recognize inline-level "position:static" "${property}:${value}" ancestors`, function () {
@@ -137,7 +137,7 @@ describe('getContainingBlock()', function () {
           (container.style as any)[property] = value;
           const actual = getContainingBlock(el);
           const computed = getEffectiveContainingBlock(el, 0.5);
-          assert.equal(actual, computed);
+          assert.strictEqual(actual, computed);
         });
 
         it(`should return null on "display:none" "position:static" "${property}:${value}" ancestors by default`, function () {
@@ -146,7 +146,7 @@ describe('getContainingBlock()', function () {
           (container.style as any)[property] = value;
           const actual = getContainingBlock(el);
           const expected = null;
-          assert.equal(actual, expected);
+          assert.strictEqual(actual, expected);
         });
 
         it(`should return null on "display:none" "position:static" "${property}:${value}" ancestors when skipDisplayNone option is false`, function () {
@@ -155,7 +155,7 @@ describe('getContainingBlock()', function () {
           (container.style as any)[property] = value;
           const actual = getContainingBlock(el, { skipDisplayNone: false });
           const expected = null;
-          assert.equal(actual, expected);
+          assert.strictEqual(actual, expected);
         });
 
         it(`should skip "display:none" "position:static" "${property}:${value}" ancestors when skipDisplayNone option is true`, function () {
@@ -164,7 +164,7 @@ describe('getContainingBlock()', function () {
           (container.style as any)[property] = value;
           const actual = getContainingBlock(el, { skipDisplayNone: true });
           const expected = window;
-          assert.equal(actual, expected);
+          assert.strictEqual(actual, expected);
         });
       }
     });
@@ -174,7 +174,7 @@ describe('getContainingBlock()', function () {
       container.style.position = 'static';
       const actual = getContainingBlock(el);
       const expected = null;
-      assert.equal(actual, expected);
+      assert.strictEqual(actual, expected);
     });
 
     it(`should skip "display:none" "position:static" ancestors when skipDisplayNone option is false`, function () {
@@ -182,7 +182,7 @@ describe('getContainingBlock()', function () {
       container.style.position = 'static';
       const actual = getContainingBlock(el, { skipDisplayNone: false });
       const expected = null;
-      assert.equal(actual, expected);
+      assert.strictEqual(actual, expected);
     });
 
     it(`should skip "display:none" "position:static" ancestors when skipDisplayNone option is true`, function () {
@@ -190,7 +190,7 @@ describe('getContainingBlock()', function () {
       container.style.position = 'static';
       const actual = getContainingBlock(el, { skipDisplayNone: true });
       const expected = window;
-      assert.equal(actual, expected);
+      assert.strictEqual(actual, expected);
     });
   });
 
@@ -206,8 +206,8 @@ describe('getContainingBlock()', function () {
         const actual = getContainingBlock(el);
         const computed = getEffectiveContainingBlock(el, 0.5);
         const expected = window;
-        assert.equal(actual, computed, 'matches computed containing block');
-        assert.equal(actual, expected, 'matches expected containing block');
+        assert.strictEqual(actual, computed, 'matches computed containing block');
+        assert.strictEqual(actual, expected, 'matches expected containing block');
       });
 
       it(`should not recognize inline-level "position:${position}" ancestors`, function () {
@@ -216,8 +216,8 @@ describe('getContainingBlock()', function () {
         const actual = getContainingBlock(el);
         const computed = getEffectiveContainingBlock(el, 0.5);
         const expected = window;
-        assert.equal(actual, computed, 'matches computed containing block');
-        assert.equal(actual, expected, 'matches expected containing block');
+        assert.strictEqual(actual, computed, 'matches computed containing block');
+        assert.strictEqual(actual, expected, 'matches expected containing block');
       });
 
       it(`should return null on "display:none" "position:${position}" ancestors by default`, function () {
@@ -225,7 +225,7 @@ describe('getContainingBlock()', function () {
         container.style.position = position;
         const actual = getContainingBlock(el);
         const expected = null;
-        assert.equal(actual, expected);
+        assert.strictEqual(actual, expected);
       });
 
       it(`should return null on "display:none" "position:${position}" ancestors when skipDisplayNone option is false`, function () {
@@ -233,7 +233,7 @@ describe('getContainingBlock()', function () {
         container.style.position = position;
         const actual = getContainingBlock(el, { skipDisplayNone: false });
         const expected = null;
-        assert.equal(actual, expected);
+        assert.strictEqual(actual, expected);
       });
 
       it(`should skip "display:none" "position:${position}" ancestors when skipDisplayNone option is true`, function () {
@@ -241,7 +241,7 @@ describe('getContainingBlock()', function () {
         container.style.position = position;
         const actual = getContainingBlock(el, { skipDisplayNone: true });
         const expected = window;
-        assert.equal(actual, expected);
+        assert.strictEqual(actual, expected);
       });
     });
 
@@ -252,7 +252,7 @@ describe('getContainingBlock()', function () {
         (container.style as any)[property] = value;
         const actual = getContainingBlock(el);
         const computed = getEffectiveContainingBlock(el, 0.5);
-        assert.equal(actual, computed);
+        assert.strictEqual(actual, computed);
       });
 
       if (containsInline) {
@@ -262,7 +262,7 @@ describe('getContainingBlock()', function () {
           (container.style as any)[property] = value;
           const actual = getContainingBlock(el);
           const computed = getEffectiveContainingBlock(el, 0.5);
-          assert.equal(actual, computed);
+          assert.strictEqual(actual, computed);
         });
 
         it(`should recognize "display:none" "position:static" "${property}:${value}" ancestors by default`, function () {
@@ -272,8 +272,8 @@ describe('getContainingBlock()', function () {
           const actual = getContainingBlock(el);
           const computed = getEffectiveContainingBlock(el, 0.5);
           const expected = container;
-          assert.equal(actual, computed, 'matches computed containing block');
-          assert.equal(actual, expected, 'matches expected containing block');
+          assert.strictEqual(actual, computed, 'matches computed containing block');
+          assert.strictEqual(actual, expected, 'matches expected containing block');
         });
 
         it(`should recognize "display:none" "position:static" "${property}:${value}" ancestors when skipDisplayNone option is false`, function () {
@@ -283,8 +283,8 @@ describe('getContainingBlock()', function () {
           const actual = getContainingBlock(el, { skipDisplayNone: false });
           const computed = getEffectiveContainingBlock(el, 0.5);
           const expected = container;
-          assert.equal(actual, computed, 'matches computed containing block');
-          assert.equal(actual, expected, 'matches expected containing block');
+          assert.strictEqual(actual, computed, 'matches computed containing block');
+          assert.strictEqual(actual, expected, 'matches expected containing block');
         });
 
         it(`should recognize "display:none" "position:static" "${property}:${value}" ancestors when skipDisplayNone option is true`, function () {
@@ -294,8 +294,8 @@ describe('getContainingBlock()', function () {
           const actual = getContainingBlock(el, { skipDisplayNone: true });
           const computed = getEffectiveContainingBlock(el, 0.5);
           const expected = container;
-          assert.equal(actual, computed, 'matches computed containing block');
-          assert.equal(actual, expected, 'matches expected containing block');
+          assert.strictEqual(actual, computed, 'matches computed containing block');
+          assert.strictEqual(actual, expected, 'matches expected containing block');
         });
       } else {
         it(`should not recognize inline-level "position:static" "${property}:${value}" ancestors`, function () {
@@ -304,7 +304,7 @@ describe('getContainingBlock()', function () {
           (container.style as any)[property] = value;
           const actual = getContainingBlock(el);
           const computed = getEffectiveContainingBlock(el, 0.5);
-          assert.equal(actual, computed);
+          assert.strictEqual(actual, computed);
         });
 
         it(`should return null on "display:none" "position:static" "${property}:${value}" ancestors by default`, function () {
@@ -313,7 +313,7 @@ describe('getContainingBlock()', function () {
           (container.style as any)[property] = value;
           const actual = getContainingBlock(el);
           const expected = null;
-          assert.equal(actual, expected);
+          assert.strictEqual(actual, expected);
         });
 
         it(`should return null on "display:none" "position:static" "${property}:${value}" ancestors when skipDisplayNone option is false`, function () {
@@ -322,7 +322,7 @@ describe('getContainingBlock()', function () {
           (container.style as any)[property] = value;
           const actual = getContainingBlock(el, { skipDisplayNone: false });
           const expected = null;
-          assert.equal(actual, expected);
+          assert.strictEqual(actual, expected);
         });
 
         it(`should skip "display:none" "position:static" "${property}:${value}" ancestors when skipDisplayNone option is true`, function () {
@@ -331,7 +331,7 @@ describe('getContainingBlock()', function () {
           (container.style as any)[property] = value;
           const actual = getContainingBlock(el, { skipDisplayNone: true });
           const expected = window;
-          assert.equal(actual, expected);
+          assert.strictEqual(actual, expected);
         });
       }
     });
@@ -347,8 +347,8 @@ describe('getContainingBlock()', function () {
         const actual = getContainingBlock(el);
         const computed = getEffectiveContainingBlock(el, 0.5);
         const expected = document.documentElement;
-        assert.equal(actual, computed, 'matches computed containing block');
-        assert.equal(actual, expected, 'matches expected containing block');
+        assert.strictEqual(actual, computed, 'matches computed containing block');
+        assert.strictEqual(actual, expected, 'matches expected containing block');
       });
 
       it(`should return the closest block-level ancestor for "position:${position}" element`, function () {
@@ -358,8 +358,8 @@ describe('getContainingBlock()', function () {
         const actual = getContainingBlock(el);
         const computed = getEffectiveContainingBlock(el, 0.5);
         const expected = container;
-        assert.equal(actual, computed, 'matches computed containing block');
-        assert.equal(actual, expected, 'matches expected containing block');
+        assert.strictEqual(actual, computed, 'matches computed containing block');
+        assert.strictEqual(actual, expected, 'matches expected containing block');
       });
 
       it(`should skip all inline-level ancestors for "position:${position}" element`, function () {
@@ -369,8 +369,8 @@ describe('getContainingBlock()', function () {
         const actual = getContainingBlock(el);
         const computed = getEffectiveContainingBlock(el, 0.5);
         const expected = document.body;
-        assert.equal(actual, computed, 'matches computed containing block');
-        assert.equal(actual, expected, 'matches expected containing block');
+        assert.strictEqual(actual, computed, 'matches computed containing block');
+        assert.strictEqual(actual, expected, 'matches expected containing block');
       });
 
       it(`should return null for "position:${position}" element when "display:none" ancestor is reached`, function () {
@@ -379,7 +379,7 @@ describe('getContainingBlock()', function () {
         el.style.position = position;
         const actual = getContainingBlock(el);
         const expected = null;
-        assert.equal(actual, expected);
+        assert.strictEqual(actual, expected);
       });
 
       it(`should return null for "position:${position}" element when "display:none" ancestor is reached when skipDisplayNone option is false`, function () {
@@ -388,7 +388,7 @@ describe('getContainingBlock()', function () {
         el.style.position = position;
         const actual = getContainingBlock(el, { skipDisplayNone: false });
         const expected = null;
-        assert.equal(actual, expected);
+        assert.strictEqual(actual, expected);
       });
 
       it(`should skip "display:none" ancestor for "position:${position}" element when skipDisplayNone option is true`, function () {
@@ -397,7 +397,7 @@ describe('getContainingBlock()', function () {
         el.style.position = position;
         const actual = getContainingBlock(el, { skipDisplayNone: true });
         const expected = document.body;
-        assert.equal(actual, expected);
+        assert.strictEqual(actual, expected);
       });
     });
   });
@@ -409,7 +409,7 @@ describe('getContainingBlock()', function () {
       el.style.position = 'absolute';
       const actual = getContainingBlock(el, { position: 'fixed' });
       const expected = window;
-      assert.equal(actual, expected);
+      assert.strictEqual(actual, expected);
     });
 
     it('should be able to fake absolute position for fixed positioned element', function () {
@@ -418,7 +418,7 @@ describe('getContainingBlock()', function () {
       el.style.position = 'fixed';
       const actual = getContainingBlock(el, { position: 'absolute' });
       const expected = container;
-      assert.equal(actual, expected);
+      assert.strictEqual(actual, expected);
     });
 
     it('should be able to fake relative position for fixed positioned element', function () {
@@ -426,7 +426,7 @@ describe('getContainingBlock()', function () {
       el.style.position = 'fixed';
       const actual = getContainingBlock(el, { position: 'relative' });
       const expected = container;
-      assert.equal(actual, expected);
+      assert.strictEqual(actual, expected);
     });
 
     it('should be able to fake fixed position for relative positioned element', function () {
@@ -434,7 +434,7 @@ describe('getContainingBlock()', function () {
       el.style.position = 'relative';
       const actual = getContainingBlock(el, { position: 'fixed' });
       const expected = window;
-      assert.equal(actual, expected);
+      assert.strictEqual(actual, expected);
     });
 
     it('should be able to fake relative position for absolute positioned element', function () {
@@ -443,7 +443,7 @@ describe('getContainingBlock()', function () {
       el.style.position = 'absolute';
       const actual = getContainingBlock(el, { position: 'relative' });
       const expected = container;
-      assert.equal(actual, expected);
+      assert.strictEqual(actual, expected);
     });
 
     it('should be able to fake absolute position for relative positioned element', function () {
@@ -452,7 +452,7 @@ describe('getContainingBlock()', function () {
       el.style.position = 'relative';
       const actual = getContainingBlock(el, { position: 'absolute' });
       const expected = document.body;
-      assert.equal(actual, expected);
+      assert.strictEqual(actual, expected);
     });
   });
 });
