@@ -2,6 +2,14 @@ require('dotenv').config();
 
 module.exports = function (config) {
   config.set({
+    browserStack: {
+      project: 'Mezr',
+      name: 'Mezr test',
+      video: false,
+      username: process.env.BROWSERSTACK_USERNAME,
+      accessKey: process.env.BROWSERSTACK_ACCESS_KEY,
+    },
+
     basePath: '',
     frameworks: ['mocha'],
     plugins: ['karma-mocha', 'karma-mocha-reporter', 'karma-browserstack-launcher'],
@@ -13,82 +21,123 @@ module.exports = function (config) {
     browserDisconnectTimeout: 10000,
     browserDisconnectTolerance: 2,
     singleRun: true,
-    browserStack: {
-      username: process.env.BROWSERSTACK_USERNAME,
-      accessKey: process.env.BROWSERSTACK_ACCESS_KEY,
-    },
+
     customLaunchers: {
-      bsWinChrome: {
+      // Windows 11
+      bs_Windows_11_Chrome_Latest: {
+        name: 'Mezr: Windows 11 - Chrome Latest',
         base: 'BrowserStack',
         browser: 'chrome',
         browser_version: 'latest',
         os: 'Windows',
         os_version: '11',
       },
-      bsWinEdge: {
+      bs_Windows_11_Firefox_Latest: {
+        base: 'BrowserStack',
+        name: 'Mezr: Windows 11 - Firefox Latest',
+        browser: 'firefox',
+        browser_version: 'latest',
+        os: 'Windows',
+        os_version: '11',
+      },
+      bs_Windows_11_Edge_Latest: {
+        name: 'Mezr: Windows 11 - Edge Latest',
         base: 'BrowserStack',
         browser: 'edge',
         browser_version: 'latest',
         os: 'Windows',
         os_version: '11',
       },
-      bsWinFirefox: {
-        base: 'BrowserStack',
-        browser: 'firefox',
-        browser_version: 'latest',
-        os: 'Windows',
-        os_version: '11',
-      },
-      bsMacChrome: {
+
+      // OS X Sonoma
+      bs_OSX_Sonoma_Chrome_Latest: {
+        name: 'Mezr: OS X Sonoma - Chrome Latest',
         base: 'BrowserStack',
         browser: 'chrome',
         browser_version: 'latest',
         os: 'OS X',
         os_version: 'Sonoma',
       },
-      bsMacEdge: {
-        base: 'BrowserStack',
-        browser: 'edge',
-        browser_version: 'latest',
-        os: 'OS X',
-        os_version: 'Sonoma',
-      },
-      bsMacFirefox: {
+      bs_OSX_Sonoma_Firefox_Latest: {
+        name: 'Mezr: OS X Sonoma - Firefox Latest',
         base: 'BrowserStack',
         browser: 'firefox',
         browser_version: 'latest',
         os: 'OS X',
         os_version: 'Sonoma',
       },
-      bsMacVenturaSafari: {
+      bs_OSX_Sonoma_Edge_Latest: {
+        name: 'Mezr: OS X Sonoma - Edge Latest',
+        base: 'BrowserStack',
+        browser: 'edge',
+        browser_version: 'latest',
+        os: 'OS X',
+        os_version: 'Sonoma',
+      },
+      bs_OSX_Sonoma_Safari_Latest: {
+        name: 'Mezr: OS X Sonoma - Safari Latest',
+        base: 'BrowserStack',
+        browser: 'safari',
+        browser_version: 'latest',
+        os: 'OS X',
+        os_version: 'Sonoma',
+      },
+
+      // OS X Ventura
+      bs_OSX_Ventura_Chrome_Latest: {
+        name: 'Mezr: OS X Ventura - Chrome Latest',
+        base: 'BrowserStack',
+        browser: 'chrome',
+        browser_version: 'latest',
+        os: 'OS X',
+        os_version: 'Ventura',
+      },
+      bs_OSX_Ventura_Firefox_Latest: {
+        name: 'Mezr: OS X Ventura - Firefox Latest',
+        base: 'BrowserStack',
+        browser: 'firefox',
+        browser_version: 'latest',
+        os: 'OS X',
+        os_version: 'Ventura',
+      },
+      bs_OSX_Ventura_Edge_Latest: {
+        name: 'Mezr: OS X Ventura - Edge Latest',
+        base: 'BrowserStack',
+        browser: 'edge',
+        browser_version: 'latest',
+        os: 'OS X',
+        os_version: 'Ventura',
+      },
+      bs_OSX_Ventura_Safari_Latest: {
+        name: 'Mezr: OS X Ventura - Safari Latest',
         base: 'BrowserStack',
         browser: 'safari',
         browser_version: 'latest',
         os: 'OS X',
         os_version: 'Ventura',
       },
-      bsMacSonomaSafari: {
-        base: 'BrowserStack',
-        browser: 'safari',
-        browser_version: 'latest',
-        os: 'OS X',
-        os_version: 'Sonoma',
-      },
-      bsIos16Safari: {
+
+      // iOS
+      bs_iPhone_14_iOS_16_Safari_Latest: {
+        name: 'Mezr: iPhone 14 - iOS 16 - Safari Latest',
         base: 'BrowserStack',
         device: 'iPhone 14',
         os: 'ios',
         os_version: '16',
         real_mobile: true,
       },
-      bsIos17Safari: {
+      bs_iPhone_15_iOS_17_Safari_Latest: {
+        name: 'Mezr: iPhone 15 - iOS 17 - Safari Latest',
         base: 'BrowserStack',
         device: 'iPhone 15',
         os: 'ios',
         os_version: '17',
         real_mobile: true,
       },
-      bsAndroid13Chrome: {
+
+      // Android
+      bs_Samsung_Galaxy_S23_Android_13_Chrome_Latest: {
+        name: 'Mezr: Samsung Galaxy S23 - Android 13 - Chrome Latest',
         base: 'BrowserStack',
         device: 'Samsung Galaxy S23',
         os: 'android',
@@ -97,7 +146,8 @@ module.exports = function (config) {
         browser_version: 'latest',
         real_mobile: true,
       },
-      bsAndroid12Chrome: {
+      bs_Samsung_Galaxy_S22_Android_12_Chrome_Latest: {
+        name: 'Mezr: Samsung Galaxy S22 - Android 12 - Chrome Latest',
         base: 'BrowserStack',
         device: 'Samsung Galaxy S22',
         os: 'android',
@@ -106,7 +156,8 @@ module.exports = function (config) {
         browser_version: 'latest',
         real_mobile: true,
       },
-      bsAndroid11Chrome: {
+      bs_Samsung_Galaxy_S21_Android_11_Chrome_Latest: {
+        name: 'Mezr: Samsung Galaxy S21 - Android 11 - Chrome Latest',
         base: 'BrowserStack',
         device: 'Samsung Galaxy S21',
         os: 'android',
@@ -115,7 +166,8 @@ module.exports = function (config) {
         browser_version: 'latest',
         real_mobile: true,
       },
-      bsAndroid10Chrome: {
+      bs_Samsung_Galaxy_S20_Android_10_Chrome_Latest: {
+        name: 'Mezr: Samsung Galaxy S20 - Android 10 - Chrome Latest',
         base: 'BrowserStack',
         device: 'Samsung Galaxy S20',
         os: 'android',
@@ -124,7 +176,8 @@ module.exports = function (config) {
         browser_version: 'latest',
         real_mobile: true,
       },
-      bsAndroid9Chrome: {
+      bs_Samsung_Galaxy_S10_Android_9_Chrome_Latest: {
+        name: 'Mezr: Samsung Galaxy S10 - Android 9 - Chrome Latest',
         base: 'BrowserStack',
         device: 'Samsung Galaxy S10',
         os: 'android',
@@ -133,23 +186,59 @@ module.exports = function (config) {
         browser_version: 'latest',
         real_mobile: true,
       },
+      bs_Google_Pixel_6_Pro_Android_14_Chrome_Latest: {
+        name: 'Mezr: Google Pixel 6 Pro - Android 14 - Chrome Latest',
+        base: 'BrowserStack',
+        device: 'Google Pixel 6 Pro',
+        os: 'android',
+        os_version: '14.0',
+        browser: 'chrome',
+        browser_version: 'latest',
+        real_mobile: true,
+      },
+      bs_Google_Pixel_7_Android_13_Chrome_Latest: {
+        name: 'Mezr: Google Pixel 7 - Android 13 - Chrome Latest',
+        base: 'BrowserStack',
+        device: 'Google Pixel 7',
+        os: 'android',
+        os_version: '13.0',
+        browser: 'chrome',
+        browser_version: 'latest',
+        real_mobile: true,
+      },
+      bs_OnePlus_9_Android_11_Chrome_Latest: {
+        name: 'Mezr: OnePlus 9 - Android 11 - Chrome Latest',
+        base: 'BrowserStack',
+        device: 'OnePlus 9',
+        os: 'android',
+        os_version: '11.0',
+        browser: 'chrome',
+        browser_version: 'latest',
+        real_mobile: true,
+      },
     },
     browsers: [
-      'bsWinChrome',
-      'bsWinEdge',
-      'bsWinFirefox',
-      'bsMacChrome',
-      'bsMacEdge',
-      'bsMacFirefox',
-      'bsMacVenturaSafari',
-      'bsMacSonomaSafari',
-      'bsIos16Safari',
-      'bsIos17Safari',
-      'bsAndroid13Chrome',
-      'bsAndroid12Chrome',
-      'bsAndroid11Chrome',
-      'bsAndroid10Chrome',
-      'bsAndroid9Chrome',
+      'bs_Windows_11_Chrome_Latest',
+      'bs_Windows_11_Firefox_Latest',
+      'bs_Windows_11_Edge_Latest',
+      'bs_OSX_Sonoma_Chrome_Latest',
+      'bs_OSX_Sonoma_Firefox_Latest',
+      'bs_OSX_Sonoma_Edge_Latest',
+      'bs_OSX_Sonoma_Safari_Latest',
+      'bs_OSX_Ventura_Chrome_Latest',
+      'bs_OSX_Ventura_Firefox_Latest',
+      'bs_OSX_Ventura_Edge_Latest',
+      'bs_OSX_Ventura_Safari_Latest',
+      'bs_iPhone_14_iOS_16_Safari_Latest',
+      'bs_iPhone_15_iOS_17_Safari_Latest',
+      'bs_Samsung_Galaxy_S23_Android_13_Chrome_Latest',
+      'bs_Samsung_Galaxy_S22_Android_12_Chrome_Latest',
+      'bs_Samsung_Galaxy_S21_Android_11_Chrome_Latest',
+      'bs_Samsung_Galaxy_S20_Android_10_Chrome_Latest',
+      'bs_Samsung_Galaxy_S10_Android_9_Chrome_Latest',
+      'bs_Google_Pixel_6_Pro_Android_14_Chrome_Latest',
+      'bs_Google_Pixel_7_Android_13_Chrome_Latest',
+      'bs_OnePlus_9_Android_11_Chrome_Latest',
     ],
   });
 };
