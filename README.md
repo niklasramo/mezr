@@ -663,6 +663,36 @@ Many methods allow you to define either a box element, a box element with a box 
 | `[BoxElement, BoxElementEdge]` | Any HTML/SVG element, Document or Window with box edge explicitly defined. |
 | `BoxRect`                      | An object containing the element's dimensions and offsets.                 |
 
+## Browser support
+
+Mezr supports all modern browsers (Chrome, Firefox, Safari, Edge) and is tested on various devices and platforms. Thanks to [BrowserStack](http://browserstack.com/) for sponsoring the testing infrastructure!
+
+### Tested browsers
+
+| OS      | Version | Device             | Browser | Version |
+| ------- | ------- | ------------------ | ------- | ------- |
+| Windows | 11      | -                  | Chrome  | Latest  |
+| Windows | 11      | -                  | Firefox | Latest  |
+| Windows | 11      | -                  | Edge    | Latest  |
+| OS X    | Sonoma  | -                  | Chrome  | Latest  |
+| OS X    | Sonoma  | -                  | Firefox | Latest  |
+| OS X    | Sonoma  | -                  | Edge    | Latest  |
+| OS X    | Sonoma  | -                  | Safari  | Latest  |
+| OS X    | Ventura | -                  | Chrome  | Latest  |
+| OS X    | Ventura | -                  | Firefox | Latest  |
+| OS X    | Ventura | -                  | Edge    | Latest  |
+| OS X    | Ventura | -                  | Safari  | Latest  |
+| iOS     | 16      | iPhone 14          | Safari  | Latest  |
+| iOS     | 17      | iPhone 15          | Safari  | Latest  |
+| Android | 13      | Samsung Galaxy S23 | Chrome  | Latest  |
+| Android | 12      | Samsung Galaxy S22 | Chrome  | Latest  |
+| Android | 11      | Samsung Galaxy S21 | Chrome  | Latest  |
+| Android | 10      | Samsung Galaxy S20 | Chrome  | Latest  |
+| Android | 9       | Samsung Galaxy S10 | Chrome  | Latest  |
+| Android | 14      | Google Pixel 6 Pro | Chrome  | Latest  |
+| Android | 13      | Google Pixel 7     | Chrome  | Latest  |
+| Android | 11      | OnePlus 9          | Chrome  | Latest  |
+
 ## License
 
 Copyright &copy; 2015 Niklas Rämö. Licensed under **[the MIT license](LICENSE.md)**.
