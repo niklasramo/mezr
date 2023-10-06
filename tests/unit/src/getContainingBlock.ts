@@ -2,7 +2,7 @@ import { assert } from 'chai';
 import { getEffectiveContainingBlock } from './utils/getEffectiveContainingBlock.js';
 import { createTestElement } from './utils/createTestElement.js';
 import { CONTAINING_BLOCK_SPECIAL_CASES } from './utils/constants.js';
-import { getContainingBlock } from '../../src/index.js';
+import { getContainingBlock } from '../../../src/index.js';
 
 describe('getContainingBlock()', function () {
   let el: HTMLElement;

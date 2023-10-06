@@ -1,0 +1,12 @@
+{
+  "name": "mezr-cjs-test",
+  "version": "1.0.0",
+  "description": "Test project for consuming Mezr library in CommonJS environment.",
+  "private": true,
+  "scripts": {
+    "test": "node test.js"
+  },
+  "dependencies": {
+    "mezr": "file:../../.."
+  }
+}

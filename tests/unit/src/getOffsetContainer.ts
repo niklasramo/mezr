@@ -1,7 +1,7 @@
 import { assert } from 'chai';
 import { createTestElement } from './utils/createTestElement.js';
 import { CONTAINING_BLOCK_SPECIAL_CASES } from './utils/constants.js';
-import { getOffsetContainer, getContainingBlock } from '../../src/index.js';
+import { getOffsetContainer, getContainingBlock } from '../../../src/index.js';
 
 describe('getOffsetContainer()', function () {
   let el: HTMLElement;

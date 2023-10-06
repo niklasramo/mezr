@@ -2,7 +2,7 @@ import { beforeTest, afterTest } from './utils/hooks.js';
 import { createTestElement } from './utils/createTestElement.js';
 import { getScrollbarSizes } from './utils/getScrollbarSizes.js';
 import { assertEqualDomNumbers } from './utils/assertEqualDomNumbers.js';
-import { getRect } from '../../src/index.js';
+import { getRect } from '../../../src/index.js';
 
 const { width: sbWidth, height: sbHeight } = getScrollbarSizes();
 

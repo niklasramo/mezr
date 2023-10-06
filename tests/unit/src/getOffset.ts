@@ -1,7 +1,7 @@
 import { beforeTest, afterTest } from './utils/hooks.js';
 import { createTestElement } from './utils/createTestElement.js';
 import { assertEqualDomNumbers } from './utils/assertEqualDomNumbers.js';
-import { getOffset } from '../../src/index.js';
+import { getOffset } from '../../../src/index.js';
 
 describe('getOffset()', function () {
   beforeEach(beforeTest);
