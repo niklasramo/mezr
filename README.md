@@ -445,14 +445,14 @@ getIntersection(elemA, elemB, [elemC, 'scroll'], { left: 0, top: 0, width: 100, 
 
 ### getOverflow()
 
-Measure how much an element overflows another element per each side. Returns an object containing the overflow values. Note that the overflow values are reported even if the elements don't intersect.
+Measure how much target overflows container per each side. Returns an object containing the overflow values (note that the overflow values are reported even if the elements don't intersect). If a side's value is positive it means that target overflows container by that much from that side. If the value is negative it means that container overflows target by that much from that side.
 
 **Syntax**
 
 ```ts
 type getOverflow = (
-  elementA: BoxObject,
-  elementB: BoxObject,
+  target: BoxObject,
+  container: BoxObject,
 ) => {
   left: number;
   right: number;
@@ -463,9 +463,9 @@ type getOverflow = (
 
 **Parameters**
 
-1. **elementA**
+1. **target**
    - Accepts: [`BoxObject`](#boxobject).
-2. **elementB**
+2. **container**
    - Accepts: [`BoxObject`](#boxobject).
 
 **Examples**
@@ -473,14 +473,13 @@ type getOverflow = (
 ```ts
 import { getOverflow } from 'mezr/getOverflow';
 
-// Measure how much elemA overflows elemB per each side. Negative value
-// indicates that elemA overflows elemB by that much from that side.
+// Measure how much elemA overflows elemB per each side.
 getOverflow(elemA, elemB);
 
-// Measure elem overflows windown per each side.
+// Measure how much elem overflows window per each side.
 getOverflow(elem, window);
 
-// You can also define the elements' box edge for the calculations.
+// You can also define the elements' box edges for the calculations.
 getOverflow([elemA, 'content'], [elemB, 'scroll']);
 ```
 
