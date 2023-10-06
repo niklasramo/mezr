@@ -5,5 +5,5 @@
     "moduleResolution": "NodeNext",
     "noEmit": true
   },
-  "include": ["src/**/*.ts", "tests/src/**/*.ts"]
+  "include": ["src/**/*.ts", "tests/unit/src/**/*.ts"]
 }

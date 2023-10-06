@@ -1,0 +1,13 @@
+{
+  "name": "mezr-esm-test",
+  "version": "1.0.0",
+  "description": "Test project for consuming Mezr library in ES Modules environment.",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "test": "node test.js"
+  },
+  "dependencies": {
+    "mezr": "file:../../.."
+  }
+}

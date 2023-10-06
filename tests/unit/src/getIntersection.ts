@@ -2,7 +2,7 @@ import { assert } from 'chai';
 import { beforeTest, afterTest } from './utils/hooks.js';
 import { createTestElement } from './utils/createTestElement.js';
 import { assertEqualDomNumbers } from './utils/assertEqualDomNumbers.js';
-import { getIntersection } from '../../src/index.js';
+import { getIntersection } from '../../../src/index.js';
 
 describe('getIntersection()', function () {
   beforeEach(beforeTest);
