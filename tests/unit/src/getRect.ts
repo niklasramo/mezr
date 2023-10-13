@@ -27,22 +27,8 @@ describe('getRect()', function () {
 
       (['content', 'padding', 'scroll', 'border', 'margin'] as const).forEach((boxEdge) => {
         it(`should measure dimensions with box edge being "${boxEdge}"`, function () {
-          let expectedWidth = 0;
-          let expectedHeight = 0;
-          switch (boxEdge) {
-            case 'content':
-            case 'padding': {
-              expectedWidth = elWidth;
-              expectedHeight = elHeight;
-              break;
-            }
-            default: {
-              expectedWidth = elWidth + window.innerWidth - document.documentElement.clientWidth;
-              expectedHeight =
-                elHeight + window.innerHeight - document.documentElement.clientHeight;
-            }
-          }
-
+          const expectedWidth = elWidth;
+          const expectedHeight = elHeight;
           const rect = getRect([document, boxEdge]);
 
           assertEqualDomNumbers(rect.width, expectedWidth, 'width: rect.width');

@@ -24,14 +24,10 @@ describe('getHeight()', function () {
       });
     });
 
-    it('should measure height without scrollbar', function () {
+    it('should measure document height', function () {
       const expected = elHeight;
       assertEqualDomNumbers(getHeight(document, 'content'), expected, 'content');
       assertEqualDomNumbers(getHeight(document, 'padding'), expected, 'padding');
-    });
-
-    it('should measure height with scrollbar', function () {
-      const expected = elHeight + window.innerHeight - document.documentElement.clientHeight;
       assertEqualDomNumbers(getHeight(document, 'scroll'), expected, 'scroll');
       assertEqualDomNumbers(getHeight(document), expected, 'default');
       assertEqualDomNumbers(getHeight(document, 'border'), expected, 'border');

@@ -244,13 +244,16 @@
         border: 'border',
         margin: 'margin',
     };
-    const INCLUDE_SCROLLBAR = {
+    const INCLUDE_WINDOW_SCROLLBAR = {
         [BOX_EDGE.content]: false,
         [BOX_EDGE.padding]: false,
         [BOX_EDGE.scroll]: true,
         [BOX_EDGE.border]: true,
         [BOX_EDGE.margin]: true,
     };
+    // Note that we intentionally don't include 'overlay' in this set, because
+    // it doesn't affect the element's "content"/"padding" width.
+    const SCROLLABLE_OVERFLOWS = new Set(['auto', 'scroll']);
 
     function isBlockElement(element) {
         switch (getStyle(element).display) {
@@ -501,17 +504,24 @@
         return includeScrollbar ? win.innerWidth : win.document.documentElement.clientWidth;
     }
 
-    function getDocumentWidth(doc, includeScrollbar = false) {
-        if (includeScrollbar) {
-            const win = doc.defaultView;
-            const scrollbarSize = win ? win.innerWidth - doc.documentElement.clientWidth : 0;
-            return Math.max(doc.documentElement.scrollWidth + scrollbarSize, doc.body.scrollWidth + scrollbarSize, win ? win.innerWidth : 0);
-        }
-        else {
-            return Math.max(doc.documentElement.scrollWidth, doc.body.scrollWidth, doc.documentElement.clientWidth);
-        }
+    function getDocumentWidth(doc) {
+        return Math.max(doc.documentElement.scrollWidth, doc.documentElement.clientWidth, document.documentElement.getBoundingClientRect().width);
     }
 
+    function getScrollbarWidth(element, style, widthWithoutBorders) {
+        // Document element actually can not have a scrollbar, at least in the same
+        // sense as the other elements, so let's return 0. When you define an overflow
+        // value for the document element that causes a scrollbar to appear, it
+        // actually appears for the window, outside the document element's bounds.
+        if (isDocumentElement(element)) {
+            return 0;
+        }
+        // Make sure the element can have a vertical scrollbar.
+        if (!SCROLLABLE_OVERFLOWS.has(style.overflowY)) {
+            return 0;
+        }
+        return Math.max(0, Math.round(widthWithoutBorders) - element.clientWidth);
+    }
     function getElementWidth(element, boxEdge = BOX_EDGE.border) {
         let { width } = element.getBoundingClientRect();
         if (boxEdge === BOX_EDGE.border) {
@@ -528,19 +538,7 @@
         if (boxEdge === BOX_EDGE.scroll) {
             return width;
         }
-        if (isDocumentElement(element)) {
-            const doc = element.ownerDocument;
-            const win = doc.defaultView;
-            if (win) {
-                width -= win.innerWidth - doc.documentElement.clientWidth;
-            }
-        }
-        else {
-            const sbSize = Math.round(width) - element.clientWidth;
-            if (sbSize > 0) {
-                width -= sbSize;
-            }
-        }
+        width -= getScrollbarWidth(element, style, width);
         if (boxEdge === BOX_EDGE.padding) {
             return width;
         }
@@ -556,10 +554,10 @@
      */
     function getWidth(element, boxEdge = BOX_EDGE.border) {
         if (isWindow(element)) {
-            return getWindowWidth(element, INCLUDE_SCROLLBAR[boxEdge]);
+            return getWindowWidth(element, INCLUDE_WINDOW_SCROLLBAR[boxEdge]);
         }
         if (isDocument(element)) {
-            return getDocumentWidth(element, INCLUDE_SCROLLBAR[boxEdge]);
+            return getDocumentWidth(element);
         }
         return getElementWidth(element, boxEdge);
     }
@@ -568,17 +566,24 @@
         return includeScrollbar ? win.innerHeight : win.document.documentElement.clientHeight;
     }
 
-    function getDocumentHeight(doc, includeScrollbar = false) {
-        if (includeScrollbar) {
-            const win = doc.defaultView;
-            const scrollbarSize = win ? win.innerHeight - doc.documentElement.clientHeight : 0;
-            return Math.max(doc.documentElement.scrollHeight + scrollbarSize, doc.body.scrollHeight + scrollbarSize, win ? win.innerHeight : 0);
-        }
-        else {
-            return Math.max(doc.documentElement.scrollHeight, doc.body.scrollHeight, doc.documentElement.clientHeight);
-        }
+    function getDocumentHeight(doc) {
+        return Math.max(doc.documentElement.scrollHeight, doc.documentElement.clientHeight, document.documentElement.getBoundingClientRect().height);
     }
 
+    function getScrollbarHeight(element, style, heightWithoutBorders) {
+        // Document element actually can not have a scrollbar, at least in the same
+        // sense as the other elements, so let's return 0. When you define an overflow
+        // value for the document element that causes a scrollbar to appear, it
+        // actually appears for the window, outside the document element's bounds.
+        if (isDocumentElement(element)) {
+            return 0;
+        }
+        // Make sure the element can have a horizontal scrollbar.
+        if (!SCROLLABLE_OVERFLOWS.has(style.overflowX)) {
+            return 0;
+        }
+        return Math.max(0, Math.round(heightWithoutBorders) - element.clientHeight);
+    }
     function getElementHeight(element, boxEdge = BOX_EDGE.border) {
         let { height } = element.getBoundingClientRect();
         if (boxEdge === BOX_EDGE.border) {
@@ -595,19 +600,7 @@
         if (boxEdge === BOX_EDGE.scroll) {
             return height;
         }
-        if (isDocumentElement(element)) {
-            const doc = element.ownerDocument;
-            const win = doc.defaultView;
-            if (win) {
-                height -= win.innerHeight - doc.documentElement.clientHeight;
-            }
-        }
-        else {
-            const sbSize = Math.round(height) - element.clientHeight;
-            if (sbSize > 0) {
-                height -= sbSize;
-            }
-        }
+        height -= getScrollbarHeight(element, style, height);
         if (boxEdge === BOX_EDGE.padding) {
             return height;
         }
@@ -623,10 +616,10 @@
      */
     function getHeight(element, boxEdge = BOX_EDGE.border) {
         if (isWindow(element)) {
-            return getWindowHeight(element, INCLUDE_SCROLLBAR[boxEdge]);
+            return getWindowHeight(element, INCLUDE_WINDOW_SCROLLBAR[boxEdge]);
         }
         if (isDocument(element)) {
-            return getDocumentHeight(element, INCLUDE_SCROLLBAR[boxEdge]);
+            return getDocumentHeight(element);
         }
         return getElementHeight(element, boxEdge);
     }
@@ -854,13 +847,10 @@
                     height: `${elHeight}px`,
                 });
             });
-            it('should measure width without scrollbar', function () {
+            it('should measure document width', function () {
                 const expected = elWidth;
                 assertEqualDomNumbers(getWidth(document, 'content'), expected, 'content');
                 assertEqualDomNumbers(getWidth(document, 'padding'), expected, 'padding');
-            });
-            it('should measure width with scrollbar', function () {
-                const expected = elWidth + window.innerWidth - document.documentElement.clientWidth;
                 assertEqualDomNumbers(getWidth(document, 'scroll'), expected, 'scroll');
                 assertEqualDomNumbers(getWidth(document), expected, 'default');
                 assertEqualDomNumbers(getWidth(document, 'border'), expected, 'border');
@@ -993,13 +983,10 @@
                     height: `${elHeight}px`,
                 });
             });
-            it('should measure height without scrollbar', function () {
+            it('should measure document height', function () {
                 const expected = elHeight;
                 assertEqualDomNumbers(getHeight(document, 'content'), expected, 'content');
                 assertEqualDomNumbers(getHeight(document, 'padding'), expected, 'padding');
-            });
-            it('should measure height with scrollbar', function () {
-                const expected = elHeight + window.innerHeight - document.documentElement.clientHeight;
                 assertEqualDomNumbers(getHeight(document, 'scroll'), expected, 'scroll');
                 assertEqualDomNumbers(getHeight(document), expected, 'default');
                 assertEqualDomNumbers(getHeight(document, 'border'), expected, 'border');
@@ -1643,21 +1630,8 @@
                 });
                 ['content', 'padding', 'scroll', 'border', 'margin'].forEach((boxEdge) => {
                     it(`should measure dimensions with box edge being "${boxEdge}"`, function () {
-                        let expectedWidth = 0;
-                        let expectedHeight = 0;
-                        switch (boxEdge) {
-                            case 'content':
-                            case 'padding': {
-                                expectedWidth = elWidth;
-                                expectedHeight = elHeight;
-                                break;
-                            }
-                            default: {
-                                expectedWidth = elWidth + window.innerWidth - document.documentElement.clientWidth;
-                                expectedHeight =
-                                    elHeight + window.innerHeight - document.documentElement.clientHeight;
-                            }
-                        }
+                        const expectedWidth = elWidth;
+                        const expectedHeight = elHeight;
                         const rect = getRect([document, boxEdge]);
                         assertEqualDomNumbers(rect.width, expectedWidth, 'width: rect.width');
                         assertEqualDomNumbers(rect.right - rect.left, expectedWidth, 'width: rect.right - rect.left');

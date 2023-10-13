@@ -24,14 +24,10 @@ describe('getWidth()', function () {
       });
     });
 
-    it('should measure width without scrollbar', function () {
+    it('should measure document width', function () {
       const expected = elWidth;
       assertEqualDomNumbers(getWidth(document, 'content'), expected, 'content');
       assertEqualDomNumbers(getWidth(document, 'padding'), expected, 'padding');
-    });
-
-    it('should measure width with scrollbar', function () {
-      const expected = elWidth + window.innerWidth - document.documentElement.clientWidth;
       assertEqualDomNumbers(getWidth(document, 'scroll'), expected, 'scroll');
       assertEqualDomNumbers(getWidth(document), expected, 'default');
       assertEqualDomNumbers(getWidth(document, 'border'), expected, 'border');

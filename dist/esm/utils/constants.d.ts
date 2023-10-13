@@ -7,10 +7,11 @@ export declare const BOX_EDGE: {
     readonly border: "border";
     readonly margin: "margin";
 };
-export declare const INCLUDE_SCROLLBAR: {
+export declare const INCLUDE_WINDOW_SCROLLBAR: {
     content: boolean;
     padding: boolean;
     scroll: boolean;
     border: boolean;
     margin: boolean;
 };
+export declare const SCROLLABLE_OVERFLOWS: Set<string>;
