@@ -17,10 +17,14 @@ export const BOX_EDGE = {
   margin: 'margin',
 } as const;
 
-export const INCLUDE_SCROLLBAR = {
+export const INCLUDE_WINDOW_SCROLLBAR = {
   [BOX_EDGE.content]: false,
   [BOX_EDGE.padding]: false,
   [BOX_EDGE.scroll]: true,
   [BOX_EDGE.border]: true,
   [BOX_EDGE.margin]: true,
 };
+
+// Note that we intentionally don't include 'overlay' in this set, because
+// it doesn't affect the element's "content"/"padding" width.
+export const SCROLLABLE_OVERFLOWS = new Set(['auto', 'scroll']);

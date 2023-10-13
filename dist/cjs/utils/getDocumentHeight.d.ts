@@ -1,1 +1,1 @@
-export declare function getDocumentHeight(doc: Document, includeScrollbar?: boolean): number;
+export declare function getDocumentHeight(doc: Document): number;

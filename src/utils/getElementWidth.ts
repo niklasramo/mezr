@@ -1,7 +1,28 @@
-import { BOX_EDGE } from './constants.js';
+import { BOX_EDGE, SCROLLABLE_OVERFLOWS } from './constants.js';
 import { BoxElementEdge } from './types.js';
 import { getStyle } from './getStyle.js';
 import { isDocumentElement } from './isDocumentElement.js';
+
+function getScrollbarWidth(
+  element: Element,
+  style: CSSStyleDeclaration,
+  widthWithoutBorders: number,
+) {
+  // Document element actually can not have a scrollbar, at least in the same
+  // sense as the other elements, so let's return 0. When you define an overflow
+  // value for the document element that causes a scrollbar to appear, it
+  // actually appears for the window, outside the document element's bounds.
+  if (isDocumentElement(element)) {
+    return 0;
+  }
+
+  // Make sure the element can have a vertical scrollbar.
+  if (!SCROLLABLE_OVERFLOWS.has(style.overflowY)) {
+    return 0;
+  }
+
+  return Math.max(0, Math.round(widthWithoutBorders) - element.clientWidth);
+}
 
 export function getElementWidth(element: Element, boxEdge: BoxElementEdge = BOX_EDGE.border) {
   let { width } = element.getBoundingClientRect();
@@ -25,18 +46,7 @@ export function getElementWidth(element: Element, boxEdge: BoxElementEdge = BOX_
     return width;
   }
 
-  if (isDocumentElement(element)) {
-    const doc = element.ownerDocument;
-    const win = doc.defaultView;
-    if (win) {
-      width -= win.innerWidth - doc.documentElement.clientWidth;
-    }
-  } else {
-    const sbSize = Math.round(width) - element.clientWidth;
-    if (sbSize > 0) {
-      width -= sbSize;
-    }
-  }
+  width -= getScrollbarWidth(element, style, width);
 
   if (boxEdge === BOX_EDGE.padding) {
     return width;

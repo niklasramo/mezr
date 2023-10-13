@@ -40,9 +40,7 @@ width -= parseFloat(style.borderLeftWidth) || 0;
 width -= parseFloat(style.borderRightWidth) || 0;
 
 // Subtract scrollbar.
-if (elem instanceof HTMLHtmlElement) {
-  width -= window.innerWidth - document.documentElement.clientWidth;
-} else {
+if (!(elem instanceof HTMLHtmlElement)) {
   width -= Math.max(0, Math.round(width) - elem.clientWidth);
 }
 
@@ -164,7 +162,7 @@ getOffset([elemA, 'padding'], [elemB, 'margin']);
 
 ### getWidth()
 
-Returns the width of an element in pixels. Accepts also the window object (for getting the viewport width) and the document object (for getting the width of the whole document).
+Returns the width of an element in pixels. Accepts also the window object (for getting the viewport width) and the document object (for getting the width of the document). Document width, in the context of this method, is either the document element's width (including it's scroll area) or window's width (without possible scrollbar), whichever is greater.
 
 **Syntax**
 
@@ -179,20 +177,22 @@ type getWidth = (element: BoxElement, boxEdge: BoxElementEdge = 'border') => num
    - Accepts: [`BoxElement`](#boxelement).
 2. **boxEdge**
    - Defines which box edge of the element is considered as it's outer edge for the calculations.
-   - For `window` and `document` objects this argument behaves a bit differently since they cannot have any paddings, borders or margins. Only `"content"` (without vertical scrollbar's width) and `"scroll"` (with vertical scrollbar's width) are effective values. `"padding"` is normalized to `"content"` while `"border"` and `"margin"` are normalized to `"scroll"`.
+   - For `document` this option is ignored since document cannot have any scrollbars, paddings, borders or margins.
+   - For `window` only `"content"` (without vertical scrollbar's width) and `"scroll"` (with vertical scrollbar's width) are effective values. `"padding"` is normalized to `"content"` while `"border"` and `"margin"` are normalized to `"scroll"`.
    - Accepts: [`BoxElementEdge`](#boxelementedge).
    - Optional. Defaults to `"border"`.
+
+**Returns**
+
+The element's width in pixels. Tries to always return fractional subpixel values, which is important for precise calculations. For `window` this is not possible, so it will return integer values.
 
 **Examples**
 
 ```ts
 import { getWidth } from 'mezr/getWidth';
 
-// Document width (with viewport scrollbar).
+// Document width.
 getWidth(document);
-
-// Document width (without viewport scrollbar).
-getWidth(document, 'content');
 
 // Window width (with scrollbar).
 getWidth(window);
@@ -224,7 +224,7 @@ getWidth(elem, 'margin');
 
 ### getHeight()
 
-Returns the height of an element in pixels. Accepts also the window object (for getting the viewport height) and the document object (for getting the height of the whole document).
+Returns the height of an element in pixels. Accepts also the window object (for getting the viewport height) and the document object (for getting the height of the whole document). Document height, in the context of this method, is either the document element's height (including it's scroll area) or window's height (without possible scrollbar), whichever is greater.
 
 **Syntax**
 
@@ -239,20 +239,22 @@ type getHeight = (element: BoxElement, boxEdge: BoxElementEdge = 'border') => nu
    - Accepts: [`BoxElement`](#boxelement).
 2. **boxEdge**
    - Defines which box edge (content, padding, scroll, border, margin) of the element is considered as it's outer edge for the calculations.
-   - For `window` and `document` objects this argument behaves a bit differently since they cannot have any paddings, borders or margins. Only `"content"` (without horizontal scrollbar's height) and `"scroll"` (with horizontal scrollbar's height) are effective values. `"padding"` is normalized to `"content"` while `"border"` and `"margin"` are normalized to `"scroll"`.
+   - For `document` this option is ignored since document cannot have any scrollbars, paddings, borders or margins.
+   - For `window` only `"content"` (without horizontal scrollbar's height) and `"scroll"` (with horizontal scrollbar's height) are effective values. `"padding"` is normalized to `"content"` while `"border"` and `"margin"` are normalized to `"scroll"`.
    - Accepts: [`BoxElementEdge`](#boxelementedge).
    - Optional. Defaults to `"border"`.
+
+**Returns**
+
+The element's height in pixels. Tries to always return fractional subpixel values, which is important for precise calculations. For `window` this is not possible, so it will return integer values.
 
 **Examples**
 
 ```ts
 import { getHeight } from 'mezr/getHeight';
 
-// Document height (with viewport scrollbar).
+// Document height.
 getHeight(document);
-
-// Document height (without viewport scrollbar).
-getHeight(document, 'content');
 
 // Window height (with scrollbar).
 getHeight(window);
@@ -301,6 +303,10 @@ type getOffset = (element: BoxObject, offsetRoot?: BoxObject) => { left: number;
    - The element from which the offset is computed to the target element.
    - Accepts: [`BoxObject`](#boxobject).
    - Optional. Defaults to the first argument's closest document.
+
+**Returns**
+
+An object containing the element's offset (`left` and `top`) from the offset root in pixels.
 
 **Examples**
 
@@ -353,6 +359,10 @@ type getRect = (element: BoxObject, offsetRoot?: BoxObject) => BoxRectFull;
    - Accepts: [`BoxObject`](#boxobject).
    - Optional. Defaults to the first argument's closest document.
 
+**Returns**
+
+A [`BoxRectFull`](#boxrectfull) object containing the element's dimensions and offset (in pixels) from the offset root.
+
 **Examples**
 
 ```ts
@@ -381,7 +391,7 @@ getRect([elem, 'padding'], [anotherElem, 'margin']);
 
 ### getDistance()
 
-Returns the shortest distance between two elements (in pixels), or `null` if the elements intersect. In case the elements are touching, but not intersecting, the returned distance is `0`.
+Measure the shortest distance between two elements.
 
 ```ts
 type getDistance = (elementA: BoxObject, elementB: BoxObject) => number | null;
@@ -393,6 +403,10 @@ type getDistance = (elementA: BoxObject, elementB: BoxObject) => number | null;
    - Accepts: [`BoxObject`](#boxobject).
 2. **elementB**
    - Accepts: [`BoxObject`](#boxobject).
+
+**Returns**
+
+The shortest distance between two elements (in pixels), or `null` if the elements intersect. In case the elements are touching, but not intersecting, the returned distance is `0`.
 
 **Examples**
 
@@ -411,7 +425,7 @@ getDistance([elemA, 'content'], [elemB, 'scroll']);
 
 ### getIntersection()
 
-Measure the intersection area of two or more elements. Returns an object containing the intersection area dimensions and offsets if _all_ the provided elements intersect, otherwise returns `null`.
+Measure the intersection area of two or more elements.
 
 **Syntax**
 
@@ -424,6 +438,10 @@ type getIntersection = (...elements: BoxObject[]) => BoxRectFull | null;
 1. **...elements**
    - Provide at least two elements.
    - Accepts: [`BoxObject`](#boxobject).
+
+**Returns**
+
+A [`BoxRectFull`](#boxrectfull) object containing the intersection area dimensions and offsets if _all_ the provided elements intersect, otherwise returns `null`.
 
 **Examples**
 
@@ -445,7 +463,7 @@ getIntersection(elemA, elemB, [elemC, 'scroll'], { left: 0, top: 0, width: 100, 
 
 ### getOverflow()
 
-Measure how much target overflows container per each side. Returns an object containing the overflow values (note that the overflow values are reported even if the elements don't intersect). If a side's value is positive it means that target overflows container by that much from that side. If the value is negative it means that container overflows target by that much from that side.
+Measure how much target overflows container per each side.
 
 **Syntax**
 
@@ -467,6 +485,10 @@ type getOverflow = (
    - Accepts: [`BoxObject`](#boxobject).
 2. **container**
    - Accepts: [`BoxObject`](#boxobject).
+
+**Returns**
+
+An object containing the overflow values for each side: left, right, top, bottom. Note that the overflow values are reported even if the elements don't intersect. If a side's value is positive it means that target overflows container by that much from that side. If the value is negative it means that container overflows target by that much from that side.
 
 **Examples**
 
