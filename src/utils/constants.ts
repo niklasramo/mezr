@@ -12,7 +12,7 @@ export const IS_SAFARI = !!(
 export const BOX_EDGE = {
   content: 'content',
   padding: 'padding',
-  scroll: 'scroll',
+  scrollbar: 'scrollbar',
   border: 'border',
   margin: 'margin',
 } as const;
@@ -20,7 +20,7 @@ export const BOX_EDGE = {
 export const INCLUDE_WINDOW_SCROLLBAR = {
   [BOX_EDGE.content]: false,
   [BOX_EDGE.padding]: false,
-  [BOX_EDGE.scroll]: true,
+  [BOX_EDGE.scrollbar]: true,
   [BOX_EDGE.border]: true,
   [BOX_EDGE.margin]: true,
 };

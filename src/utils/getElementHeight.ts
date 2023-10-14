@@ -42,7 +42,7 @@ export function getElementHeight(element: Element, boxEdge: BoxElementEdge = BOX
   height -= parseFloat(style.borderTopWidth) || 0;
   height -= parseFloat(style.borderBottomWidth) || 0;
 
-  if (boxEdge === BOX_EDGE.scroll) {
+  if (boxEdge === BOX_EDGE.scrollbar) {
     return height;
   }
 

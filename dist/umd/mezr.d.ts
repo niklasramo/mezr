@@ -18,7 +18,7 @@ declare function getContainingBlock(element: HTMLElement, options?: {
 declare const BOX_EDGE: {
     readonly content: "content";
     readonly padding: "padding";
-    readonly scroll: "scroll";
+    readonly scrollbar: "scrollbar";
     readonly border: "border";
     readonly margin: "margin";
 };

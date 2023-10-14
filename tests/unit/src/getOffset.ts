@@ -162,7 +162,7 @@ describe('getOffset()', function () {
       });
 
       it(`should measure element's scroll offset from document`, function () {
-        const actual = getOffset([elA, 'scroll']);
+        const actual = getOffset([elA, 'scrollbar']);
         const expected = {
           left: left + marginLeft + borderLeft,
           top: top + marginTop + borderTop,
@@ -214,7 +214,7 @@ describe('getOffset()', function () {
       });
 
       it(`should measure element's scroll offset from window`, function () {
-        const actual = getOffset([elA, 'scroll'], window);
+        const actual = getOffset([elA, 'scrollbar'], window);
         const expected = {
           left: left + marginLeft + borderLeft - scrollLeft,
           top: top + marginTop + borderTop - scrollTop,
@@ -276,7 +276,7 @@ describe('getOffset()', function () {
       });
 
       it(`should measure content -> scroll offset`, function () {
-        const actual = getOffset([elA, 'content'], [elB, 'scroll']);
+        const actual = getOffset([elA, 'content'], [elB, 'scrollbar']);
         const expected = {
           left: paddingLeft - elBContainerLeft,
           top: paddingTop - elBContainerTop,
@@ -338,7 +338,7 @@ describe('getOffset()', function () {
       });
 
       it(`should measure padding -> scroll offset`, function () {
-        const actual = getOffset([elA, 'padding'], [elB, 'scroll']);
+        const actual = getOffset([elA, 'padding'], [elB, 'scrollbar']);
         const expected = {
           left: -elBContainerLeft,
           top: -elBContainerTop,
@@ -380,7 +380,7 @@ describe('getOffset()', function () {
 
     describe('element (scroll) -> element (all variations)', function () {
       it(`should measure scroll -> content offset`, function () {
-        const actual = getOffset([elA, 'scroll'], [elB, 'content']);
+        const actual = getOffset([elA, 'scrollbar'], [elB, 'content']);
         const expected = {
           left: -(elBContainerLeft + paddingLeft),
           top: -(elBContainerTop + paddingTop),
@@ -390,7 +390,7 @@ describe('getOffset()', function () {
       });
 
       it(`should measure scroll -> padding offset`, function () {
-        const actual = getOffset([elA, 'scroll'], [elB, 'padding']);
+        const actual = getOffset([elA, 'scrollbar'], [elB, 'padding']);
         const expected = {
           left: -elBContainerLeft,
           top: -elBContainerTop,
@@ -400,7 +400,7 @@ describe('getOffset()', function () {
       });
 
       it(`should measure scroll -> scroll offset`, function () {
-        const actual = getOffset([elA, 'scroll'], [elB, 'scroll']);
+        const actual = getOffset([elA, 'scrollbar'], [elB, 'scrollbar']);
         const expected = {
           left: -elBContainerLeft,
           top: -elBContainerTop,
@@ -410,7 +410,7 @@ describe('getOffset()', function () {
       });
 
       it(`should measure scroll -> default (border) offset`, function () {
-        const actual = getOffset([elA, 'scroll'], elB);
+        const actual = getOffset([elA, 'scrollbar'], elB);
         const expected = {
           left: borderLeft - elBContainerLeft,
           top: borderTop - elBContainerTop,
@@ -420,7 +420,7 @@ describe('getOffset()', function () {
       });
 
       it(`should measure scroll -> border offset`, function () {
-        const actual = getOffset([elA, 'scroll'], [elB, 'border']);
+        const actual = getOffset([elA, 'scrollbar'], [elB, 'border']);
         const expected = {
           left: borderLeft - elBContainerLeft,
           top: borderTop - elBContainerTop,
@@ -430,7 +430,7 @@ describe('getOffset()', function () {
       });
 
       it(`should measure scroll -> margin offset`, function () {
-        const actual = getOffset([elA, 'scroll'], [elB, 'margin']);
+        const actual = getOffset([elA, 'scrollbar'], [elB, 'margin']);
         const expected = {
           left: borderLeft + marginLeft - elBContainerLeft,
           top: borderTop + marginTop - elBContainerTop,
@@ -462,7 +462,7 @@ describe('getOffset()', function () {
       });
 
       it(`should measure border -> scroll offset`, function () {
-        const actual = getOffset([elA, 'border'], [elB, 'scroll']);
+        const actual = getOffset([elA, 'border'], [elB, 'scrollbar']);
         const expected = {
           left: -(elBContainerLeft + borderLeft),
           top: -(elBContainerTop + borderTop),
@@ -524,7 +524,7 @@ describe('getOffset()', function () {
       });
 
       it(`should measure margin -> scroll offset`, function () {
-        const actual = getOffset([elA, 'margin'], [elB, 'scroll']);
+        const actual = getOffset([elA, 'margin'], [elB, 'scrollbar']);
         const expected = {
           left: -(elBContainerLeft + borderLeft + marginLeft),
           top: -(elBContainerTop + borderTop + marginTop),

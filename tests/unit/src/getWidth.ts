@@ -28,7 +28,7 @@ describe('getWidth()', function () {
       const expected = elWidth;
       assertEqualDomNumbers(getWidth(document, 'content'), expected, 'content');
       assertEqualDomNumbers(getWidth(document, 'padding'), expected, 'padding');
-      assertEqualDomNumbers(getWidth(document, 'scroll'), expected, 'scroll');
+      assertEqualDomNumbers(getWidth(document, 'scrollbar'), expected, 'scrollbar');
       assertEqualDomNumbers(getWidth(document), expected, 'default');
       assertEqualDomNumbers(getWidth(document, 'border'), expected, 'border');
       assertEqualDomNumbers(getWidth(document, 'margin'), expected, 'margin');
@@ -45,7 +45,7 @@ describe('getWidth()', function () {
 
     it('should measure width with scrollbar', function () {
       const expected = window.innerWidth;
-      assertEqualDomNumbers(getWidth(window, 'scroll'), expected, 'scroll');
+      assertEqualDomNumbers(getWidth(window, 'scrollbar'), expected, 'scrollbar');
       assertEqualDomNumbers(getWidth(window), expected, 'default');
       assertEqualDomNumbers(getWidth(window, 'border'), expected, 'border');
       assertEqualDomNumbers(getWidth(window, 'margin'), expected, 'margin');
@@ -111,7 +111,7 @@ describe('getWidth()', function () {
       });
 
       it(`should measure scroll width for ${boxSizing}`, function () {
-        const actual = getWidth(el, 'scroll');
+        const actual = getWidth(el, 'scrollbar');
         const expected =
           boxSizing === 'content-box'
             ? width + paddingLeft + paddingRight

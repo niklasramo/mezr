@@ -28,7 +28,7 @@ describe('getHeight()', function () {
       const expected = elHeight;
       assertEqualDomNumbers(getHeight(document, 'content'), expected, 'content');
       assertEqualDomNumbers(getHeight(document, 'padding'), expected, 'padding');
-      assertEqualDomNumbers(getHeight(document, 'scroll'), expected, 'scroll');
+      assertEqualDomNumbers(getHeight(document, 'scrollbar'), expected, 'scrollbar');
       assertEqualDomNumbers(getHeight(document), expected, 'default');
       assertEqualDomNumbers(getHeight(document, 'border'), expected, 'border');
       assertEqualDomNumbers(getHeight(document, 'margin'), expected, 'margin');
@@ -45,7 +45,7 @@ describe('getHeight()', function () {
 
     it('should measure height with scrollbar', function () {
       const expected = window.innerHeight;
-      assertEqualDomNumbers(getHeight(window, 'scroll'), expected, 'scroll');
+      assertEqualDomNumbers(getHeight(window, 'scrollbar'), expected, 'scrollbar');
       assertEqualDomNumbers(getHeight(window), expected, 'default');
       assertEqualDomNumbers(getHeight(window, 'border'), expected, 'border');
       assertEqualDomNumbers(getHeight(window, 'margin'), expected, 'margin');
@@ -111,7 +111,7 @@ describe('getHeight()', function () {
       });
 
       it(`should measure scroll height for ${boxSizing}`, function () {
-        const actual = getHeight(el, 'scroll');
+        const actual = getHeight(el, 'scrollbar');
         const expected =
           boxSizing === 'content-box'
             ? height + paddingTop + paddingBottom

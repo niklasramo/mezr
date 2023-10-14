@@ -25,7 +25,7 @@ describe('getRect()', function () {
         });
       });
 
-      (['content', 'padding', 'scroll', 'border', 'margin'] as const).forEach((boxEdge) => {
+      (['content', 'padding', 'scrollbar', 'border', 'margin'] as const).forEach((boxEdge) => {
         it(`should measure dimensions with box edge being "${boxEdge}"`, function () {
           const expectedWidth = elWidth;
           const expectedHeight = elHeight;
@@ -49,7 +49,7 @@ describe('getRect()', function () {
     });
 
     describe('window', function () {
-      (['content', 'padding', 'scroll', 'border', 'margin'] as const).forEach((boxEdge) => {
+      (['content', 'padding', 'scrollbar', 'border', 'margin'] as const).forEach((boxEdge) => {
         it(`should measure dimensions with box edge being "${boxEdge}"`, function () {
           document.documentElement.style.overflow = 'scroll';
 
@@ -184,7 +184,7 @@ describe('getRect()', function () {
         });
 
         it(`should measure scroll width for ${boxSizing}`, function () {
-          const rect = getRect([el, 'scroll']);
+          const rect = getRect([el, 'scrollbar']);
           const expected =
             boxSizing === 'content-box'
               ? width + paddingLeft + paddingRight
@@ -198,7 +198,7 @@ describe('getRect()', function () {
         });
 
         it(`should measure scroll height for ${boxSizing}`, function () {
-          const rect = getRect([el, 'scroll']);
+          const rect = getRect([el, 'scrollbar']);
           const expected =
             boxSizing === 'content-box'
               ? height + paddingTop + paddingBottom
@@ -482,7 +482,7 @@ describe('getRect()', function () {
         });
 
         it(`should measure element's scroll offset from document`, function () {
-          const actual = getRectOffset([elA, 'scroll']);
+          const actual = getRectOffset([elA, 'scrollbar']);
           const expected = {
             left: left + marginLeft + borderLeft,
             top: top + marginTop + borderTop,
@@ -534,7 +534,7 @@ describe('getRect()', function () {
         });
 
         it(`should measure element's scroll offset from window`, function () {
-          const actual = getRectOffset([elA, 'scroll'], window);
+          const actual = getRectOffset([elA, 'scrollbar'], window);
           const expected = {
             left: left + marginLeft + borderLeft - scrollLeft,
             top: top + marginTop + borderTop - scrollTop,
@@ -596,7 +596,7 @@ describe('getRect()', function () {
         });
 
         it(`should measure content -> scroll offset`, function () {
-          const actual = getRectOffset([elA, 'content'], [elB, 'scroll']);
+          const actual = getRectOffset([elA, 'content'], [elB, 'scrollbar']);
           const expected = {
             left: paddingLeft - elBContainerLeft,
             top: paddingTop - elBContainerTop,
@@ -658,7 +658,7 @@ describe('getRect()', function () {
         });
 
         it(`should measure padding -> scroll offset`, function () {
-          const actual = getRectOffset([elA, 'padding'], [elB, 'scroll']);
+          const actual = getRectOffset([elA, 'padding'], [elB, 'scrollbar']);
           const expected = {
             left: -elBContainerLeft,
             top: -elBContainerTop,
@@ -700,7 +700,7 @@ describe('getRect()', function () {
 
       describe('element (scroll) -> element (all variations)', function () {
         it(`should measure scroll -> content offset`, function () {
-          const actual = getRectOffset([elA, 'scroll'], [elB, 'content']);
+          const actual = getRectOffset([elA, 'scrollbar'], [elB, 'content']);
           const expected = {
             left: -(elBContainerLeft + paddingLeft),
             top: -(elBContainerTop + paddingTop),
@@ -710,7 +710,7 @@ describe('getRect()', function () {
         });
 
         it(`should measure scroll -> padding offset`, function () {
-          const actual = getRectOffset([elA, 'scroll'], [elB, 'padding']);
+          const actual = getRectOffset([elA, 'scrollbar'], [elB, 'padding']);
           const expected = {
             left: -elBContainerLeft,
             top: -elBContainerTop,
@@ -720,7 +720,7 @@ describe('getRect()', function () {
         });
 
         it(`should measure scroll -> scroll offset`, function () {
-          const actual = getRectOffset([elA, 'scroll'], [elB, 'scroll']);
+          const actual = getRectOffset([elA, 'scrollbar'], [elB, 'scrollbar']);
           const expected = {
             left: -elBContainerLeft,
             top: -elBContainerTop,
@@ -730,7 +730,7 @@ describe('getRect()', function () {
         });
 
         it(`should measure scroll -> default (border) offset`, function () {
-          const actual = getRectOffset([elA, 'scroll'], elB);
+          const actual = getRectOffset([elA, 'scrollbar'], elB);
           const expected = {
             left: borderLeft - elBContainerLeft,
             top: borderTop - elBContainerTop,
@@ -740,7 +740,7 @@ describe('getRect()', function () {
         });
 
         it(`should measure scroll -> border offset`, function () {
-          const actual = getRectOffset([elA, 'scroll'], [elB, 'border']);
+          const actual = getRectOffset([elA, 'scrollbar'], [elB, 'border']);
           const expected = {
             left: borderLeft - elBContainerLeft,
             top: borderTop - elBContainerTop,
@@ -750,7 +750,7 @@ describe('getRect()', function () {
         });
 
         it(`should measure scroll -> margin offset`, function () {
-          const actual = getRectOffset([elA, 'scroll'], [elB, 'margin']);
+          const actual = getRectOffset([elA, 'scrollbar'], [elB, 'margin']);
           const expected = {
             left: borderLeft + marginLeft - elBContainerLeft,
             top: borderTop + marginTop - elBContainerTop,
@@ -782,7 +782,7 @@ describe('getRect()', function () {
         });
 
         it(`should measure border -> scroll offset`, function () {
-          const actual = getRectOffset([elA, 'border'], [elB, 'scroll']);
+          const actual = getRectOffset([elA, 'border'], [elB, 'scrollbar']);
           const expected = {
             left: -(elBContainerLeft + borderLeft),
             top: -(elBContainerTop + borderTop),
@@ -844,7 +844,7 @@ describe('getRect()', function () {
         });
 
         it(`should measure margin -> scroll offset`, function () {
-          const actual = getRectOffset([elA, 'margin'], [elB, 'scroll']);
+          const actual = getRectOffset([elA, 'margin'], [elB, 'scrollbar']);
           const expected = {
             left: -(elBContainerLeft + borderLeft + marginLeft),
             top: -(elBContainerTop + borderTop + marginTop),

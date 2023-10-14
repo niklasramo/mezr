@@ -240,14 +240,14 @@
     const BOX_EDGE = {
         content: 'content',
         padding: 'padding',
-        scroll: 'scroll',
+        scrollbar: 'scrollbar',
         border: 'border',
         margin: 'margin',
     };
     const INCLUDE_WINDOW_SCROLLBAR = {
         [BOX_EDGE.content]: false,
         [BOX_EDGE.padding]: false,
-        [BOX_EDGE.scroll]: true,
+        [BOX_EDGE.scrollbar]: true,
         [BOX_EDGE.border]: true,
         [BOX_EDGE.margin]: true,
     };
@@ -535,7 +535,7 @@
         }
         width -= parseFloat(style.borderLeftWidth) || 0;
         width -= parseFloat(style.borderRightWidth) || 0;
-        if (boxEdge === BOX_EDGE.scroll) {
+        if (boxEdge === BOX_EDGE.scrollbar) {
             return width;
         }
         width -= getScrollbarWidth(element, style, width);
@@ -597,7 +597,7 @@
         }
         height -= parseFloat(style.borderTopWidth) || 0;
         height -= parseFloat(style.borderBottomWidth) || 0;
-        if (boxEdge === BOX_EDGE.scroll) {
+        if (boxEdge === BOX_EDGE.scrollbar) {
             return height;
         }
         height -= getScrollbarHeight(element, style, height);
@@ -665,7 +665,7 @@
         }
         offset.left += parseFloat(style.borderLeftWidth) || 0;
         offset.top += parseFloat(style.borderTopWidth) || 0;
-        if (boxEdge === BOX_EDGE.scroll || boxEdge === BOX_EDGE.padding) {
+        if (boxEdge === BOX_EDGE.scrollbar || boxEdge === BOX_EDGE.padding) {
             return offset;
         }
         offset.left += parseFloat(style.paddingLeft) || 0;
@@ -851,7 +851,7 @@
                 const expected = elWidth;
                 assertEqualDomNumbers(getWidth(document, 'content'), expected, 'content');
                 assertEqualDomNumbers(getWidth(document, 'padding'), expected, 'padding');
-                assertEqualDomNumbers(getWidth(document, 'scroll'), expected, 'scroll');
+                assertEqualDomNumbers(getWidth(document, 'scrollbar'), expected, 'scrollbar');
                 assertEqualDomNumbers(getWidth(document), expected, 'default');
                 assertEqualDomNumbers(getWidth(document, 'border'), expected, 'border');
                 assertEqualDomNumbers(getWidth(document, 'margin'), expected, 'margin');
@@ -866,7 +866,7 @@
             });
             it('should measure width with scrollbar', function () {
                 const expected = window.innerWidth;
-                assertEqualDomNumbers(getWidth(window, 'scroll'), expected, 'scroll');
+                assertEqualDomNumbers(getWidth(window, 'scrollbar'), expected, 'scrollbar');
                 assertEqualDomNumbers(getWidth(window), expected, 'default');
                 assertEqualDomNumbers(getWidth(window, 'border'), expected, 'border');
                 assertEqualDomNumbers(getWidth(window, 'margin'), expected, 'margin');
@@ -924,7 +924,7 @@
                     assertEqualDomNumbers(actual, expected, `padding - ${boxSizing}`);
                 });
                 it(`should measure scroll width for ${boxSizing}`, function () {
-                    const actual = getWidth(el, 'scroll');
+                    const actual = getWidth(el, 'scrollbar');
                     const expected = boxSizing === 'content-box'
                         ? width + paddingLeft + paddingRight
                         : width - borderWidthLeft - borderWidthRight;
@@ -987,7 +987,7 @@
                 const expected = elHeight;
                 assertEqualDomNumbers(getHeight(document, 'content'), expected, 'content');
                 assertEqualDomNumbers(getHeight(document, 'padding'), expected, 'padding');
-                assertEqualDomNumbers(getHeight(document, 'scroll'), expected, 'scroll');
+                assertEqualDomNumbers(getHeight(document, 'scrollbar'), expected, 'scrollbar');
                 assertEqualDomNumbers(getHeight(document), expected, 'default');
                 assertEqualDomNumbers(getHeight(document, 'border'), expected, 'border');
                 assertEqualDomNumbers(getHeight(document, 'margin'), expected, 'margin');
@@ -1002,7 +1002,7 @@
             });
             it('should measure height with scrollbar', function () {
                 const expected = window.innerHeight;
-                assertEqualDomNumbers(getHeight(window, 'scroll'), expected, 'scroll');
+                assertEqualDomNumbers(getHeight(window, 'scrollbar'), expected, 'scrollbar');
                 assertEqualDomNumbers(getHeight(window), expected, 'default');
                 assertEqualDomNumbers(getHeight(window, 'border'), expected, 'border');
                 assertEqualDomNumbers(getHeight(window, 'margin'), expected, 'margin');
@@ -1060,7 +1060,7 @@
                     assertEqualDomNumbers(actual, expected, `padding - ${boxSizing}`);
                 });
                 it(`should measure scroll height for ${boxSizing}`, function () {
-                    const actual = getHeight(el, 'scroll');
+                    const actual = getHeight(el, 'scrollbar');
                     const expected = boxSizing === 'content-box'
                         ? height + paddingTop + paddingBottom
                         : height - borderWidthTop - borderWidthBottom;
@@ -1245,7 +1245,7 @@
                     assertEqualDomNumbers(actual.top, expected.top, 'top');
                 });
                 it(`should measure element's scroll offset from document`, function () {
-                    const actual = getOffset([elA, 'scroll']);
+                    const actual = getOffset([elA, 'scrollbar']);
                     const expected = {
                         left: left + marginLeft + borderLeft,
                         top: top + marginTop + borderTop,
@@ -1292,7 +1292,7 @@
                     assertEqualDomNumbers(actual.top, expected.top, 'top');
                 });
                 it(`should measure element's scroll offset from window`, function () {
-                    const actual = getOffset([elA, 'scroll'], window);
+                    const actual = getOffset([elA, 'scrollbar'], window);
                     const expected = {
                         left: left + marginLeft + borderLeft - scrollLeft,
                         top: top + marginTop + borderTop - scrollTop,
@@ -1348,7 +1348,7 @@
                     assertEqualDomNumbers(actual.top, expected.top, 'top');
                 });
                 it(`should measure content -> scroll offset`, function () {
-                    const actual = getOffset([elA, 'content'], [elB, 'scroll']);
+                    const actual = getOffset([elA, 'content'], [elB, 'scrollbar']);
                     const expected = {
                         left: paddingLeft - elBContainerLeft,
                         top: paddingTop - elBContainerTop,
@@ -1404,7 +1404,7 @@
                     assertEqualDomNumbers(actual.top, expected.top, 'top');
                 });
                 it(`should measure padding -> scroll offset`, function () {
-                    const actual = getOffset([elA, 'padding'], [elB, 'scroll']);
+                    const actual = getOffset([elA, 'padding'], [elB, 'scrollbar']);
                     const expected = {
                         left: -elBContainerLeft,
                         top: -elBContainerTop,
@@ -1442,7 +1442,7 @@
             });
             describe('element (scroll) -> element (all variations)', function () {
                 it(`should measure scroll -> content offset`, function () {
-                    const actual = getOffset([elA, 'scroll'], [elB, 'content']);
+                    const actual = getOffset([elA, 'scrollbar'], [elB, 'content']);
                     const expected = {
                         left: -(elBContainerLeft + paddingLeft),
                         top: -(elBContainerTop + paddingTop),
@@ -1451,7 +1451,7 @@
                     assertEqualDomNumbers(actual.top, expected.top, 'top');
                 });
                 it(`should measure scroll -> padding offset`, function () {
-                    const actual = getOffset([elA, 'scroll'], [elB, 'padding']);
+                    const actual = getOffset([elA, 'scrollbar'], [elB, 'padding']);
                     const expected = {
                         left: -elBContainerLeft,
                         top: -elBContainerTop,
@@ -1460,7 +1460,7 @@
                     assertEqualDomNumbers(actual.top, expected.top, 'top');
                 });
                 it(`should measure scroll -> scroll offset`, function () {
-                    const actual = getOffset([elA, 'scroll'], [elB, 'scroll']);
+                    const actual = getOffset([elA, 'scrollbar'], [elB, 'scrollbar']);
                     const expected = {
                         left: -elBContainerLeft,
                         top: -elBContainerTop,
@@ -1469,7 +1469,7 @@
                     assertEqualDomNumbers(actual.top, expected.top, 'top');
                 });
                 it(`should measure scroll -> default (border) offset`, function () {
-                    const actual = getOffset([elA, 'scroll'], elB);
+                    const actual = getOffset([elA, 'scrollbar'], elB);
                     const expected = {
                         left: borderLeft - elBContainerLeft,
                         top: borderTop - elBContainerTop,
@@ -1478,7 +1478,7 @@
                     assertEqualDomNumbers(actual.top, expected.top, 'top');
                 });
                 it(`should measure scroll -> border offset`, function () {
-                    const actual = getOffset([elA, 'scroll'], [elB, 'border']);
+                    const actual = getOffset([elA, 'scrollbar'], [elB, 'border']);
                     const expected = {
                         left: borderLeft - elBContainerLeft,
                         top: borderTop - elBContainerTop,
@@ -1487,7 +1487,7 @@
                     assertEqualDomNumbers(actual.top, expected.top, 'top');
                 });
                 it(`should measure scroll -> margin offset`, function () {
-                    const actual = getOffset([elA, 'scroll'], [elB, 'margin']);
+                    const actual = getOffset([elA, 'scrollbar'], [elB, 'margin']);
                     const expected = {
                         left: borderLeft + marginLeft - elBContainerLeft,
                         top: borderTop + marginTop - elBContainerTop,
@@ -1516,7 +1516,7 @@
                     assertEqualDomNumbers(actual.top, expected.top, 'top');
                 });
                 it(`should measure border -> scroll offset`, function () {
-                    const actual = getOffset([elA, 'border'], [elB, 'scroll']);
+                    const actual = getOffset([elA, 'border'], [elB, 'scrollbar']);
                     const expected = {
                         left: -(elBContainerLeft + borderLeft),
                         top: -(elBContainerTop + borderTop),
@@ -1572,7 +1572,7 @@
                     assertEqualDomNumbers(actual.top, expected.top, 'top');
                 });
                 it(`should measure margin -> scroll offset`, function () {
-                    const actual = getOffset([elA, 'margin'], [elB, 'scroll']);
+                    const actual = getOffset([elA, 'margin'], [elB, 'scrollbar']);
                     const expected = {
                         left: -(elBContainerLeft + borderLeft + marginLeft),
                         top: -(elBContainerTop + borderTop + marginTop),
@@ -1628,7 +1628,7 @@
                         height: `${elHeight}px`,
                     });
                 });
-                ['content', 'padding', 'scroll', 'border', 'margin'].forEach((boxEdge) => {
+                ['content', 'padding', 'scrollbar', 'border', 'margin'].forEach((boxEdge) => {
                     it(`should measure dimensions with box edge being "${boxEdge}"`, function () {
                         const expectedWidth = elWidth;
                         const expectedHeight = elHeight;
@@ -1641,7 +1641,7 @@
                 });
             });
             describe('window', function () {
-                ['content', 'padding', 'scroll', 'border', 'margin'].forEach((boxEdge) => {
+                ['content', 'padding', 'scrollbar', 'border', 'margin'].forEach((boxEdge) => {
                     it(`should measure dimensions with box edge being "${boxEdge}"`, function () {
                         document.documentElement.style.overflow = 'scroll';
                         let expectedWidth = 0;
@@ -1736,7 +1736,7 @@
                         assertEqualDomNumbers(rect.bottom - rect.top, expected, `padding - ${boxSizing}: rect.bottom - rect.top`);
                     });
                     it(`should measure scroll width for ${boxSizing}`, function () {
-                        const rect = getRect([el, 'scroll']);
+                        const rect = getRect([el, 'scrollbar']);
                         const expected = boxSizing === 'content-box'
                             ? width + paddingLeft + paddingRight
                             : width - borderWidthLeft - borderWidthRight;
@@ -1744,7 +1744,7 @@
                         assertEqualDomNumbers(rect.right - rect.left, expected, `scroll - ${boxSizing}: rect.right - rect.left`);
                     });
                     it(`should measure scroll height for ${boxSizing}`, function () {
-                        const rect = getRect([el, 'scroll']);
+                        const rect = getRect([el, 'scrollbar']);
                         const expected = boxSizing === 'content-box'
                             ? height + paddingTop + paddingBottom
                             : height - borderWidthTop - borderWidthBottom;
@@ -1966,7 +1966,7 @@
                         assertEqualDomNumbers(actual.top, expected.top, 'top');
                     });
                     it(`should measure element's scroll offset from document`, function () {
-                        const actual = getRectOffset([elA, 'scroll']);
+                        const actual = getRectOffset([elA, 'scrollbar']);
                         const expected = {
                             left: left + marginLeft + borderLeft,
                             top: top + marginTop + borderTop,
@@ -2013,7 +2013,7 @@
                         assertEqualDomNumbers(actual.top, expected.top, 'top');
                     });
                     it(`should measure element's scroll offset from window`, function () {
-                        const actual = getRectOffset([elA, 'scroll'], window);
+                        const actual = getRectOffset([elA, 'scrollbar'], window);
                         const expected = {
                             left: left + marginLeft + borderLeft - scrollLeft,
                             top: top + marginTop + borderTop - scrollTop,
@@ -2069,7 +2069,7 @@
                         assertEqualDomNumbers(actual.top, expected.top, 'top');
                     });
                     it(`should measure content -> scroll offset`, function () {
-                        const actual = getRectOffset([elA, 'content'], [elB, 'scroll']);
+                        const actual = getRectOffset([elA, 'content'], [elB, 'scrollbar']);
                         const expected = {
                             left: paddingLeft - elBContainerLeft,
                             top: paddingTop - elBContainerTop,
@@ -2125,7 +2125,7 @@
                         assertEqualDomNumbers(actual.top, expected.top, 'top');
                     });
                     it(`should measure padding -> scroll offset`, function () {
-                        const actual = getRectOffset([elA, 'padding'], [elB, 'scroll']);
+                        const actual = getRectOffset([elA, 'padding'], [elB, 'scrollbar']);
                         const expected = {
                             left: -elBContainerLeft,
                             top: -elBContainerTop,
@@ -2163,7 +2163,7 @@
                 });
                 describe('element (scroll) -> element (all variations)', function () {
                     it(`should measure scroll -> content offset`, function () {
-                        const actual = getRectOffset([elA, 'scroll'], [elB, 'content']);
+                        const actual = getRectOffset([elA, 'scrollbar'], [elB, 'content']);
                         const expected = {
                             left: -(elBContainerLeft + paddingLeft),
                             top: -(elBContainerTop + paddingTop),
@@ -2172,7 +2172,7 @@
                         assertEqualDomNumbers(actual.top, expected.top, 'top');
                     });
                     it(`should measure scroll -> padding offset`, function () {
-                        const actual = getRectOffset([elA, 'scroll'], [elB, 'padding']);
+                        const actual = getRectOffset([elA, 'scrollbar'], [elB, 'padding']);
                         const expected = {
                             left: -elBContainerLeft,
                             top: -elBContainerTop,
@@ -2181,7 +2181,7 @@
                         assertEqualDomNumbers(actual.top, expected.top, 'top');
                     });
                     it(`should measure scroll -> scroll offset`, function () {
-                        const actual = getRectOffset([elA, 'scroll'], [elB, 'scroll']);
+                        const actual = getRectOffset([elA, 'scrollbar'], [elB, 'scrollbar']);
                         const expected = {
                             left: -elBContainerLeft,
                             top: -elBContainerTop,
@@ -2190,7 +2190,7 @@
                         assertEqualDomNumbers(actual.top, expected.top, 'top');
                     });
                     it(`should measure scroll -> default (border) offset`, function () {
-                        const actual = getRectOffset([elA, 'scroll'], elB);
+                        const actual = getRectOffset([elA, 'scrollbar'], elB);
                         const expected = {
                             left: borderLeft - elBContainerLeft,
                             top: borderTop - elBContainerTop,
@@ -2199,7 +2199,7 @@
                         assertEqualDomNumbers(actual.top, expected.top, 'top');
                     });
                     it(`should measure scroll -> border offset`, function () {
-                        const actual = getRectOffset([elA, 'scroll'], [elB, 'border']);
+                        const actual = getRectOffset([elA, 'scrollbar'], [elB, 'border']);
                         const expected = {
                             left: borderLeft - elBContainerLeft,
                             top: borderTop - elBContainerTop,
@@ -2208,7 +2208,7 @@
                         assertEqualDomNumbers(actual.top, expected.top, 'top');
                     });
                     it(`should measure scroll -> margin offset`, function () {
-                        const actual = getRectOffset([elA, 'scroll'], [elB, 'margin']);
+                        const actual = getRectOffset([elA, 'scrollbar'], [elB, 'margin']);
                         const expected = {
                             left: borderLeft + marginLeft - elBContainerLeft,
                             top: borderTop + marginTop - elBContainerTop,
@@ -2237,7 +2237,7 @@
                         assertEqualDomNumbers(actual.top, expected.top, 'top');
                     });
                     it(`should measure border -> scroll offset`, function () {
-                        const actual = getRectOffset([elA, 'border'], [elB, 'scroll']);
+                        const actual = getRectOffset([elA, 'border'], [elB, 'scrollbar']);
                         const expected = {
                             left: -(elBContainerLeft + borderLeft),
                             top: -(elBContainerTop + borderTop),
@@ -2293,7 +2293,7 @@
                         assertEqualDomNumbers(actual.top, expected.top, 'top');
                     });
                     it(`should measure margin -> scroll offset`, function () {
-                        const actual = getRectOffset([elA, 'margin'], [elB, 'scroll']);
+                        const actual = getRectOffset([elA, 'margin'], [elB, 'scrollbar']);
                         const expected = {
                             left: -(elBContainerLeft + borderLeft + marginLeft),
                             top: -(elBContainerTop + borderTop + marginTop),

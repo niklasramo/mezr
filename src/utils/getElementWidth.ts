@@ -42,7 +42,7 @@ export function getElementWidth(element: Element, boxEdge: BoxElementEdge = BOX_
   width -= parseFloat(style.borderLeftWidth) || 0;
   width -= parseFloat(style.borderRightWidth) || 0;
 
-  if (boxEdge === BOX_EDGE.scroll) {
+  if (boxEdge === BOX_EDGE.scrollbar) {
     return width;
   }
 
