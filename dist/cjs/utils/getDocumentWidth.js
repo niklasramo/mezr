@@ -1,1 +1,1 @@
-"use strict";function getDocumentWidth(t){return Math.max(t.documentElement.scrollWidth,t.documentElement.clientWidth,document.documentElement.getBoundingClientRect().width)}Object.defineProperty(exports,"__esModule",{value:!0}),exports.getDocumentWidth=void 0,exports.getDocumentWidth=getDocumentWidth;
+"use strict";function getDocumentWidth({documentElement:t}){return Math.max(t.scrollWidth,t.clientWidth,t.getBoundingClientRect().width)}Object.defineProperty(exports,"__esModule",{value:!0}),exports.getDocumentWidth=void 0,exports.getDocumentWidth=getDocumentWidth;

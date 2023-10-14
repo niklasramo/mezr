@@ -504,8 +504,8 @@
         return includeScrollbar ? win.innerWidth : win.document.documentElement.clientWidth;
     }
 
-    function getDocumentWidth(doc) {
-        return Math.max(doc.documentElement.scrollWidth, doc.documentElement.clientWidth, document.documentElement.getBoundingClientRect().width);
+    function getDocumentWidth({ documentElement }) {
+        return Math.max(documentElement.scrollWidth, documentElement.clientWidth, documentElement.getBoundingClientRect().width);
     }
 
     function getScrollbarWidth(element, style, widthWithoutBorders) {
@@ -566,8 +566,8 @@
         return includeScrollbar ? win.innerHeight : win.document.documentElement.clientHeight;
     }
 
-    function getDocumentHeight(doc) {
-        return Math.max(doc.documentElement.scrollHeight, doc.documentElement.clientHeight, document.documentElement.getBoundingClientRect().height);
+    function getDocumentHeight({ documentElement }) {
+        return Math.max(documentElement.scrollHeight, documentElement.clientHeight, documentElement.getBoundingClientRect().height);
     }
 
     function getScrollbarHeight(element, style, heightWithoutBorders) {

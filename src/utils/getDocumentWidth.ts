@@ -1,7 +1,7 @@
-export function getDocumentWidth(doc: Document) {
+export function getDocumentWidth({ documentElement }: Document) {
   return Math.max(
-    doc.documentElement.scrollWidth,
-    doc.documentElement.clientWidth,
-    document.documentElement.getBoundingClientRect().width,
+    documentElement.scrollWidth,
+    documentElement.clientWidth,
+    documentElement.getBoundingClientRect().width,
   );
 }

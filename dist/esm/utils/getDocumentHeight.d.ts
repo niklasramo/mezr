@@ -1,1 +1,1 @@
-export declare function getDocumentHeight(doc: Document): number;
+export declare function getDocumentHeight({ documentElement }: Document): number;
