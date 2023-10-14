@@ -1,1 +1,1 @@
-export function getDocumentHeight(e){return Math.max(e.documentElement.scrollHeight,e.documentElement.clientHeight,document.documentElement.getBoundingClientRect().height)}
+export function getDocumentHeight({documentElement:t}){return Math.max(t.scrollHeight,t.clientHeight,t.getBoundingClientRect().height)}

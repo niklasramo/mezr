@@ -1,1 +1,1 @@
-export declare function getDocumentWidth(doc: Document): number;
+export declare function getDocumentWidth({ documentElement }: Document): number;
