@@ -121,8 +121,8 @@ getWidth(elem, 'padding');
 getHeight(elem, 'padding');
 
 // Content + paddings + scrollbar.
-getWidth(elem, 'scroll');
-getHeight(elem, 'scroll');
+getWidth(elem, 'scrollbar');
+getHeight(elem, 'scrollbar');
 
 // Content + paddings + scrollbar + borders (default).
 getWidth(elem, 'border');
@@ -176,9 +176,9 @@ type getWidth = (element: BoxElement, boxEdge: BoxElementEdge = 'border') => num
    - The element which's width we want to measure.
    - Accepts: [`BoxElement`](#boxelement).
 2. **boxEdge**
-   - Defines which box edge of the element is considered as it's outer edge for the calculations.
+   - Defines which [`box edge`](#boxelementedge) of the element is considered as it's outer edge for the calculations.
    - For `document` this option is ignored since document cannot have any scrollbars, paddings, borders or margins.
-   - For `window` only `"content"` (without vertical scrollbar's width) and `"scroll"` (with vertical scrollbar's width) are effective values. `"padding"` is normalized to `"content"` while `"border"` and `"margin"` are normalized to `"scroll"`.
+   - For `window` only `"content"` (without vertical scrollbar's width) and `"scrollbar"` (with vertical scrollbar's width) are effective values. `"padding"` is normalized to `"content"` while `"border"` and `"margin"` are normalized to `"scrollbar"`.
    - Accepts: [`BoxElementEdge`](#boxelementedge).
    - Optional. Defaults to `"border"`.
 
@@ -210,7 +210,7 @@ getWidth(elem, 'padding');
 
 // Element padding-box + scrollbar width.
 // Includes content + paddings + scrollbar.
-getWidth(elem, 'scroll');
+getWidth(elem, 'scrollbar');
 
 // Element border-box width.
 // Includes content + paddings + scrollbar + borders.
@@ -238,9 +238,9 @@ type getHeight = (element: BoxElement, boxEdge: BoxElementEdge = 'border') => nu
    - The element which's height we want to measure.
    - Accepts: [`BoxElement`](#boxelement).
 2. **boxEdge**
-   - Defines which box edge (content, padding, scroll, border, margin) of the element is considered as it's outer edge for the calculations.
+   - Defines which [`box edge`](#boxelementedge) of the element is considered as it's outer edge for the calculations.
    - For `document` this option is ignored since document cannot have any scrollbars, paddings, borders or margins.
-   - For `window` only `"content"` (without horizontal scrollbar's height) and `"scroll"` (with horizontal scrollbar's height) are effective values. `"padding"` is normalized to `"content"` while `"border"` and `"margin"` are normalized to `"scroll"`.
+   - For `window` only `"content"` (without horizontal scrollbar's height) and `"scrollbar"` (with horizontal scrollbar's height) are effective values. `"padding"` is normalized to `"content"` while `"border"` and `"margin"` are normalized to `"scrollbar"`.
    - Accepts: [`BoxElementEdge`](#boxelementedge).
    - Optional. Defaults to `"border"`.
 
@@ -272,7 +272,7 @@ getHeight(elem, 'padding');
 
 // Element padding-box + scrollbar height.
 // Includes content + paddings + scrollbar.
-getHeight(elem, 'scroll');
+getHeight(elem, 'scrollbar');
 
 // Element border-box height.
 // Includes content + paddings + scrollbar + borders.
@@ -327,7 +327,7 @@ getOffset(elem);
 // You can also define the element's box edge for the calculations.
 getOffset([elem, 'content']);
 getOffset([elem, 'padding']);
-getOffset([elem, 'scroll']);
+getOffset([elem, 'scrollbar']); // equals getOffset(elem, 'padding');
 getOffset([elem, 'border']); // equals getOffset(elem);
 getOffset([elem, 'margin']);
 
@@ -380,7 +380,7 @@ getRect(elem, window);
 // You can also define the element's box edge for the calculations.
 getRect([elem, 'content']);
 getRect([elem, 'padding']);
-getRect([elem, 'scroll']);
+getRect([elem, 'scrollbar']);
 getRect([elem, 'border']); // equals getRect(elem);
 getRect([elem, 'margin']);
 
@@ -420,7 +420,7 @@ getDistance(elemA, elemB);
 getDistance(elem, window);
 
 // You can also define the elements' box edge for the calculations.
-getDistance([elemA, 'content'], [elemB, 'scroll']);
+getDistance([elemA, 'content'], [elemB, 'scrollbar']);
 ```
 
 ### getIntersection()
@@ -455,10 +455,10 @@ getIntersection(elemA, elemB);
 getIntersection(elem, window);
 
 // You can also define the elements' box edge for the calculations.
-getIntersection([elemA, 'content'], [elemB, 'scroll']);
+getIntersection([elemA, 'content'], [elemB, 'scrollbar']);
 
 // You can provide as many elements as you want.
-getIntersection(elemA, elemB, [elemC, 'scroll'], { left: 0, top: 0, width: 100, height: 100 });
+getIntersection(elemA, elemB, [elemC, 'scrollbar'], { left: 0, top: 0, width: 100, height: 100 });
 ```
 
 ### getOverflow()
@@ -502,7 +502,7 @@ getOverflow(elemA, elemB);
 getOverflow(elem, window);
 
 // You can also define the elements' box edges for the calculations.
-getOverflow([elemA, 'content'], [elemB, 'scroll']);
+getOverflow([elemA, 'content'], [elemB, 'scrollbar']);
 ```
 
 ### getContainingBlock()
@@ -605,18 +605,18 @@ getOffsetContainer(elem, { skipDisplayNone: true });
 #### BoxElementEdge
 
 ```ts
-type BoxElementEdge = 'content' | 'padding' | 'scroll' | 'border' | 'margin';
+type BoxElementEdge = 'content' | 'padding' | 'scrollbar' | 'border' | 'margin';
 ```
 
 In many methods you can explicitly define the box edge of the element for the calculcations. In practice the box edge indicates which parts of the the element are considered as part of the element. `"border"` box edge is always the default. The following table illustrates the different box edges.
 
-| Box edge    | Description                                                                    |
-| ----------- | ------------------------------------------------------------------------------ |
-| `"content"` | The element's content box.                                                     |
-| `"padding"` | The element's content box + paddings.                                          |
-| `"scroll"`  | The element's content box + paddings + scrollbar.                              |
-| `"border"`  | The element's content box + paddings + scrollbar + borders.                    |
-| `"margin"`  | The element's content box + paddings + scrollbar + borders + positive margins. |
+| Box edge      | Description                                                                    |
+| ------------- | ------------------------------------------------------------------------------ |
+| `"content"`   | The element's content box.                                                     |
+| `"padding"`   | The element's content box + paddings.                                          |
+| `"scrollbar"` | The element's content box + paddings + scrollbar.                              |
+| `"border"`    | The element's content box + paddings + scrollbar + borders.                    |
+| `"margin"`    | The element's content box + paddings + scrollbar + borders + positive margins. |
 
 #### BoxRect
 

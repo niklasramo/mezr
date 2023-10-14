@@ -53,7 +53,7 @@ export function getOffsetFromDocument(
   offset.left += parseFloat(style.borderLeftWidth) || 0;
   offset.top += parseFloat(style.borderTopWidth) || 0;
 
-  if (boxEdge === BOX_EDGE.scroll || boxEdge === BOX_EDGE.padding) {
+  if (boxEdge === BOX_EDGE.scrollbar || boxEdge === BOX_EDGE.padding) {
     return offset;
   }
 
