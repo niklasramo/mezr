@@ -3,14 +3,15 @@ import { getContainingBlock } from './getContainingBlock.js';
 import { isWindow } from './utils/isWindow.js';
 
 /**
- * Returns the element's offset container, meaning the closest ancestor
- * element/document/window that the target element's left/right/top/bottom CSS
- * properties are rooted to. If the offset container can't be computed or the
- * element is not affected by left/right/top/bottom CSS properties (e.g. static
- * elements) `null` will be returned.
- *
- * Due to the dynamic nature of sticky elements they are considered as static
- * elements in this method's scope and will always return `null`.
+ * Returns the element's offset container, meaning the closest
+ * element/document/window that the target element's `inset`, `left`, `right`,
+ * `top` and `bottom` CSS properties are relative to in terms of position. If
+ * the offset container can't be computed or the element is not affected by
+ * `left`/`right`/`top`/`bottom` CSS properties (e.g. static elements) `null`
+ * will be returned (in some cases we can't query all the information needed
+ * from elements with `display:none`). Additionally, due to the dynamic nature
+ * of sticky elements they are considered as static elements in this method's
+ * scope and will always return `null`.
  */
 export function getOffsetContainer(
   element: HTMLElement,

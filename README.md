@@ -507,9 +507,15 @@ getOverflow([elemA, 'content'], [elemB, 'scrollbar']);
 
 ### getContainingBlock()
 
-Returns the element's [containing block](https://developer.mozilla.org/en-US/docs/Web/CSS/Containing_block#identifying_the_containing_block), meaning the ancestor element which the target element's percentage-based width, height, left, right, top, bottom, padding and margin properties are relative to. In case the containing block can not be computed `null` will be returned (e.g. in some cases we can't query all the information needed from elements with display:none).
+Returns the element's [containing block](https://developer.mozilla.org/en-US/docs/Web/CSS/Containing_block#identifying_the_containing_block), meaning the closest element/document/window which the target element's percentage-based `width`, `height`, `inset`, `left`, `right`, `top`, `bottom`, `padding`, and `margin` properties are relative to _in terms of size_. In case the containing block can not be computed `null` will be returned (e.g. in some cases we can't query all the information needed from elements with `display:none`).
 
-This method is not something you need too often, but when you do you'll be happy that you stumbled upon this library. It's very tricky to compute the containing block correctly while taking browser differences into account. This method does all the heavy lifting for you.
+> [!IMPORTANT]  
+> **Containing block** is often thought to be both:
+>
+> 1. The element which the target element's percentage-based `width`, `height`, `inset`, `left`, `right`, `top`, `bottom`, `padding`, and `margin` properties are relative to _in terms of size_. For example, if the target element's `left` is set to `50%` and the containing block's width is `100px`, the target element's `left` will be `50px`.
+> 2. The element which the target element's `inset`, `left`, `right`, `top`, `bottom` are relative to _in terms of position_. E.g., if the target element's `left` is set to `0`, it will be positioned at the containing block's left edge.
+>
+> However, in reality, these are not the same element always, and this method returns the answer to the **first case**. We have another method, [`getOffsetContainer`](#getoffsetcontainer), for the second case.
 
 **Syntax**
 
@@ -554,9 +560,7 @@ getContainingBlock(elem, { skipDisplayNone: true }});
 
 ### getOffsetContainer()
 
-Returns the element's offset container, meaning the closest ancestor element/document/window that the target element's left/right/top/bottom CSS properties are rooted to. If the offset container can't be computed or the element is not affected by left/right/top/bottom CSS properties (e.g. static elements) `null` will be returned.
-
-Due to the dynamic nature of sticky elements they are considered as static elements in this method's scope and will always return `null`.
+Returns the element's offset container, meaning the closest element/document/window that the target element's `inset`, `left`, `right`, `top` and `bottom` CSS properties are relative to _in terms of position_. If the offset container can't be computed or the element is not affected by `left`/`right`/`top`/`bottom` CSS properties (e.g. static elements) `null` will be returned (in some cases we can't query all the information needed from elements with `display:none`). Additionally, due to the dynamic nature of sticky elements they are considered as static elements in this method's scope and will always return `null`.
 
 **Syntax**
 
