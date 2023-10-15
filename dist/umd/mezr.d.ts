@@ -1,14 +1,10 @@
 /**
- * Returns the element's containing block, meaning the ancestor element which
- * the target element's percentage-based width, height, left, right, top,
- * bottom, padding and margin properties are relative to. In case the containing
- * block can not be computed `null` will be returned (e.g. in some cases we
- * can't query all the information needed from elements with display:none).
- *
- * This method is not something you need too often, but when you do you'll be
- * happy that you stumbled upon this library. It's very tricky to compute the
- * containing block correctly while taking browser differences into account.
- * This method does all the heavy lifting for you.
+ * Returns the element's containing block, meaning the closest
+ * element/document/window which the target element's percentage-based `width`,
+ * `height`, `inset`, `left`, `right`, `top`, `bottom`, `padding`, and `margin`
+ * properties are relative to _in terms of size_. In case the containing block
+ * can not be computed `null` will be returned (e.g. in some cases we can't
+ * query all the information needed from elements with `display:none`).
  */
 declare function getContainingBlock(element: HTMLElement, options?: {
     position?: string;
@@ -72,14 +68,15 @@ declare function getIntersection(firstElement: BoxObject, ...restElements: BoxOb
 declare function getOffset(element: BoxObject, offsetRoot?: BoxObject): BoxOffset;
 
 /**
- * Returns the element's offset container, meaning the closest ancestor
- * element/document/window that the target element's left/right/top/bottom CSS
- * properties are rooted to. If the offset container can't be computed or the
- * element is not affected by left/right/top/bottom CSS properties (e.g. static
- * elements) `null` will be returned.
- *
- * Due to the dynamic nature of sticky elements they are considered as static
- * elements in this method's scope and will always return `null`.
+ * Returns the element's offset container, meaning the closest
+ * element/document/window that the target element's `inset`, `left`, `right`,
+ * `top` and `bottom` CSS properties are relative to in terms of position. If
+ * the offset container can't be computed or the element is not affected by
+ * `left`/`right`/`top`/`bottom` CSS properties (e.g. static elements) `null`
+ * will be returned (in some cases we can't query all the information needed
+ * from elements with `display:none`). Additionally, due to the dynamic nature
+ * of sticky elements they are considered as static elements in this method's
+ * scope and will always return `null`.
  */
 declare function getOffsetContainer(element: HTMLElement, options?: {
     position?: string;

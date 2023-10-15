@@ -5,16 +5,12 @@ import { isBlockElement } from './utils/isBlockElement.js';
 import { isDocumentElement } from './utils/isDocumentElement.js';
 
 /**
- * Returns the element's containing block, meaning the ancestor element which
- * the target element's percentage-based width, height, left, right, top,
- * bottom, padding and margin properties are relative to. In case the containing
- * block can not be computed `null` will be returned (e.g. in some cases we
- * can't query all the information needed from elements with display:none).
- *
- * This method is not something you need too often, but when you do you'll be
- * happy that you stumbled upon this library. It's very tricky to compute the
- * containing block correctly while taking browser differences into account.
- * This method does all the heavy lifting for you.
+ * Returns the element's containing block, meaning the closest
+ * element/document/window which the target element's percentage-based `width`,
+ * `height`, `inset`, `left`, `right`, `top`, `bottom`, `padding`, and `margin`
+ * properties are relative to _in terms of size_. In case the containing block
+ * can not be computed `null` will be returned (e.g. in some cases we can't
+ * query all the information needed from elements with `display:none`).
  */
 export function getContainingBlock(
   element: HTMLElement,
