@@ -505,26 +505,15 @@
     }
 
     function getElementWidth(element, boxEdge = BOX_EDGE.border) {
-        const style = getStyle(element);
-        // In case the element's box sizing is `content-box` and we are getting the
-        // content or padding width, we can take a little shortcut.
-        if ((boxEdge === BOX_EDGE.content || boxEdge === BOX_EDGE.padding) &&
-            style.boxSizing === 'content-box') {
-            let width = parseFloat(style.width) || 0;
-            if (boxEdge === BOX_EDGE.content) {
-                return width;
-            }
-            width += parseFloat(style.paddingLeft) || 0;
-            width += parseFloat(style.paddingRight) || 0;
-            return width;
-        }
-        // Otherise let's get the bounding client rect and start subtracting the
-        // layers one by one.
+        // Let's get the bounding client rect and start subtracting the layers one by
+        // one. This is the the most precise way to compute subpixel width in all
+        // browsers.
         let { width } = element.getBoundingClientRect();
         // With border width we are done right off the bat.
         if (boxEdge === BOX_EDGE.border) {
             return width;
         }
+        const style = getStyle(element);
         // With margin width we need to add the margins to the width.
         if (boxEdge === BOX_EDGE.margin) {
             width += Math.max(0, parseFloat(style.marginLeft) || 0);
@@ -538,8 +527,8 @@
         if (boxEdge === BOX_EDGE.scrollbar) {
             return width;
         }
-        // Subtract the scrollbar width from the width if the element has a vertical
-        // scrollbar and is not the document element.
+        // Subtract the scrollbar width if the element has a vertical scrollbar and is
+        // not the document element.
         if (!isDocumentElement(element) && SCROLLABLE_OVERFLOWS.has(style.overflowY)) {
             width -= Math.max(0, Math.round(width) - element.clientWidth);
         }
@@ -578,26 +567,15 @@
     }
 
     function getElementHeight(element, boxEdge = BOX_EDGE.border) {
-        const style = getStyle(element);
-        // In case the element's box sizing is `content-box` and we are getting the
-        // content or padding height, we can take a little shortcut.
-        if ((boxEdge === BOX_EDGE.content || boxEdge === BOX_EDGE.padding) &&
-            style.boxSizing === 'content-box') {
-            let height = parseFloat(style.height) || 0;
-            if (boxEdge === BOX_EDGE.content) {
-                return height;
-            }
-            height += parseFloat(style.paddingTop) || 0;
-            height += parseFloat(style.paddingBottom) || 0;
-            return height;
-        }
-        // Otherise let's get the bounding client rect and start subtracting the
-        // layers one by one.
+        // Let's get the bounding client rect and start subtracting the layers one by
+        // one. This is the the most precise way to compute subpixel height in all
+        // browsers.
         let { height } = element.getBoundingClientRect();
         // With border height we are done right off the bat.
         if (boxEdge === BOX_EDGE.border) {
             return height;
         }
+        const style = getStyle(element);
         // With margin height we need to add the margins to the height.
         if (boxEdge === BOX_EDGE.margin) {
             height += Math.max(0, parseFloat(style.marginTop) || 0);
@@ -611,9 +589,9 @@
         if (boxEdge === BOX_EDGE.scrollbar) {
             return height;
         }
-        // Subtract the scrollbar height from the height if the element has a vertical
-        // scrollbar and is not the document element.
-        if (!isDocumentElement(element) && SCROLLABLE_OVERFLOWS.has(style.overflowY)) {
+        // Subtract the scrollbar height if the element has a horizontal scrollbar and
+        // is not the document element.
+        if (!isDocumentElement(element) && SCROLLABLE_OVERFLOWS.has(style.overflowX)) {
             height -= Math.max(0, Math.round(height) - element.clientHeight);
         }
         // With padding height we are done.

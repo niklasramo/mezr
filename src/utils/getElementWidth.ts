@@ -4,31 +4,17 @@ import { getStyle } from './getStyle.js';
 import { isDocumentElement } from './isDocumentElement.js';
 
 export function getElementWidth(element: Element, boxEdge: BoxElementEdge = BOX_EDGE.border) {
-  const style = getStyle(element);
-
-  // In case the element's box sizing is `content-box` and we are getting the
-  // content or padding width, we can take a little shortcut.
-  if (
-    (boxEdge === BOX_EDGE.content || boxEdge === BOX_EDGE.padding) &&
-    style.boxSizing === 'content-box'
-  ) {
-    let width = parseFloat(style.width) || 0;
-    if (boxEdge === BOX_EDGE.content) {
-      return width;
-    }
-    width += parseFloat(style.paddingLeft) || 0;
-    width += parseFloat(style.paddingRight) || 0;
-    return width;
-  }
-
-  // Otherise let's get the bounding client rect and start subtracting the
-  // layers one by one.
+  // Let's get the bounding client rect and start subtracting the layers one by
+  // one. This is the the most precise way to compute subpixel width in all
+  // browsers.
   let { width } = element.getBoundingClientRect();
 
   // With border width we are done right off the bat.
   if (boxEdge === BOX_EDGE.border) {
     return width;
   }
+
+  const style = getStyle(element);
 
   // With margin width we need to add the margins to the width.
   if (boxEdge === BOX_EDGE.margin) {
@@ -46,8 +32,8 @@ export function getElementWidth(element: Element, boxEdge: BoxElementEdge = BOX_
     return width;
   }
 
-  // Subtract the scrollbar width from the width if the element has a vertical
-  // scrollbar and is not the document element.
+  // Subtract the scrollbar width if the element has a vertical scrollbar and is
+  // not the document element.
   if (!isDocumentElement(element) && SCROLLABLE_OVERFLOWS.has(style.overflowY)) {
     width -= Math.max(0, Math.round(width) - element.clientWidth);
   }
