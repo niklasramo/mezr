@@ -1,3 +1,13 @@
+import { getPreciseScrollbarSize } from './getPreciseScrollbarSize.js';
+
 export function getWindowHeight(win: Window, includeScrollbar = false) {
-  return includeScrollbar ? win.innerHeight : win.document.documentElement.clientHeight;
+  if (includeScrollbar) {
+    return win.innerHeight;
+  }
+
+  const { innerHeight, document } = win;
+  const { documentElement } = document;
+  const { clientHeight } = documentElement;
+
+  return innerHeight - getPreciseScrollbarSize(documentElement, 'x', innerHeight - clientHeight);
 }

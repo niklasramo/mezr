@@ -1,1 +1,1 @@
-export function getWindowHeight(e,t=!1){return t?e.innerHeight:e.document.documentElement.clientHeight}
+import{getPreciseScrollbarSize}from"./getPreciseScrollbarSize.js";export function getWindowHeight(e,r=!1){if(r)return e.innerHeight;const{innerHeight:t,document:i}=e,{documentElement:n}=i,{clientHeight:c}=n;return t-getPreciseScrollbarSize(n,"x",t-c)}

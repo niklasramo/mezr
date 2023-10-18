@@ -1,6 +1,7 @@
 import { BOX_EDGE, SCROLLABLE_OVERFLOWS } from './constants.js';
 import { BoxElementEdge } from './types.js';
 import { getStyle } from './getStyle.js';
+import { getPreciseScrollbarSize } from './getPreciseScrollbarSize.js';
 import { isDocumentElement } from './isDocumentElement.js';
 
 export function getElementWidth(element: Element, boxEdge: BoxElementEdge = BOX_EDGE.border) {
@@ -35,7 +36,7 @@ export function getElementWidth(element: Element, boxEdge: BoxElementEdge = BOX_
   // Subtract the scrollbar width if the element has a vertical scrollbar and is
   // not the document element.
   if (!isDocumentElement(element) && SCROLLABLE_OVERFLOWS.has(style.overflowY)) {
-    width -= Math.max(0, Math.round(width) - element.clientWidth);
+    width -= getPreciseScrollbarSize(element, 'y', Math.round(width) - element.clientWidth);
   }
 
   // With padding width we are done.

@@ -28,3 +28,13 @@ export const INCLUDE_WINDOW_SCROLLBAR = {
 // Note that we intentionally don't include 'overlay' in this set, because
 // it doesn't affect the element's "content"/"padding" width.
 export const SCROLLABLE_OVERFLOWS = new Set(['auto', 'scroll']);
+
+// Check if the browser is based on Chromium.
+export const IS_CHROMIUM: boolean = (() => {
+  try {
+    // @ts-ignore
+    return window.navigator.userAgentData.brands.some(({ brand }) => brand === 'Chromium');
+  } catch (e) {
+    return false;
+  }
+})();
