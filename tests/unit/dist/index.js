@@ -535,7 +535,7 @@
         const { innerWidth, document } = win;
         const { documentElement } = document;
         const { clientWidth } = documentElement;
-        return innerWidth - getPreciseScrollbarSize(documentElement, 'y', innerHeight - clientWidth);
+        return innerWidth - getPreciseScrollbarSize(documentElement, 'y', innerWidth - clientWidth);
     }
 
     function getDocumentWidth({ documentElement }) {
