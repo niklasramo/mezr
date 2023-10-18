@@ -4,7 +4,11 @@ const STYLE_DECLARATION_CACHE: WeakMap<Element, WeakRef<CSSStyleDeclaration>> = 
  * Returns element's CSS Style Declaration. Caches reference to the declaration
  * object weakly for faster access.
  */
-export function getStyle(element: Element) {
+export function getStyle(element: Element, pseudoElt?: string) {
+  if (pseudoElt) {
+    return window.getComputedStyle(element, pseudoElt);
+  }
+
   let styleDeclaration: CSSStyleDeclaration | undefined =
     STYLE_DECLARATION_CACHE.get(element)?.deref();
 

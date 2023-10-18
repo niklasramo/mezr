@@ -15,3 +15,4 @@ export declare const INCLUDE_WINDOW_SCROLLBAR: {
     margin: boolean;
 };
 export declare const SCROLLABLE_OVERFLOWS: Set<string>;
+export declare const IS_CHROMIUM: boolean;

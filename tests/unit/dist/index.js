@@ -221,7 +221,10 @@
      * Returns element's CSS Style Declaration. Caches reference to the declaration
      * object weakly for faster access.
      */
-    function getStyle(element) {
+    function getStyle(element, pseudoElt) {
+        if (pseudoElt) {
+            return window.getComputedStyle(element, pseudoElt);
+        }
         let styleDeclaration = STYLE_DECLARATION_CACHE.get(element)?.deref();
         if (!styleDeclaration) {
             styleDeclaration = window.getComputedStyle(element, null);
@@ -254,6 +257,16 @@
     // Note that we intentionally don't include 'overlay' in this set, because
     // it doesn't affect the element's "content"/"padding" width.
     const SCROLLABLE_OVERFLOWS = new Set(['auto', 'scroll']);
+    // Check if the browser is based on Chromium.
+    const IS_CHROMIUM = (() => {
+        try {
+            // @ts-ignore
+            return window.navigator.userAgentData.brands.some(({ brand }) => brand === 'Chromium');
+        }
+        catch (e) {
+            return false;
+        }
+    })();
 
     function isBlockElement(element) {
         switch (getStyle(element).display) {
@@ -496,8 +509,33 @@
         return value instanceof Document;
     }
 
+    function getPreciseScrollbarSize(element, axis, sbIntegerSize) {
+        // Don't allow negative scrollbar sizes.
+        if (sbIntegerSize <= 0)
+            return 0;
+        // Chromium supports subpixel scrollbar sizes if you explicitly define it
+        // via ::-webkit-scrollbar pseudo-element. But the support is very
+        // limited, basically it only supports 0.5px intervals, so we'll round
+        // the value to the nearest 0.5px interval to match Chromium's behavior.
+        if (IS_CHROMIUM) {
+            const sbStyle = getStyle(element, '::-webkit-scrollbar');
+            const sbCustomSize = parseFloat((axis === 'x' ? sbStyle.height : sbStyle.width) || '');
+            if (!Number.isNaN(sbCustomSize) && !Number.isInteger(sbCustomSize)) {
+                const sbRoundedSize = Math.round(sbCustomSize);
+                return sbRoundedSize < sbCustomSize ? sbRoundedSize : sbRoundedSize - 0.5;
+            }
+        }
+        return sbIntegerSize;
+    }
+
     function getWindowWidth(win, includeScrollbar = false) {
-        return includeScrollbar ? win.innerWidth : win.document.documentElement.clientWidth;
+        if (includeScrollbar) {
+            return win.innerWidth;
+        }
+        const { innerWidth, document } = win;
+        const { documentElement } = document;
+        const { clientWidth } = documentElement;
+        return innerWidth - getPreciseScrollbarSize(documentElement, 'y', innerHeight - clientWidth);
     }
 
     function getDocumentWidth({ documentElement }) {
@@ -530,7 +568,7 @@
         // Subtract the scrollbar width if the element has a vertical scrollbar and is
         // not the document element.
         if (!isDocumentElement(element) && SCROLLABLE_OVERFLOWS.has(style.overflowY)) {
-            width -= Math.max(0, Math.round(width) - element.clientWidth);
+            width -= getPreciseScrollbarSize(element, 'y', Math.round(width) - element.clientWidth);
         }
         // With padding width we are done.
         if (boxEdge === BOX_EDGE.padding) {
@@ -559,7 +597,13 @@
     }
 
     function getWindowHeight(win, includeScrollbar = false) {
-        return includeScrollbar ? win.innerHeight : win.document.documentElement.clientHeight;
+        if (includeScrollbar) {
+            return win.innerHeight;
+        }
+        const { innerHeight, document } = win;
+        const { documentElement } = document;
+        const { clientHeight } = documentElement;
+        return innerHeight - getPreciseScrollbarSize(documentElement, 'x', innerHeight - clientHeight);
     }
 
     function getDocumentHeight({ documentElement }) {
@@ -592,7 +636,7 @@
         // Subtract the scrollbar height if the element has a horizontal scrollbar and
         // is not the document element.
         if (!isDocumentElement(element) && SCROLLABLE_OVERFLOWS.has(style.overflowX)) {
-            height -= Math.max(0, Math.round(height) - element.clientHeight);
+            height -= getPreciseScrollbarSize(element, 'x', Math.round(height) - element.clientHeight);
         }
         // With padding height we are done.
         if (boxEdge === BOX_EDGE.padding) {
