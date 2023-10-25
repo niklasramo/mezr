@@ -1,18 +1,32 @@
-export function getScrollbarSizes() {
-  const el = document.createElement('div');
+import { createTestElement } from './createTestElement.js';
 
-  Object.assign(el.style, {
+export function getScrollbarSizes() {
+  const parent = createTestElement({
+    position: 'relative',
     width: '100px',
     height: '100px',
     overflow: 'scroll',
   });
 
-  document.body.appendChild(el);
+  const child = createTestElement({
+    width: '200px',
+    height: '200px',
+  });
 
-  const width = el.offsetWidth - el.clientWidth;
-  const height = el.offsetHeight - el.clientHeight;
+  const childAbs = createTestElement({
+    position: 'absolute',
+    inset: '0px',
+  });
 
-  el.remove();
+  parent.appendChild(child);
+  parent.appendChild(childAbs);
+
+  const width = parent.getBoundingClientRect().width - childAbs.getBoundingClientRect().width;
+  const height = parent.getBoundingClientRect().height - childAbs.getBoundingClientRect().height;
+
+  child.remove();
+  childAbs.remove();
+  parent.remove();
 
   return {
     width,

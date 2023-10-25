@@ -164,6 +164,8 @@ getOffset([elemA, 'padding'], [elemB, 'margin']);
 
 Returns the width of an element in pixels. Accepts also the window object (for getting the viewport width) and the document object (for getting the width of the document). Document width, in the context of this method, is either the document element's width (including it's scroll area) or window's width (without possible scrollbar), whichever is greater.
 
+This method also measures custom subpixel scrollbar sizes accurately, which is something you don't bump into too often, but might be extremely important in those special cases where the site has custom subpixel scrollbars defined.
+
 **Syntax**
 
 ```ts
@@ -225,6 +227,8 @@ getWidth(elem, 'margin');
 ### getHeight()
 
 Returns the height of an element in pixels. Accepts also the window object (for getting the viewport height) and the document object (for getting the height of the whole document). Document height, in the context of this method, is either the document element's height (including it's scroll area) or window's height (without possible scrollbar), whichever is greater.
+
+This method also measures custom subpixel scrollbar sizes accurately, which is something you don't bump into too often, but might be extremely important in those special cases where the site has custom subpixel scrollbars defined.
 
 **Syntax**
 
