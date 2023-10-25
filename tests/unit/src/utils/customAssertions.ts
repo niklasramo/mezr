@@ -17,11 +17,11 @@ use(function (_chai, utils) {
         // message if value fails
         `${
           message ? message + ': ' : ''
-        }Expected ${actual} to be within ${threshold} of ${expected}`,
+        }Expected ${actual} to be ${expected} (threshold: ${threshold})`,
         // message if negated value fails
         `${
           message ? message + ': ' : ''
-        }Expected ${actual} not to be within ${threshold} of ${expected}`,
+        }Expected ${actual} not to be ${expected} (threshold: ${threshold})`,
         // expected value
         expected,
         // actual value

@@ -15,9 +15,9 @@
             // test expression
             Math.abs(actual - expected) <= threshold, 
             // message if value fails
-            `${message ? message + ': ' : ''}Expected ${actual} to be within ${threshold} of ${expected}`, 
+            `${message ? message + ': ' : ''}Expected ${actual} to be ${expected} (threshold: ${threshold})`, 
             // message if negated value fails
-            `${message ? message + ': ' : ''}Expected ${actual} not to be within ${threshold} of ${expected}`, 
+            `${message ? message + ': ' : ''}Expected ${actual} not to be ${expected} (threshold: ${threshold})`, 
             // expected value
             expected, 
             // actual value
@@ -68,16 +68,27 @@
     }
 
     function getScrollbarSizes() {
-        const el = document.createElement('div');
-        Object.assign(el.style, {
+        const parent = createTestElement({
+            position: 'relative',
             width: '100px',
             height: '100px',
             overflow: 'scroll',
         });
-        document.body.appendChild(el);
-        const width = el.offsetWidth - el.clientWidth;
-        const height = el.offsetHeight - el.clientHeight;
-        el.remove();
+        const child = createTestElement({
+            width: '200px',
+            height: '200px',
+        });
+        const childAbs = createTestElement({
+            position: 'absolute',
+            inset: '0px',
+        });
+        parent.appendChild(child);
+        parent.appendChild(childAbs);
+        const width = parent.getBoundingClientRect().width - childAbs.getBoundingClientRect().width;
+        const height = parent.getBoundingClientRect().height - childAbs.getBoundingClientRect().height;
+        child.remove();
+        childAbs.remove();
+        parent.remove();
         return {
             width,
             height,
@@ -210,10 +221,13 @@
         }
         return false;
     })();
+    if (HAS_FLAKY_COMPUTED_DIMENSIONS) {
+        console.warn('THIS DEVICE HAS FLAKY COMPUTED DIMENSIONS. ASSERTION THRESHOLDS WILL BE INCREASED TO COMPENSATE.');
+    }
 
-    const THRESHOLD = HAS_FLAKY_COMPUTED_DIMENSIONS ? 1 : 0;
-    function assertEqualDomNumbers(actual, expected, message) {
-        return chai.expect(actual).to.be.closeToNumber(expected, THRESHOLD, message);
+    const BASE_THRESHOLD = HAS_FLAKY_COMPUTED_DIMENSIONS ? 0.65 : 0;
+    function assertEqualDomNumbers(actual, expected, message, threshold = 0) {
+        return chai.expect(actual).to.be.closeToNumber(expected, BASE_THRESHOLD + threshold, message);
     }
 
     const STYLE_DECLARATION_CACHE = new WeakMap();
@@ -509,20 +523,72 @@
         return value instanceof Document;
     }
 
+    const SUBPIXEL_OFFSET = new Map();
+    let testStyleElement = null;
+    let testParentElement = null;
+    let testChildElement = null;
+    function getSubpixelScrollbarSize(sbSizeString, sbSizeFloat) {
+        const sbSizeSplit = sbSizeString.split('.');
+        let offset = SUBPIXEL_OFFSET.get(sbSizeSplit[1]);
+        if (offset === undefined) {
+            if (!testStyleElement) {
+                testStyleElement = document.createElement('style');
+            }
+            testStyleElement.innerHTML = `
+      #mezr-scrollbar-test::-webkit-scrollbar {
+        width: ${sbSizeString} !important;
+      }
+    `;
+            if (!testParentElement || !testChildElement) {
+                testParentElement = document.createElement('div');
+                testChildElement = document.createElement('div');
+                testParentElement.appendChild(testChildElement);
+                testParentElement.id = 'mezr-scrollbar-test';
+                testParentElement.style.cssText = `
+        all: unset !important;
+        position: fixed !important;
+        top: -200px !important;
+        left: 0px !important;
+        width: 100px !important;
+        height: 100px !important;
+        overflow: scroll !important;
+        pointer-events: none !important;
+        visibility: hidden !important;
+      `;
+                testChildElement.style.cssText = `
+        all: unset !important;
+        position: absolute !important;
+        inset: 0 !important;
+      `;
+            }
+            document.body.appendChild(testStyleElement);
+            document.body.appendChild(testParentElement);
+            // Compute and store the scrollbar size offset for the current subpixel
+            // value.
+            const sbRealSize = testParentElement.getBoundingClientRect().width -
+                testChildElement.getBoundingClientRect().width;
+            offset = sbRealSize - sbSizeFloat;
+            SUBPIXEL_OFFSET.set(sbSizeSplit[1], offset);
+            document.body.removeChild(testParentElement);
+            document.body.removeChild(testStyleElement);
+        }
+        return sbSizeFloat + offset;
+    }
     function getPreciseScrollbarSize(element, axis, sbIntegerSize) {
         // Don't allow negative scrollbar sizes.
         if (sbIntegerSize <= 0)
             return 0;
         // Chromium supports subpixel scrollbar sizes if you explicitly define it
         // via ::-webkit-scrollbar pseudo-element. But the support is very
-        // limited, basically it only supports 0.5px intervals, so we'll round
-        // the value to the nearest 0.5px interval to match Chromium's behavior.
+        // limited and inconsistent. In some devices the scrollbar size rounded to
+        // nearest 0.5px interval, while in others it is rounded to some other
+        // intervals.
         if (IS_CHROMIUM) {
             const sbStyle = getStyle(element, '::-webkit-scrollbar');
-            const sbCustomSize = parseFloat((axis === 'x' ? sbStyle.height : sbStyle.width) || '');
-            if (!Number.isNaN(sbCustomSize) && !Number.isInteger(sbCustomSize)) {
-                const sbRoundedSize = Math.round(sbCustomSize);
-                return sbRoundedSize < sbCustomSize ? sbRoundedSize : sbRoundedSize - 0.5;
+            const sbComputedSize = axis === 'x' ? sbStyle.height : sbStyle.width;
+            const sbComputedFloat = parseFloat(sbComputedSize);
+            if (!Number.isNaN(sbComputedFloat) && !Number.isInteger(sbComputedFloat)) {
+                return getSubpixelScrollbarSize(sbComputedSize, sbComputedFloat);
             }
         }
         return sbIntegerSize;
@@ -1006,6 +1072,61 @@
                 testElementDimensions('border-box');
             });
         });
+        describe('scrollbar', function () {
+            ['default', '10px', '10.25px', '10.499px', '10.5px', '10.75px', '10.999px'].forEach((scrollbarSize) => {
+                it(`should measure window scrollbar width (${scrollbarSize}) correctly`, function () {
+                    const styleSheet = document.getElementById('default-page-styles');
+                    styleSheet.innerHTML += `
+            html {
+              overflow-y: scroll;
+              width: 100%;
+              height: 100%;
+            }
+            body {
+              width: 100%;
+              height: 200vh;
+            }
+            `;
+                    if (scrollbarSize !== 'default') {
+                        styleSheet.innerHTML += `
+              html::-webkit-scrollbar {
+                width: ${scrollbarSize}
+              }
+              `;
+                    }
+                    const actual = getWidth(window, 'scrollbar') - getWidth(window, 'padding');
+                    const expected = window.innerWidth - document.documentElement.getBoundingClientRect().width;
+                    assertEqualDomNumbers(actual, expected, scrollbarSize, 0.001);
+                });
+            });
+            ['default', '10px', '10.25px', '10.499px', '10.5px', '10.75px', '10.999px'].forEach((scrollbarSize) => {
+                it(`should measure element scrollbar width (${scrollbarSize}) correctly`, async function () {
+                    if (scrollbarSize !== 'default') {
+                        const styleSheet = document.getElementById('default-page-styles');
+                        styleSheet.innerHTML += `
+              .parent::-webkit-scrollbar {
+                width: ${scrollbarSize}
+              }
+              `;
+                    }
+                    const parent = createTestElement({
+                        overflowY: 'scroll',
+                        width: '100vw',
+                        height: '100vh',
+                    });
+                    const child = createTestElement({
+                        width: '100%',
+                        height: '200vh',
+                    });
+                    parent.classList.add('parent');
+                    child.classList.add('child');
+                    parent.appendChild(child);
+                    const actual = getWidth(parent, 'scrollbar') - getWidth(parent, 'padding');
+                    const expected = parent.getBoundingClientRect().width - child.getBoundingClientRect().width;
+                    assertEqualDomNumbers(actual, expected, scrollbarSize, 0.001);
+                });
+            });
+        });
     });
 
     const { height: sbHeight$1 } = getScrollbarSizes();
@@ -1140,6 +1261,61 @@
             });
             describe('border-box', function () {
                 testElementDimensions('border-box');
+            });
+        });
+        describe('scrollbar', function () {
+            ['default', '10px', '10.25px', '10.499px', '10.5px', '10.75px', '10.999px'].forEach((scrollbarSize) => {
+                it(`should measure window scrollbar height (${scrollbarSize}) correctly`, function () {
+                    const styleSheet = document.getElementById('default-page-styles');
+                    styleSheet.innerHTML += `
+            html {
+              overflow-x: scroll;
+              width: 100%;
+              height: 100%;
+            }
+            body {
+              width: 200vw;
+              height: 100%;
+            }
+            `;
+                    if (scrollbarSize !== 'default') {
+                        styleSheet.innerHTML += `
+              html::-webkit-scrollbar {
+                height: ${scrollbarSize}
+              }
+              `;
+                    }
+                    const actual = getHeight(window, 'scrollbar') - getHeight(window, 'padding');
+                    const expected = window.innerHeight - document.documentElement.getBoundingClientRect().height;
+                    assertEqualDomNumbers(actual, expected, scrollbarSize, 0.001);
+                });
+            });
+            ['default', '10px', '10.25px', '10.499px', '10.5px', '10.75px', '10.999px'].forEach((scrollbarSize) => {
+                it(`should measure element scrollbar height (${scrollbarSize}) correctly`, function () {
+                    if (scrollbarSize !== 'default') {
+                        const styleSheet = document.getElementById('default-page-styles');
+                        styleSheet.innerHTML += `
+              .parent::-webkit-scrollbar {
+                height: ${scrollbarSize}
+              }
+              `;
+                    }
+                    const parent = createTestElement({
+                        overflowX: 'scroll',
+                        width: '100vw',
+                        height: '100vh',
+                    });
+                    const child = createTestElement({
+                        width: '100vw',
+                        height: '100%',
+                    });
+                    parent.classList.add('parent');
+                    child.classList.add('child');
+                    parent.appendChild(child);
+                    const actual = getHeight(parent, 'scrollbar') - getHeight(parent, 'padding');
+                    const expected = parent.getBoundingClientRect().height - child.getBoundingClientRect().height;
+                    assertEqualDomNumbers(actual, expected, scrollbarSize, 0.001);
+                });
             });
         });
     });

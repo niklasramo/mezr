@@ -161,4 +161,73 @@ describe('getHeight()', function () {
       testElementDimensions('border-box');
     });
   });
+
+  describe('scrollbar', function () {
+    ['default', '10px', '10.25px', '10.499px', '10.5px', '10.75px', '10.999px'].forEach(
+      (scrollbarSize) => {
+        it(`should measure window scrollbar height (${scrollbarSize}) correctly`, function () {
+          const styleSheet = document.getElementById('default-page-styles')!;
+          styleSheet.innerHTML += `
+            html {
+              overflow-x: scroll;
+              width: 100%;
+              height: 100%;
+            }
+            body {
+              width: 200vw;
+              height: 100%;
+            }
+            `;
+
+          if (scrollbarSize !== 'default') {
+            styleSheet.innerHTML += `
+              html::-webkit-scrollbar {
+                height: ${scrollbarSize}
+              }
+              `;
+          }
+
+          const actual = getHeight(window, 'scrollbar') - getHeight(window, 'padding');
+          const expected =
+            window.innerHeight - document.documentElement.getBoundingClientRect().height;
+          assertEqualDomNumbers(actual, expected, scrollbarSize, 0.001);
+        });
+      },
+    );
+
+    ['default', '10px', '10.25px', '10.499px', '10.5px', '10.75px', '10.999px'].forEach(
+      (scrollbarSize) => {
+        it(`should measure element scrollbar height (${scrollbarSize}) correctly`, function () {
+          if (scrollbarSize !== 'default') {
+            const styleSheet = document.getElementById('default-page-styles')!;
+            styleSheet.innerHTML += `
+              .parent::-webkit-scrollbar {
+                height: ${scrollbarSize}
+              }
+              `;
+          }
+
+          const parent = createTestElement({
+            overflowX: 'scroll',
+            width: '100vw',
+            height: '100vh',
+          });
+
+          const child = createTestElement({
+            width: '100vw',
+            height: '100%',
+          });
+
+          parent.classList.add('parent');
+          child.classList.add('child');
+          parent.appendChild(child);
+
+          const actual = getHeight(parent, 'scrollbar') - getHeight(parent, 'padding');
+          const expected =
+            parent.getBoundingClientRect().height - child.getBoundingClientRect().height;
+          assertEqualDomNumbers(actual, expected, scrollbarSize, 0.001);
+        });
+      },
+    );
+  });
 });
