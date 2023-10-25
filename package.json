@@ -85,7 +85,7 @@
     "build-cjs": "tsc --project tsconfig.build-cjs.json && node ./scripts/post-build-cjs.js",
     "build-umd": "rollup --config rollup.config.build-umd.ts --configPlugin typescript",
     "build-tests": "rollup --config rollup.config.build-tests.ts --configPlugin typescript",
-    "del-dist": "del ./dist && del ./tests/unit/dist",
+    "del-dist": "rimraf ./dist && rimraf ./tests/unit/dist",
     "format": "prettier --write --no-error-on-unmatched-pattern \"./**/*.{js,ts,jsx,tsx,css,html,json,md,yml}\"",
     "format-check": "prettier --check --no-error-on-unmatched-pattern \"./**/*.{js,ts,jsx,tsx,css,html,json,md,yml}\"",
     "minify": "find ./dist -name '*.js' -exec terser {} -o {} -c -m --comments false \\;",
@@ -100,12 +100,11 @@
     "ts-check": "tsc --noEmit"
   },
   "devDependencies": {
-    "@rollup/plugin-typescript": "11.1.4",
-    "@types/chai": "4.3.6",
-    "@types/mocha": "10.0.2",
+    "@rollup/plugin-typescript": "11.1.5",
+    "@types/chai": "4.3.9",
+    "@types/mocha": "10.0.3",
     "chai": "4.3.10",
     "csstype": "3.1.2",
-    "del-cli": "5.1.0",
     "dotenv": "16.3.1",
     "gzip-size-cli": "5.1.0",
     "karma": "6.4.2",
@@ -116,9 +115,10 @@
     "karma-mocha-reporter": "2.2.5",
     "mocha": "10.2.0",
     "prettier": "3.0.3",
-    "rollup": "3.29.4",
-    "rollup-plugin-dts": "6.0.2",
-    "terser": "5.20.0",
+    "rimraf": "5.0.5",
+    "rollup": "4.1.4",
+    "rollup-plugin-dts": "6.1.0",
+    "terser": "5.22.0",
     "tslib": "2.6.2",
     "typescript": "5.2.2"
   }
