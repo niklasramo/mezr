@@ -525,8 +525,8 @@ Returns the element's [containing block](https://developer.mozilla.org/en-US/doc
 
 ```ts
 type getContainingBlock = (
-  element: HTMLElement,
-  options: { position?: string; skipDisplayNone?: boolean } = {},
+  element: HTMLElement | SVGSVGElement,
+  options: { container?: HTMLElement; position?: string; skipDisplayNone?: boolean } = {},
 ) => HTMLElement | Window | null;
 ```
 
@@ -534,9 +534,13 @@ type getContainingBlock = (
 
 1. **element**
    - The element which's containing block we want to compute.
-   - Accepts: `HTMLElement`.
+   - Accepts: `HTMLElement | SVGSVGElement`.
 2. **options**
    - Optional options object.
+   - **container**
+     - Forcefully provide the element's parent element if you want to compute the containing block _as if_ the element was a child of some other element than it's current parent. If not provided the element's parent element will be queried from the element.
+     - Accepts: `HTMLElement`.
+     - Defaults to `undefined`.
    - **position**
      - Forcefully provide the element's position value for the calculations. If not provided the element's position will be queried from the element.
      - Accepts: `string`.
@@ -557,6 +561,9 @@ getContainingBlock(elem);
 // Get element's containing block as if it were a fixed element.
 getContainingBlock(elem, { position: 'fixed' });
 
+// Get element's containing block as if it were a child of document.body.
+getContainingBlock(elem, { container: document.body });
+
 // Get element's containing block while treating all the "display:none"
 // ancestors as "display:inline" elements.
 getContainingBlock(elem, { skipDisplayNone: true }});
@@ -570,19 +577,23 @@ Returns the element's offset container, meaning the closest element/document/win
 
 ```ts
 type getOffsetContainer = (
-  element: HTMLElement,
+  element: HTMLElement | SVGSVGElement,
   options: { position?: string; skipDisplayNone?: boolean } = {},
-) => HTMLElement | Document | Window | null;
+) => HTMLElement | SVGSVGElement | Document | Window | null;
 ```
 
 **Parameters**
 
 1. **element**
    - The element which's offset container we want to compute.
-   - Accepts: `HTMLElement`.
+   - Accepts: `HTMLElement | SVGSVGElement`.
 2. **options**
    - Optional options object.
    - Accepts the following optional properties:
+     - **container**
+       - Forcefully provide the element's parent element if you want to compute the containing block _as if_ the element was a child of some other element than it's current parent. If not provided the element's parent element will be queried from the element.
+       - Accepts: `HTMLElement`.
+       - Defaults to `undefined`.
      - **position**
        - Forcefully provide the element's position value for the calculations. If not provided the element's position will be queried from the element.
        - Accepts: `string`.
@@ -602,6 +613,9 @@ getOffsetContainer(elem);
 
 // Get element's offset container as if it were a fixed element.
 getOffsetContainer(elem, { position: 'fixed' });
+
+// Get element's offset container as if it were a child of document.body.
+getOffsetContainer(elem, { container: document.body });
 
 // Get element's offset container while treating all the "display:none"
 // ancestors as "display:inline" elements.

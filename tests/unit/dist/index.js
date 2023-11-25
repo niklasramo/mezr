@@ -400,13 +400,13 @@
         }
         // Parse options.
         const position = options.position || getStyle(element).position;
-        const { skipDisplayNone } = options;
+        const { skipDisplayNone, container } = options;
         switch (position) {
             case 'static':
             case 'relative':
             case 'sticky':
             case '-webkit-sticky': {
-                let containingBlock = element.parentElement;
+                let containingBlock = container || element.parentElement;
                 while (containingBlock) {
                     const isBlock = isBlockElement(containingBlock);
                     if (isBlock)
@@ -420,7 +420,7 @@
             case 'absolute':
             case 'fixed': {
                 const isFixed = position === 'fixed';
-                let containingBlock = element.parentElement;
+                let containingBlock = container || element.parentElement;
                 while (containingBlock) {
                     const isContainingBlock = isFixed
                         ? isContainingBlockForFixedElement(containingBlock)
@@ -895,7 +895,7 @@
         }
         // Parse options.
         const position = options.position || getStyle(element).position;
-        const { skipDisplayNone } = options;
+        const { skipDisplayNone, container } = options;
         switch (position) {
             // Relative element's offset container is always the element itself.
             case 'relative': {
@@ -903,13 +903,13 @@
             }
             // Fixed element's offset container is always it's containing block.
             case 'fixed': {
-                return getContainingBlock(element, { position, skipDisplayNone });
+                return getContainingBlock(element, { container, position, skipDisplayNone });
             }
             // Absolute element's offset container is always it's containing block,
             // except when the containing block is window in which case we return the
             // element's owner document instead.
             case 'absolute': {
-                const containingBlock = getContainingBlock(element, { position, skipDisplayNone });
+                const containingBlock = getContainingBlock(element, { container, position, skipDisplayNone });
                 return isWindow(containingBlock) ? element.ownerDocument : containingBlock;
             }
             // For any other values we return null.
@@ -3332,6 +3332,31 @@
                 const expected = window;
                 chai.assert.strictEqual(actual, expected);
             });
+            it('should respect the container option', function () {
+                // Set body element to relative positioning so it will catch
+                // the absolutely positioned target element.
+                document.body.style.position = 'relative';
+                // Set container element to relative positioning so it will catch
+                // the absolutely positioned target element.
+                container.style.position = 'relative';
+                // Create a sibling container with a child element. We will try to compute
+                // the containing block of the target element relative to this sibling.
+                const siblingContainer = createTestElement({
+                    width: '700vw',
+                    height: '800vh',
+                });
+                const siblingChild = createTestElement({
+                    position: 'absolute',
+                    width: `${scale * 100}%`,
+                    height: `${scale * 100}%`,
+                });
+                siblingContainer.appendChild(siblingChild);
+                const actual = getContainingBlock(el, { container: siblingContainer });
+                const computed = getEffectiveContainingBlock(siblingChild, 0.5);
+                const expected = document.body;
+                chai.assert.strictEqual(actual, computed);
+                chai.assert.strictEqual(actual, expected);
+            });
         });
         describe('fixed element', function () {
             beforeEach(function () {
@@ -3461,6 +3486,28 @@
                         chai.assert.strictEqual(actual, expected);
                     });
                 }
+            });
+            it('should respect the container option', function () {
+                // Set transform on container element so it will catch the fixed
+                // positioned target element.
+                container.style.transform = 'translateX(10px)';
+                // Create a sibling container with a child element. We will try to compute
+                // the containing block of the target element relative to this sibling.
+                const siblingContainer = createTestElement({
+                    width: '700vw',
+                    height: '800vh',
+                });
+                const siblingChild = createTestElement({
+                    position: 'fixed',
+                    width: `${scale * 100}%`,
+                    height: `${scale * 100}%`,
+                });
+                siblingContainer.appendChild(siblingChild);
+                const actual = getContainingBlock(el, { container: siblingContainer });
+                const computed = getEffectiveContainingBlock(siblingChild, 0.5);
+                const expected = window;
+                chai.assert.strictEqual(actual, computed);
+                chai.assert.strictEqual(actual, expected);
             });
         });
         describe('static/relative/sticky element', function () {
@@ -3711,6 +3758,19 @@
                     });
                 }
             });
+            it('should respect the container option', function () {
+                document.body.style.position = 'relative';
+                container.style.position = 'relative';
+                // Create a sibling container with a child element. We will try to compute
+                // the containing block of the target element relative to this sibling.
+                const siblingContainer = createTestElement({
+                    width: '700vw',
+                    height: '800vh',
+                });
+                const actual = getOffsetContainer(el, { container: siblingContainer });
+                const computed = getExpectedOffsetContainer(el, { container: siblingContainer });
+                chai.assert.strictEqual(actual, computed);
+            });
         });
         describe('fixed element', function () {
             beforeEach(function () {
@@ -3830,6 +3890,18 @@
                         chai.assert.strictEqual(actual, expected);
                     });
                 }
+            });
+            it('should respect the container option', function () {
+                container.style.transform = 'translate(10px, 10px)';
+                // Create a sibling container with a child element. We will try to compute
+                // the containing block of the target element relative to this sibling.
+                const siblingContainer = createTestElement({
+                    width: '700vw',
+                    height: '800vh',
+                });
+                const actual = getOffsetContainer(el, { container: siblingContainer });
+                const computed = getContainingBlock(el, { container: siblingContainer });
+                chai.assert.strictEqual(actual, computed);
             });
         });
         describe('relative positioned element', function () {

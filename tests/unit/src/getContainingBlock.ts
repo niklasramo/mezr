@@ -192,6 +192,35 @@ describe('getContainingBlock()', function () {
       const expected = window;
       assert.strictEqual(actual, expected);
     });
+
+    it('should respect the container option', function () {
+      // Set body element to relative positioning so it will catch
+      // the absolutely positioned target element.
+      document.body.style.position = 'relative';
+
+      // Set container element to relative positioning so it will catch
+      // the absolutely positioned target element.
+      container.style.position = 'relative';
+
+      // Create a sibling container with a child element. We will try to compute
+      // the containing block of the target element relative to this sibling.
+      const siblingContainer = createTestElement({
+        width: '700vw',
+        height: '800vh',
+      });
+      const siblingChild = createTestElement({
+        position: 'absolute',
+        width: `${scale * 100}%`,
+        height: `${scale * 100}%`,
+      });
+      siblingContainer.appendChild(siblingChild);
+
+      const actual = getContainingBlock(el, { container: siblingContainer });
+      const computed = getEffectiveContainingBlock(siblingChild, 0.5);
+      const expected = document.body;
+      assert.strictEqual(actual, computed);
+      assert.strictEqual(actual, expected);
+    });
   });
 
   describe('fixed element', function () {
@@ -334,6 +363,31 @@ describe('getContainingBlock()', function () {
           assert.strictEqual(actual, expected);
         });
       }
+    });
+
+    it('should respect the container option', function () {
+      // Set transform on container element so it will catch the fixed
+      // positioned target element.
+      container.style.transform = 'translateX(10px)';
+
+      // Create a sibling container with a child element. We will try to compute
+      // the containing block of the target element relative to this sibling.
+      const siblingContainer = createTestElement({
+        width: '700vw',
+        height: '800vh',
+      });
+      const siblingChild = createTestElement({
+        position: 'fixed',
+        width: `${scale * 100}%`,
+        height: `${scale * 100}%`,
+      });
+      siblingContainer.appendChild(siblingChild);
+
+      const actual = getContainingBlock(el, { container: siblingContainer });
+      const computed = getEffectiveContainingBlock(siblingChild, 0.5);
+      const expected = window;
+      assert.strictEqual(actual, computed);
+      assert.strictEqual(actual, expected);
     });
   });
 

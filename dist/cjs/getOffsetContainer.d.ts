@@ -1,4 +1,5 @@
-export declare function getOffsetContainer(element: HTMLElement, options?: {
+export declare function getOffsetContainer(element: HTMLElement | SVGSVGElement, options?: {
+    container?: HTMLElement;
     position?: string;
     skipDisplayNone?: boolean;
-}): HTMLElement | Document | Window | null;
+}): HTMLElement | SVGSVGElement | Document | Window | null;

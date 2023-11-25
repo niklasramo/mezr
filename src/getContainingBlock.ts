@@ -13,8 +13,12 @@ import { isDocumentElement } from './utils/isDocumentElement.js';
  * query all the information needed from elements with `display:none`).
  */
 export function getContainingBlock(
-  element: HTMLElement,
-  options: { position?: string; skipDisplayNone?: boolean } = {},
+  element: HTMLElement | SVGSVGElement,
+  options: {
+    container?: HTMLElement;
+    position?: string;
+    skipDisplayNone?: boolean;
+  } = {},
 ): HTMLElement | Window | null {
   // Document element's containing block is always the window. It actually can't
   // be set to "display:inline".
@@ -24,14 +28,14 @@ export function getContainingBlock(
 
   // Parse options.
   const position = options.position || getStyle(element).position;
-  const { skipDisplayNone } = options;
+  const { skipDisplayNone, container } = options;
 
   switch (position) {
     case 'static':
     case 'relative':
     case 'sticky':
     case '-webkit-sticky': {
-      let containingBlock = element.parentElement;
+      let containingBlock = container || element.parentElement;
       while (containingBlock) {
         const isBlock = isBlockElement(containingBlock);
         if (isBlock) return containingBlock;
@@ -44,7 +48,7 @@ export function getContainingBlock(
     case 'absolute':
     case 'fixed': {
       const isFixed = position === 'fixed';
-      let containingBlock = element.parentElement;
+      let containingBlock = container || element.parentElement;
       while (containingBlock) {
         const isContainingBlock = isFixed
           ? isContainingBlockForFixedElement(containingBlock)
