@@ -101,8 +101,8 @@
   },
   "devDependencies": {
     "@rollup/plugin-typescript": "11.1.5",
-    "@types/chai": "4.3.9",
-    "@types/mocha": "10.0.3",
+    "@types/chai": "4.3.11",
+    "@types/mocha": "10.0.6",
     "chai": "4.3.10",
     "csstype": "3.1.2",
     "dotenv": "16.3.1",
@@ -114,12 +114,12 @@
     "karma-mocha": "2.0.1",
     "karma-mocha-reporter": "2.2.5",
     "mocha": "10.2.0",
-    "prettier": "3.0.3",
+    "prettier": "3.1.0",
     "rimraf": "5.0.5",
-    "rollup": "4.1.4",
+    "rollup": "4.5.2",
     "rollup-plugin-dts": "6.1.0",
-    "terser": "5.22.0",
+    "terser": "5.24.0",
     "tslib": "2.6.2",
-    "typescript": "5.2.2"
+    "typescript": "5.3.2"
   }
 }
