@@ -6,7 +6,8 @@
  * can not be computed `null` will be returned (e.g. in some cases we can't
  * query all the information needed from elements with `display:none`).
  */
-declare function getContainingBlock(element: HTMLElement, options?: {
+declare function getContainingBlock(element: HTMLElement | SVGSVGElement, options?: {
+    container?: HTMLElement;
     position?: string;
     skipDisplayNone?: boolean;
 }): HTMLElement | Window | null;
@@ -78,10 +79,11 @@ declare function getOffset(element: BoxObject, offsetRoot?: BoxObject): BoxOffse
  * of sticky elements they are considered as static elements in this method's
  * scope and will always return `null`.
  */
-declare function getOffsetContainer(element: HTMLElement, options?: {
+declare function getOffsetContainer(element: HTMLElement | SVGSVGElement, options?: {
+    container?: HTMLElement;
     position?: string;
     skipDisplayNone?: boolean;
-}): HTMLElement | Document | Window | null;
+}): HTMLElement | SVGSVGElement | Document | Window | null;
 
 /**
  * Measure how much target overflows container per each side. Returns an object

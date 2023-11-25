@@ -160,6 +160,22 @@ describe('getOffsetContainer()', function () {
         });
       }
     });
+
+    it('should respect the container option', function () {
+      document.body.style.position = 'relative';
+      container.style.position = 'relative';
+
+      // Create a sibling container with a child element. We will try to compute
+      // the containing block of the target element relative to this sibling.
+      const siblingContainer = createTestElement({
+        width: '700vw',
+        height: '800vh',
+      });
+
+      const actual = getOffsetContainer(el, { container: siblingContainer });
+      const computed = getExpectedOffsetContainer(el, { container: siblingContainer });
+      assert.strictEqual(actual, computed);
+    });
   });
 
   describe('fixed element', function () {
@@ -292,6 +308,21 @@ describe('getOffsetContainer()', function () {
           assert.strictEqual(actual, expected);
         });
       }
+    });
+
+    it('should respect the container option', function () {
+      container.style.transform = 'translate(10px, 10px)';
+
+      // Create a sibling container with a child element. We will try to compute
+      // the containing block of the target element relative to this sibling.
+      const siblingContainer = createTestElement({
+        width: '700vw',
+        height: '800vh',
+      });
+
+      const actual = getOffsetContainer(el, { container: siblingContainer });
+      const computed = getContainingBlock(el, { container: siblingContainer });
+      assert.strictEqual(actual, computed);
     });
   });
 

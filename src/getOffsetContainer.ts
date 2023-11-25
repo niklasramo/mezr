@@ -14,9 +14,9 @@ import { isWindow } from './utils/isWindow.js';
  * scope and will always return `null`.
  */
 export function getOffsetContainer(
-  element: HTMLElement,
-  options: { position?: string; skipDisplayNone?: boolean } = {},
-): HTMLElement | Document | Window | null {
+  element: HTMLElement | SVGSVGElement,
+  options: { container?: HTMLElement; position?: string; skipDisplayNone?: boolean } = {},
+): HTMLElement | SVGSVGElement | Document | Window | null {
   const style = getStyle(element);
 
   // If the element's display is "none" or "contents" the element's
@@ -28,7 +28,7 @@ export function getOffsetContainer(
 
   // Parse options.
   const position = options.position || getStyle(element).position;
-  const { skipDisplayNone } = options;
+  const { skipDisplayNone, container } = options;
 
   switch (position) {
     // Relative element's offset container is always the element itself.
@@ -38,14 +38,14 @@ export function getOffsetContainer(
 
     // Fixed element's offset container is always it's containing block.
     case 'fixed': {
-      return getContainingBlock(element, { position, skipDisplayNone });
+      return getContainingBlock(element, { container, position, skipDisplayNone });
     }
 
     // Absolute element's offset container is always it's containing block,
     // except when the containing block is window in which case we return the
     // element's owner document instead.
     case 'absolute': {
-      const containingBlock = getContainingBlock(element, { position, skipDisplayNone });
+      const containingBlock = getContainingBlock(element, { container, position, skipDisplayNone });
       return isWindow(containingBlock) ? element.ownerDocument : containingBlock;
     }
 
